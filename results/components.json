@@ -1,0 +1,674 @@
+{
+  "environment" : {
+    "measuredAt" : "2026-10-11T13:34:18+05:30",
+    "quickMode" : false,
+    "os" : "Windows 11 10.0",
+    "java" : "Eclipse Adoptium 17.0.16",
+    "logicalCores" : 14,
+    "memoryGb" : 15.5,
+    "note" : "Load generator, application, cache nodes and MongoDB all ran on this one machine."
+  },
+  "idGenerator" : {
+    "theoreticalMaxPerWorkerPerSecond" : 4096000,
+    "generators" : [ {
+      "generator" : "Snowflake, 1 thread",
+      "ids" : 2000000,
+      "idsPerSecond" : 3874140.038,
+      "collisions" : 0,
+      "strictlyIncreasing" : true,
+      "bits" : 64,
+      "coordinationFree" : true
+    }, {
+      "generator" : "Snowflake, 8 threads sharing 1 worker id",
+      "ids" : 2000000,
+      "idsPerSecond" : 3725379.896,
+      "collisions" : 0,
+      "bits" : 64,
+      "coordinationFree" : true
+    }, {
+      "generator" : "Snowflake, 4 servers (4 worker ids)",
+      "ids" : 2000000,
+      "idsPerSecond" : 1.3830617807E7,
+      "collisions" : 0,
+      "bits" : 64,
+      "coordinationFree" : true
+    }, {
+      "generator" : "Baseline: random UUID (v4)",
+      "ids" : 500000,
+      "idsPerSecond" : 578158.869,
+      "collisions" : 0,
+      "strictlyIncreasing" : false,
+      "bits" : 128,
+      "coordinationFree" : true
+    }, {
+      "generator" : "Baseline: random 32-bit number",
+      "ids" : 2000000,
+      "idsPerSecond" : 3.5139812529E7,
+      "collisions" : 479,
+      "strictlyIncreasing" : false,
+      "bits" : 32,
+      "coordinationFree" : true
+    }, {
+      "generator" : "Baseline: single shared counter",
+      "ids" : 2000000,
+      "idsPerSecond" : 4.7859713607E7,
+      "collisions" : 0,
+      "strictlyIncreasing" : true,
+      "bits" : 64,
+      "coordinationFree" : false
+    } ]
+  },
+  "rateLimiter" : {
+    "rejectionVsOfferedLoad" : [ {
+      "offeredLoadMultiple" : 0.5,
+      "tokenBucket" : 0.0,
+      "fixedWindow" : 0.005,
+      "slidingWindowLog" : 0.019,
+      "expectedRejection" : 0.0,
+      "arrivals" : 17842
+    }, {
+      "offeredLoadMultiple" : 0.8,
+      "tokenBucket" : 0.004,
+      "fixedWindow" : 0.053,
+      "slidingWindowLog" : 0.12,
+      "expectedRejection" : 0.0,
+      "arrivals" : 28585
+    }, {
+      "offeredLoadMultiple" : 1.0,
+      "tokenBucket" : 0.049,
+      "fixedWindow" : 0.124,
+      "slidingWindowLog" : 0.212,
+      "expectedRejection" : 0.0,
+      "arrivals" : 35783
+    }, {
+      "offeredLoadMultiple" : 1.5,
+      "tokenBucket" : 0.33,
+      "fixedWindow" : 0.34,
+      "slidingWindowLog" : 0.408,
+      "expectedRejection" : 0.331,
+      "arrivals" : 53775
+    }, {
+      "offeredLoadMultiple" : 2.0,
+      "tokenBucket" : 0.498,
+      "fixedWindow" : 0.499,
+      "slidingWindowLog" : 0.537,
+      "expectedRejection" : 0.498,
+      "arrivals" : 71742
+    }, {
+      "offeredLoadMultiple" : 5.0,
+      "tokenBucket" : 0.799,
+      "fixedWindow" : 0.799,
+      "slidingWindowLog" : 0.804,
+      "expectedRejection" : 0.799,
+      "arrivals" : 179341
+    }, {
+      "offeredLoadMultiple" : 10.0,
+      "tokenBucket" : 0.9,
+      "fixedWindow" : 0.9,
+      "slidingWindowLog" : 0.901,
+      "expectedRejection" : 0.9,
+      "arrivals" : 359343
+    } ],
+    "admittedIn20msAcrossWindowBoundary" : {
+      "tokenBucket" : 10,
+      "fixedWindow" : 20,
+      "slidingWindowLog" : 10
+    },
+    "intendedLimitPerSecond" : 10,
+    "cost" : [ {
+      "algorithm" : "tokenBucket",
+      "nanosPerDecision" : 164.804,
+      "decisionsPerSecond" : 6067821.252,
+      "bytesPerClient" : 139,
+      "trackedClients" : 100000
+    }, {
+      "algorithm" : "fixedWindow",
+      "nanosPerDecision" : 162.305,
+      "decisionsPerSecond" : 6161253.56,
+      "bytesPerClient" : 132,
+      "trackedClients" : 100000
+    }, {
+      "algorithm" : "slidingWindowLog",
+      "nanosPerDecision" : 193.631,
+      "decisionsPerSecond" : 5164469.414,
+      "bytesPerClient" : 220,
+      "trackedClients" : 100000
+    } ]
+  },
+  "consistentHashing" : {
+    "balanceVsVirtualNodes" : [ {
+      "virtualNodes" : 1,
+      "stdDevPercentOfMean" : 79.677,
+      "largestSharePercent" : 73.996,
+      "smallestSharePercent" : 0.308,
+      "keysPerServer" : [ 1932, 13131, 5005, 9930, 20002 ]
+    }, {
+      "virtualNodes" : 5,
+      "stdDevPercentOfMean" : 38.624,
+      "largestSharePercent" : 49.112,
+      "smallestSharePercent" : 4.542,
+      "keysPerServer" : [ 2271, 7502, 10319, 9315, 20593 ]
+    }, {
+      "virtualNodes" : 10,
+      "stdDevPercentOfMean" : 24.997,
+      "largestSharePercent" : 39.132,
+      "smallestSharePercent" : 7.502,
+      "keysPerServer" : [ 3860, 9422, 11738, 10309, 14671 ]
+    }, {
+      "virtualNodes" : 25,
+      "stdDevPercentOfMean" : 16.086,
+      "largestSharePercent" : 32.372,
+      "smallestSharePercent" : 12.546,
+      "keysPerServer" : [ 9596, 8837, 10680, 10324, 10563 ]
+    }, {
+      "virtualNodes" : 50,
+      "stdDevPercentOfMean" : 11.508,
+      "largestSharePercent" : 25.458,
+      "smallestSharePercent" : 14.322,
+      "keysPerServer" : [ 9877, 9502, 10146, 10123, 10352 ]
+    }, {
+      "virtualNodes" : 100,
+      "stdDevPercentOfMean" : 8.153,
+      "largestSharePercent" : 25.406,
+      "smallestSharePercent" : 16.374,
+      "keysPerServer" : [ 11686, 9067, 9380, 9308, 10559 ]
+    }, {
+      "virtualNodes" : 150,
+      "stdDevPercentOfMean" : 8.12,
+      "largestSharePercent" : 24.05,
+      "smallestSharePercent" : 16.374,
+      "keysPerServer" : [ 11758, 9394, 9346, 8378, 11124 ]
+    }, {
+      "virtualNodes" : 300,
+      "stdDevPercentOfMean" : 6.053,
+      "largestSharePercent" : 23.664,
+      "smallestSharePercent" : 16.612,
+      "keysPerServer" : [ 10500, 9523, 10252, 10209, 9516 ]
+    }, {
+      "virtualNodes" : 500,
+      "stdDevPercentOfMean" : 4.173,
+      "largestSharePercent" : 22.17,
+      "smallestSharePercent" : 17.468,
+      "keysPerServer" : [ 9896, 10275, 10031, 9786, 10012 ]
+    } ],
+    "balanceTrials" : 30,
+    "idealSharePercent" : 20.0,
+    "keysMovedOnMembershipChange" : [ {
+      "change" : "4 to 5 servers",
+      "from" : 4,
+      "to" : 5,
+      "idealPercent" : 20.0,
+      "consistentHashingPercent" : 22.115,
+      "moduloPercent" : 80.036
+    }, {
+      "change" : "5 to 4 servers",
+      "from" : 5,
+      "to" : 4,
+      "idealPercent" : 20.0,
+      "consistentHashingPercent" : 22.115,
+      "moduloPercent" : 80.036
+    }, {
+      "change" : "10 to 11 servers",
+      "from" : 10,
+      "to" : 11,
+      "idealPercent" : 9.091,
+      "consistentHashingPercent" : 8.283,
+      "moduloPercent" : 90.778
+    }, {
+      "change" : "3 to 2 servers",
+      "from" : 3,
+      "to" : 2,
+      "idealPercent" : 33.333,
+      "consistentHashingPercent" : 32.955,
+      "moduloPercent" : 66.706
+    } ],
+    "lookupCost" : {
+      "consistentHashingNanos" : 583.629,
+      "moduloNanos" : 382.433
+    }
+  },
+  "autocomplete" : {
+    "latencyVsDictionarySize" : [ {
+      "entries" : 1000,
+      "trieMicros" : {
+        "count" : 20000,
+        "avg" : 0.895,
+        "p50" : 0.8,
+        "p95" : 1.3,
+        "p99" : 2.0,
+        "max" : 208.2
+      },
+      "trieWithTypoToleranceMicros" : {
+        "count" : 20000,
+        "avg" : 8.609,
+        "p50" : 0.8,
+        "p95" : 33.6,
+        "p99" : 47.4,
+        "max" : 2711.7
+      },
+      "linearScanMicros" : {
+        "count" : 20000,
+        "avg" : 44.301,
+        "p50" : 39.0,
+        "p95" : 78.9,
+        "p99" : 114.0,
+        "max" : 622.2
+      },
+      "buildMs" : 7.941,
+      "trieNodes" : 13006,
+      "approxHeapMb" : 1.331
+    }, {
+      "entries" : 10000,
+      "trieMicros" : {
+        "count" : 20000,
+        "avg" : 0.911,
+        "p50" : 0.7,
+        "p95" : 1.7,
+        "p99" : 2.0,
+        "max" : 233.0
+      },
+      "trieWithTypoToleranceMicros" : {
+        "count" : 20000,
+        "avg" : 1.239,
+        "p50" : 0.4,
+        "p95" : 0.6,
+        "p99" : 13.1,
+        "max" : 4623.1
+      },
+      "linearScanMicros" : {
+        "count" : 2000,
+        "avg" : 550.426,
+        "p50" : 435.9,
+        "p95" : 1022.2,
+        "p99" : 1249.3,
+        "max" : 3410.4
+      },
+      "buildMs" : 204.418,
+      "trieNodes" : 100677,
+      "approxHeapMb" : 9.155
+    }, {
+      "entries" : 100000,
+      "trieMicros" : {
+        "count" : 20000,
+        "avg" : 1.26,
+        "p50" : 0.5,
+        "p95" : 1.4,
+        "p99" : 2.0,
+        "max" : 11229.3
+      },
+      "trieWithTypoToleranceMicros" : {
+        "count" : 20000,
+        "avg" : 1.201,
+        "p50" : 0.4,
+        "p95" : 0.5,
+        "p99" : 53.5,
+        "max" : 214.1
+      },
+      "linearScanMicros" : {
+        "count" : 200,
+        "avg" : 7518.829,
+        "p50" : 5433.0,
+        "p95" : 13564.4,
+        "p99" : 17559.4,
+        "max" : 21612.8
+      },
+      "buildMs" : 820.272,
+      "trieNodes" : 772598,
+      "approxHeapMb" : 88.321
+    } ],
+    "top5MatchesBruteForcePercent" : 100.0,
+    "targetInTop5" : [ {
+      "lettersTyped" : 2,
+      "rankedTriePercent" : 38.8,
+      "alphabeticalBaselinePercent" : 0.0
+    }, {
+      "lettersTyped" : 3,
+      "rankedTriePercent" : 48.067,
+      "alphabeticalBaselinePercent" : 0.133
+    }, {
+      "lettersTyped" : 4,
+      "rankedTriePercent" : 66.9,
+      "alphabeticalBaselinePercent" : 0.633
+    }, {
+      "lettersTyped" : 5,
+      "rankedTriePercent" : 73.167,
+      "alphabeticalBaselinePercent" : 7.067
+    } ],
+    "targetInTop5WithOneTypo" : {
+      "typoTolerantTriePercent" : 71.967,
+      "exactPrefixTriePercent" : 2.733,
+      "alphabeticalBaselinePercent" : 0.533
+    },
+    "accuracyDictionarySize" : 100000
+  },
+  "urlShortener" : {
+    "inMemory" : [ {
+      "codeLength" : 4,
+      "codeSpace" : 1.4776336E7,
+      "linksCreated" : 500000,
+      "collisionsRetried" : 8540,
+      "collisionRatePercent" : 1.708,
+      "createdPerSecond" : 164010.888,
+      "resolveNanos" : 722.029,
+      "allResolved" : true
+    }, {
+      "codeLength" : 5,
+      "codeSpace" : 9.16132832E8,
+      "linksCreated" : 500000,
+      "collisionsRetried" : 118,
+      "collisionRatePercent" : 0.024,
+      "createdPerSecond" : 148541.133,
+      "resolveNanos" : 717.072,
+      "allResolved" : true
+    }, {
+      "codeLength" : 6,
+      "codeSpace" : 5.6800235584E10,
+      "linksCreated" : 500000,
+      "collisionsRetried" : 2,
+      "collisionRatePercent" : 0.0,
+      "createdPerSecond" : 125653.925,
+      "resolveNanos" : 762.783,
+      "allResolved" : true
+    }, {
+      "codeLength" : 8,
+      "codeSpace" : 2.18340105584896E14,
+      "linksCreated" : 500000,
+      "collisionsRetried" : 0,
+      "collisionRatePercent" : 0.0,
+      "createdPerSecond" : 101187.287,
+      "resolveNanos" : 893.79,
+      "allResolved" : true
+    } ],
+    "note" : "End-to-end redirect latency through the application is in load.json"
+  },
+  "keyValueStore" : {
+    "networkedNode" : [ {
+      "keys" : 10000,
+      "getMicros" : {
+        "count" : 30000,
+        "avg" : 68.604,
+        "p50" : 72.0,
+        "p95" : 100.9,
+        "p99" : 168.8,
+        "max" : 2153.1
+      },
+      "setMicros" : {
+        "count" : 10000,
+        "avg" : 81.036,
+        "p50" : 73.6,
+        "p95" : 138.3,
+        "p99" : 178.7,
+        "max" : 845.9
+      },
+      "getsPerSecond16Threads" : 88568.5,
+      "engineOnlyGetNanos" : 202.182
+    }, {
+      "keys" : 100000,
+      "getMicros" : {
+        "count" : 30000,
+        "avg" : 80.389,
+        "p50" : 74.3,
+        "p95" : 137.1,
+        "p99" : 194.2,
+        "max" : 3940.8
+      },
+      "setMicros" : {
+        "count" : 10000,
+        "avg" : 109.334,
+        "p50" : 106.1,
+        "p95" : 175.5,
+        "p99" : 230.2,
+        "max" : 862.3
+      },
+      "getsPerSecond16Threads" : 84308.5,
+      "engineOnlyGetNanos" : 566.17
+    }, {
+      "keys" : 1000000,
+      "getMicros" : {
+        "count" : 30000,
+        "avg" : 64.526,
+        "p50" : 69.0,
+        "p95" : 85.6,
+        "p99" : 165.7,
+        "max" : 2185.2
+      },
+      "setMicros" : {
+        "count" : 10000,
+        "avg" : 68.345,
+        "p50" : 70.9,
+        "p95" : 86.5,
+        "p99" : 153.4,
+        "max" : 3067.6
+      },
+      "getsPerSecond16Threads" : 87261.5,
+      "engineOnlyGetNanos" : 735.889
+    } ],
+    "linearScanBaseline" : [ {
+      "keys" : 10000,
+      "lookupMicros" : {
+        "count" : 10000,
+        "avg" : 86.062,
+        "p50" : 68.0,
+        "p95" : 138.9,
+        "p99" : 601.0,
+        "max" : 3911.4
+      }
+    }, {
+      "keys" : 100000,
+      "lookupMicros" : {
+        "count" : 1000,
+        "avg" : 817.512,
+        "p50" : 789.0,
+        "p95" : 1703.8,
+        "p99" : 1934.7,
+        "max" : 2616.1
+      }
+    }, {
+      "keys" : 1000000,
+      "lookupMicros" : {
+        "count" : 100,
+        "avg" : 11463.957,
+        "p50" : 10543.0,
+        "p95" : 21421.2,
+        "p99" : 22452.3,
+        "max" : 22733.7
+      }
+    } ],
+    "mongoFindByIdBaseline" : [ {
+      "keys" : 10000,
+      "findByIdMicros" : {
+        "count" : 10000,
+        "avg" : 403.182,
+        "p50" : 373.6,
+        "p95" : 640.0,
+        "p99" : 970.7,
+        "max" : 3775.2
+      },
+      "findsPerSecond16Threads" : 22917.0
+    }, {
+      "keys" : 100000,
+      "findByIdMicros" : {
+        "count" : 10000,
+        "avg" : 267.885,
+        "p50" : 226.2,
+        "p95" : 479.0,
+        "p99" : 607.0,
+        "max" : 5761.3
+      },
+      "findsPerSecond16Threads" : 20511.5
+    }, {
+      "keys" : 1000000,
+      "findByIdMicros" : {
+        "count" : 10000,
+        "avg" : 395.801,
+        "p50" : 345.6,
+        "p95" : 653.1,
+        "p99" : 893.6,
+        "max" : 3661.7
+      },
+      "findsPerSecond16Threads" : 20915.0
+    } ]
+  },
+  "clusterTopology" : {
+    "keys" : 40000,
+    "results" : [ {
+      "event" : "one of 4 servers fails",
+      "routing" : "consistent hashing",
+      "replicas" : 1,
+      "keysPerServerBefore" : [ 11696, 9320, 10154, 8830 ],
+      "cacheHitPercentAfter" : 76.7,
+      "errors" : 0,
+      "failureDetectedMs" : 96
+    }, {
+      "event" : "one of 4 servers fails",
+      "routing" : "consistent hashing",
+      "replicas" : 2,
+      "keysPerServerBefore" : [ 19324, 18496, 21963, 20217 ],
+      "cacheHitPercentAfter" : 100.0,
+      "errors" : 0,
+      "failureDetectedMs" : 53
+    }, {
+      "event" : "one of 4 servers fails",
+      "routing" : "modulo (baseline)",
+      "replicas" : 1,
+      "keysPerServerBefore" : [ 10024, 9970, 9936, 10070 ],
+      "cacheHitPercentAfter" : 24.78,
+      "errors" : 0,
+      "failureDetectedMs" : 43
+    }, {
+      "event" : "a 5th server is added",
+      "routing" : "consistent hashing",
+      "replicas" : 1,
+      "keysPerServerBefore" : [ 11696, 9320, 10154, 8830 ],
+      "cacheHitPercentAfter" : 77.793,
+      "errors" : 0,
+      "failureDetectedMs" : 0
+    }, {
+      "event" : "a 5th server is added",
+      "routing" : "consistent hashing",
+      "replicas" : 2,
+      "keysPerServerBefore" : [ 19324, 18496, 21963, 20217 ],
+      "cacheHitPercentAfter" : 100.0,
+      "errors" : 0,
+      "failureDetectedMs" : 0
+    }, {
+      "event" : "a 5th server is added",
+      "routing" : "modulo (baseline)",
+      "replicas" : 1,
+      "keysPerServerBefore" : [ 10024, 9970, 9936, 10070 ],
+      "cacheHitPercentAfter" : 19.875,
+      "errors" : 0,
+      "failureDetectedMs" : 0
+    } ]
+  },
+  "crawler" : {
+    "simulatedServerLatencyMs" : 20,
+    "drugPagesOnSite" : 300,
+    "runs" : [ {
+      "workers" : 1,
+      "perHostDelayMs" : 0,
+      "pagesFetched" : 403,
+      "pagesPerSecond" : 27.224,
+      "elapsedMs" : 14803,
+      "drugPages" : 300,
+      "planPages" : 30,
+      "retries" : 15,
+      "failed" : 8,
+      "duplicateUrlsSkipped" : 1403,
+      "duplicateContentSkipped" : 38,
+      "blockedByRobots" : 3,
+      "requestsToDisallowedPaths" : 0,
+      "megabytes" : 0.333
+    }, {
+      "workers" : 2,
+      "perHostDelayMs" : 0,
+      "pagesFetched" : 403,
+      "pagesPerSecond" : 55.251,
+      "elapsedMs" : 7294,
+      "drugPages" : 300,
+      "planPages" : 30,
+      "retries" : 15,
+      "failed" : 8,
+      "duplicateUrlsSkipped" : 1403,
+      "duplicateContentSkipped" : 38,
+      "blockedByRobots" : 3,
+      "requestsToDisallowedPaths" : 0,
+      "megabytes" : 0.333
+    }, {
+      "workers" : 4,
+      "perHostDelayMs" : 0,
+      "pagesFetched" : 403,
+      "pagesPerSecond" : 108.421,
+      "elapsedMs" : 3717,
+      "drugPages" : 300,
+      "planPages" : 30,
+      "retries" : 15,
+      "failed" : 8,
+      "duplicateUrlsSkipped" : 1403,
+      "duplicateContentSkipped" : 38,
+      "blockedByRobots" : 3,
+      "requestsToDisallowedPaths" : 0,
+      "megabytes" : 0.333
+    }, {
+      "workers" : 8,
+      "perHostDelayMs" : 0,
+      "pagesFetched" : 403,
+      "pagesPerSecond" : 206.033,
+      "elapsedMs" : 1956,
+      "drugPages" : 300,
+      "planPages" : 30,
+      "retries" : 15,
+      "failed" : 8,
+      "duplicateUrlsSkipped" : 1403,
+      "duplicateContentSkipped" : 38,
+      "blockedByRobots" : 3,
+      "requestsToDisallowedPaths" : 0,
+      "megabytes" : 0.333
+    }, {
+      "workers" : 16,
+      "perHostDelayMs" : 0,
+      "pagesFetched" : 403,
+      "pagesPerSecond" : 362.736,
+      "elapsedMs" : 1111,
+      "drugPages" : 300,
+      "planPages" : 30,
+      "retries" : 15,
+      "failed" : 8,
+      "duplicateUrlsSkipped" : 1403,
+      "duplicateContentSkipped" : 38,
+      "blockedByRobots" : 3,
+      "requestsToDisallowedPaths" : 0,
+      "megabytes" : 0.333
+    }, {
+      "workers" : 32,
+      "perHostDelayMs" : 0,
+      "pagesFetched" : 403,
+      "pagesPerSecond" : 591.777,
+      "elapsedMs" : 681,
+      "drugPages" : 300,
+      "planPages" : 30,
+      "retries" : 15,
+      "failed" : 8,
+      "duplicateUrlsSkipped" : 1403,
+      "duplicateContentSkipped" : 38,
+      "blockedByRobots" : 3,
+      "requestsToDisallowedPaths" : 0,
+      "megabytes" : 0.333
+    }, {
+      "workers" : 16,
+      "perHostDelayMs" : 25,
+      "pagesFetched" : 403,
+      "pagesPerSecond" : 41.662,
+      "elapsedMs" : 9673,
+      "drugPages" : 300,
+      "planPages" : 30,
+      "retries" : 15,
+      "failed" : 8,
+      "duplicateUrlsSkipped" : 1403,
+      "duplicateContentSkipped" : 38,
+      "blockedByRobots" : 3,
+      "requestsToDisallowedPaths" : 0,
+      "megabytes" : 0.333
+    } ]
+  }
+}

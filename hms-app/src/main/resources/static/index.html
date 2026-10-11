@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HMS · Hospital Management System</title>
+<style>
+  :root {
+    --bg: #f4f7f9; --card: #ffffff; --text: #17252e; --muted: #5d707c; --line: #dbe3e8;
+    --accent: #0b7a75; --accent-text: #ffffff; --soft: #e6f3f2; --bad: #b3261e; --bad-soft: #fbeae9;
+    --warn: #8a5a00; --warn-soft: #fff4d6; --ok: #1b6e3c; --ok-soft: #e3f4e9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #10181d; --card: #18242b; --text: #e6edf1; --muted: #9bb0bc; --line: #2b3b45;
+      --accent: #3fbfb6; --accent-text: #06211f; --soft: #1d3436; --bad: #ff8a80; --bad-soft: #3a1f1d;
+      --warn: #ffcf66; --warn-soft: #3a2f12; --ok: #7fd9a2; --ok-soft: #17332b;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); }
+  header { display: flex; align-items: center; gap: 16px; padding: 14px 24px; background: var(--card); border-bottom: 1px solid var(--line); }
+  header h1 { font-size: 18px; margin: 0; flex: 1; }
+  header h1 span { color: var(--accent); }
+  #who { color: var(--muted); font-size: 14px; }
+  nav { display: flex; gap: 4px; padding: 0 20px; background: var(--card); border-bottom: 1px solid var(--line); overflow-x: auto; }
+  nav button { border: 0; background: none; color: var(--muted); padding: 12px 16px; font: inherit; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
+  nav button.on { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+  main { max-width: 1120px; margin: 0 auto; padding: 20px 16px 60px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); align-items: start; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; min-width: 0; }
+  .card.wide { grid-column: 1 / -1; }
+  .card h2 { font-size: 16px; margin: 0 0 4px; }
+  .card p.hint { color: var(--muted); margin: 0 0 12px; font-size: 13.5px; }
+  label { display: block; font-size: 13px; color: var(--muted); margin: 10px 0 3px; }
+  input, select, textarea { width: 100%; padding: 8px 10px; font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 7px; }
+  textarea { min-height: 70px; resize: vertical; }
+  input:focus, select:focus, textarea:focus, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  button.btn { border: 1px solid var(--accent); background: var(--accent); color: var(--accent-text); padding: 8px 14px; border-radius: 7px; font: inherit; font-weight: 600; cursor: pointer; }
+  button.btn.ghost { background: transparent; color: var(--accent); }
+  button.btn.danger { background: #b3261e; border-color: #b3261e; color: #fff; }
+  button.btn.small { padding: 4px 10px; font-size: 13px; font-weight: 500; }
+  button.btn:disabled { opacity: .45; cursor: not-allowed; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
+  .row > * { flex: 1; min-width: 120px; }
+  .row > button { flex: 0 0 auto; min-width: 0; }
+  .actions { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 12.5px; }
+  .scroll { overflow-x: auto; }
+  .tag { display: inline-block; padding: 1px 8px; border-radius: 99px; font-size: 12px; font-weight: 600; background: var(--soft); color: var(--accent); }
+  .tag.ok { background: var(--ok-soft); color: var(--ok); }
+  .tag.bad { background: var(--bad-soft); color: var(--bad); }
+  .tag.warn { background: var(--warn-soft); color: var(--warn); }
+  .muted { color: var(--muted); }
+  .mono { font-family: ui-monospace, Consolas, monospace; font-size: 12.5px; word-break: break-all; }
+  .suggest { position: relative; }
+  .suggest ul { list-style: none; margin: 4px 0 0; padding: 4px; position: absolute; z-index: 5; left: 0; right: 0; background: var(--card); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.14); }
+  .suggest ul:empty { display: none; }
+  .suggest li button { width: 100%; text-align: left; border: 0; background: none; color: var(--text); padding: 7px 9px; border-radius: 6px; font: inherit; cursor: pointer; display: flex; justify-content: space-between; gap: 10px; }
+  .suggest li button:hover, .suggest li button:focus { background: var(--soft); }
+  .latency { font-size: 12px; color: var(--muted); min-height: 18px; margin-top: 4px; }
+  .slots { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .slots button { border: 1px solid var(--line); background: var(--bg); color: var(--text); border-radius: 6px; padding: 5px 10px; font: inherit; cursor: pointer; }
+  .slots button.sel { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+  .slots button:disabled { opacity: .35; text-decoration: line-through; cursor: not-allowed; }
+  .list { display: grid; gap: 8px; }
+  .item { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+  .item.hl { border-color: var(--accent); box-shadow: 0 0 0 2px var(--soft); }
+  .bar { height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; min-width: 80px; }
+  .bar i { display: block; height: 100%; background: var(--accent); }
+  .big { font-size: 22px; font-weight: 700; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+  .stats div { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+  .stats small { color: var(--muted); display: block; }
+  #toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 8px; max-width: 90vw; display: none; z-index: 20; }
+  #toast.bad { background: var(--bad); color: #fff; }
+  .sev { border-left: 4px solid var(--bad); }
+</style>
+</head>
+<body>
+<header>
+  <h1><span>HMS</span> · Hospital Management System</h1>
+  <div id="who"></div>
+</header>
+<nav id="tabs">
+  <button data-tab="patient">Patient portal</button>
+  <button data-tab="pharmacy">Pharmacy</button>
+  <button data-tab="emergency">Emergency</button>
+  <button data-tab="staff">Staff desk</button>
+  <button data-tab="system">System</button>
+</nav>
+<main id="view"></main>
+<div id="toast" role="status"></div>
+
+<script>
+'use strict';
+const $ = (sel, root = document) => root.querySelector(sel);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+const money = paise => '₹' + (paise / 100).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const today = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+const pct = x => (x * 100).toFixed(1) + '%';
+
+const state = {
+  token: localStorage.getItem('hms.token'), user: null, tab: 'patient',
+  doctor: null, slotDate: today(), slot: null, rxItems: [], emergencyId: null, focusBill: null, timer: null
+};
+
+// ---- plumbing -------------------------------------------------------------------------------
+
+async function api(method, path, body) {
+  const headers = {};
+  if (body !== undefined) headers['Content-Type'] = 'application/json';
+  if (state.token) headers.Authorization = 'Bearer ' + state.token;
+  const res = await fetch(path, {method, headers, body: body === undefined ? undefined : JSON.stringify(body)});
+  const text = await res.text();
+  let data = null;
+  if (text) { try { data = JSON.parse(text); } catch { data = text; } }
+  if (!res.ok) {
+    if (res.status === 401 && state.token && !path.startsWith('/api/auth/')) signOut();
+    const err = new Error(data && data.error ? data.error : 'Request failed (' + res.status + ')');
+    err.status = res.status;
+    throw err;
+  }
+  return data;
+}
+
+let toastTimer;
+function toast(message, bad) {
+  const el = $('#toast');
+  el.textContent = message;
+  el.className = bad ? 'bad' : '';
+  el.style.display = 'block';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.style.display = 'none'; }, 4200);
+}
+const attempt = fn => async (...args) => { try { await fn(...args); } catch (e) { toast(e.message, true); } };
+const formData = form => Object.fromEntries(new FormData(form).entries());
+const isStaff = () => state.user && state.user.role !== 'PATIENT';
+const statusTag = s => {
+  const kind = {PAID: 'ok', BOOKED: 'ok', DISPENSED: 'ok', RESOLVED: 'ok', DISPATCHED: 'ok', UNPAID: 'warn', ISSUED: 'warn',
+    QUEUED: 'warn', DISPENSING: 'warn', CANCELLED: 'bad'}[s] || '';
+  return `<span class="tag ${kind}">${esc(s)}</span>`;
+};
+
+function signOut() {
+  state.token = null; state.user = null;
+  localStorage.removeItem('hms.token');
+  renderHeader();
+}
+
+async function loadUser() {
+  if (!state.token) { state.user = null; return; }
+  try { state.user = (await api('GET', '/api/me')).user; } catch { state.user = null; }
+}
+
+function renderHeader() {
+  $('#who').innerHTML = state.user
+    ? `${esc(state.user.name)} <span class="tag">${esc(state.user.role)}</span> <button class="btn ghost small" id="logout">Sign out</button>`
+    : 'Not signed in';
+  const out = $('#logout');
+  if (out) out.onclick = attempt(async () => { try { await api('POST', '/api/auth/logout'); } catch { /* already gone */ } signOut(); show(state.tab); });
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === state.tab));
+}
+
+/** Wires a text input to a suggestions endpoint: one request per keystroke, results in a dropdown. */
+function attachSuggest(input, fetcher, renderItem, onPick) {
+  const wrap = input.closest('.suggest');
+  const list = $('ul', wrap);
+  const latency = wrap.parentElement.querySelector('.latency');
+  let seq = 0;
+  input.addEventListener('input', async () => {
+    const q = input.value.trim();
+    const mine = ++seq;
+    if (!q) { list.innerHTML = ''; if (latency) latency.textContent = ''; return; }
+    const t0 = performance.now();
+    try {
+      const items = await fetcher(q);
+      if (mine !== seq) return; // a newer keystroke has already been answered
+      if (latency) latency.textContent = `${items.length} suggestion${items.length === 1 ? '' : 's'} in ${(performance.now() - t0).toFixed(1)} ms`;
+      list.innerHTML = items.map((item, i) => `<li><button type="button" data-i="${i}">${renderItem(item)}</button></li>`).join('');
+      list.querySelectorAll('button').forEach(b => { b.onclick = () => { list.innerHTML = ''; onPick(items[+b.dataset.i]); }; });
+    } catch (e) {
+      list.innerHTML = '';
+      if (latency) latency.textContent = e.status === 429 ? 'Typing too fast: rate limit reached, wait a moment.' : e.message;
+    }
+  });
+  input.addEventListener('keydown', e => { if (e.key === 'Escape') list.innerHTML = ''; });
+}
+
+// ---- sign in / register ---------------------------------------------------------------------
+
+const DEMO = {
+  Patient: ['patient@hms.test', 'Patient@12345'], Doctor: ['doctor@hms.test', 'Doctor@12345'],
+  Pharmacist: ['pharmacist@hms.test', 'Pharma@12345'], Admin: ['admin@hms.test', 'Admin@12345']
+};
+
+function authCards(showRegister) {
+  return `
+  <section class="card">
+    <h2>Sign in</h2>
+    <p class="hint">Demo accounts (synthetic): ${Object.keys(DEMO).map(k => `<button class="btn ghost small" type="button" data-demo="${k}">${k}</button>`).join(' ')}</p>
+    <form id="login">
+      <label for="l-email">Email</label><input id="l-email" name="email" type="email" required autocomplete="username">
+      <label for="l-pass">Password</label><input id="l-pass" name="password" type="password" required autocomplete="current-password">
+      <div class="actions"><button class="btn">Sign in</button></div>
+    </form>
+  </section>
+  ${showRegister ? `<section class="card">
+    <h2>New patient registration</h2>
+    <p class="hint">Use made-up details only. You receive a unique patient ID from the ID generator.</p>
+    <form id="register">
+      <label for="r-name">Full name</label><input id="r-name" name="name" required maxlength="80">
+      <label for="r-email">Email</label><input id="r-email" name="email" type="email" required>
+      <label for="r-pass">Password (8+ characters)</label><input id="r-pass" name="password" type="password" required minlength="8" autocomplete="new-password">
+      <div class="row">
+        <div><label for="r-phone">Phone</label><input id="r-phone" name="phone" maxlength="20"></div>
+        <div><label for="r-dob">Date of birth</label><input id="r-dob" name="dateOfBirth" type="date"></div>
+      </div>
+      <div class="row">
+        <div><label for="r-gender">Gender</label><select id="r-gender" name="gender"><option>Female</option><option>Male</option><option>Other</option></select></div>
+        <div><label for="r-blood">Blood group</label><select id="r-blood" name="bloodGroup">${['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'].map(b => `<option>${b}</option>`).join('')}</select></div>
+      </div>
+      <div class="actions"><button class="btn">Register</button></div>
+    </form>
+  </section>` : ''}`;
+}
+
+function wireAuth() {
+  document.querySelectorAll('[data-demo]').forEach(b => { b.onclick = () => { [$('#l-email').value, $('#l-pass').value] = DEMO[b.dataset.demo]; }; });
+  const signedIn = async result => {
+    state.token = result.token; state.user = result.user;
+    localStorage.setItem('hms.token', result.token);
+    toast('Welcome, ' + result.user.name);
+    show(isStaff() && state.tab === 'patient' ? 'staff' : state.tab);
+  };
+  $('#login').onsubmit = attempt(async e => { e.preventDefault(); await signedIn(await api('POST', '/api/auth/login', formData(e.target))); });
+  const reg = $('#register');
+  if (reg) reg.onsubmit = attempt(async e => {
+    e.preventDefault();
+    const body = formData(e.target);
+    if (!body.dateOfBirth) delete body.dateOfBirth;
+    await signedIn(await api('POST', '/api/auth/register', body));
+  });
+}
+
+// ---- patient portal -------------------------------------------------------------------------
+
+async function patientTab() {
+  const view = $('#view');
+  if (!state.user) { view.innerHTML = authCards(true); wireAuth(); return; }
+  if (isStaff()) { view.innerHTML = `<section class="card wide"><h2>Patient portal</h2><p class="hint">You are signed in as staff. Open the Staff desk tab, or sign out to use the patient portal.</p></section>`; return; }
+  view.innerHTML = `
+  <section class="card wide">
+    <h2>Find a doctor</h2>
+    <p class="hint">Suggestions come from the autocomplete index: names and specializations, most-booked first, tolerant of one typo. Patient ID <span class="mono">${esc(state.user.id)}</span></p>
+    <div class="row">
+      <div><label for="d-q">Doctor name or specialization</label>
+        <div class="suggest"><input id="d-q" autocomplete="off" placeholder="try  car,  neuro,  sharma,  or the typo  cardoilogy"><ul></ul></div>
+        <div class="latency"></div></div>
+      <div style="max-width:240px"><label for="d-spec">Specialization</label><select id="d-spec"><option value="">Any</option></select></div>
+      <button class="btn" id="d-go">Search</button>
+    </div>
+    <div class="list" id="d-results" style="margin-top:12px"></div>
+    <div id="d-slots"></div>
+  </section>
+  <section class="card"><h2>My appointments</h2><div id="p-appts" class="scroll"></div></section>
+  <section class="card"><h2>Bills</h2><p class="hint">Sharing a bill creates a short link from the URL shortener.</p><div id="p-bills" class="list"></div></section>
+  <section class="card"><h2>Medical records</h2><div id="p-records" class="list"></div></section>
+  <section class="card"><h2>Prescriptions</h2><div id="p-rx" class="list"></div></section>
+  <section class="card"><h2>Insurance</h2><p class="hint">Plans are collected by the web crawler from the simulated insurer site. Cover applies to bills created after you choose a plan.</p><div id="p-ins"></div></section>`;
+
+  const specs = await api('GET', '/api/doctors/specializations');
+  $('#d-spec').innerHTML = '<option value="">Any</option>' + specs.map(s => `<option>${esc(s)}</option>`).join('');
+  const search = attempt(async () => {
+    const q = $('#d-q').value.trim(), spec = $('#d-spec').value;
+    const list = await api('GET', `/api/doctors/search?q=${encodeURIComponent(q)}&specialization=${encodeURIComponent(spec)}&limit=12`);
+    $('#d-results').innerHTML = list.length ? list.map(d => `<div class="item row"><div><strong>${esc(d.name)}</strong> <span class="tag">${esc(d.specialization)}</span><br>
+      <span class="muted">Fee ${money(d.feePaise)} · rating ${d.rating.toFixed(1)}</span></div><button class="btn small" data-doc="${esc(d.id)}">View slots</button></div>`).join('')
+      : '<p class="muted">No doctors match.</p>';
+    document.querySelectorAll('[data-doc]').forEach(b => { b.onclick = attempt(() => openDoctor(b.dataset.doc)); });
+  });
+  $('#d-go').onclick = search;
+  $('#d-spec').onchange = search;
+  $('#d-q').addEventListener('keydown', e => { if (e.key === 'Enter') search(); });
+  attachSuggest($('#d-q'), q => api('GET', '/api/doctors/suggest?q=' + encodeURIComponent(q)),
+    s => `<span>${esc(s.text)}</span><span class="muted">${esc(s.type === 'doctor' ? s.detail : 'specialization · ' + s.detail)}</span>`,
+    s => { $('#d-q').value = s.text; if (s.type === 'doctor') attempt(openDoctor)(s.id); else search(); });
+  search();
+  await Promise.all([loadAppointments(), loadBills(), loadRecords(), loadPrescriptions(), loadInsurance()].map(p => p.catch(e => toast(e.message, true))));
+}
+
+async function openDoctor(id) {
+  state.doctor = await api('GET', '/api/doctors/' + encodeURIComponent(id));
+  state.slot = null;
+  await renderSlots();
+  $('#d-slots').scrollIntoView({behavior: 'smooth', block: 'nearest'});
+}
+
+async function renderSlots() {
+  const d = state.doctor;
+  const slots = await api('GET', `/api/doctors/${encodeURIComponent(d.id)}/slots?date=${state.slotDate}`);
+  $('#d-slots').innerHTML = `<div class="item" style="margin-top:12px">
+    <strong>${esc(d.name)}</strong> · ${esc(d.specialization)} · ${esc(d.qualification)} · ${d.experienceYears} years · room ${esc(d.room)} · fee ${money(d.feePaise)}
+    <div class="row" style="margin-top:6px">
+      <div style="max-width:200px"><label for="s-date">Date</label><input id="s-date" type="date" min="${today()}" value="${state.slotDate}"></div>
+      <div><label for="s-reason">Reason for visit</label><input id="s-reason" maxlength="300" placeholder="optional"></div>
+      <button class="btn" id="s-book" disabled>Book appointment</button>
+    </div>
+    <div class="slots">${slots.length ? slots.map(s => `<button type="button" data-time="${s.time}" ${s.available ? '' : 'disabled'}>${s.time}</button>`).join('') : '<span class="muted">The doctor does not work on this day.</span>'}</div>
+  </div>`;
+  $('#s-date').onchange = attempt(async e => { state.slotDate = e.target.value || today(); state.slot = null; await renderSlots(); });
+  document.querySelectorAll('.slots button').forEach(b => { b.onclick = () => {
+    state.slot = b.dataset.time;
+    document.querySelectorAll('.slots button').forEach(x => x.classList.toggle('sel', x === b));
+    $('#s-book').disabled = false;
+  }; });
+  $('#s-book').onclick = attempt(async () => {
+    try {
+      const a = await api('POST', '/api/appointments', {doctorId: d.id, date: state.slotDate, time: state.slot, reason: $('#s-reason').value});
+      toast(`Booked ${a.date} ${a.time} with ${a.doctorName}. Appointment ${a.id}`);
+    } finally {
+      state.slot = null;
+      await renderSlots();
+      await Promise.all([loadAppointments(), loadBills()]);
+    }
+  });
+}
+
+async function loadAppointments() {
+  const list = await api('GET', '/api/appointments');
+  $('#p-appts').innerHTML = list.length ? `<table><tr><th>When</th><th>Doctor</th><th>Status</th><th></th></tr>${list.map(a => `<tr>
+    <td>${esc(a.date)} ${esc(a.time)}</td><td>${esc(a.doctorName)}<br><span class="muted">${esc(a.specialization)}</span></td><td>${statusTag(a.status)}</td>
+    <td>${a.status === 'BOOKED' ? `<button class="btn ghost small" data-cancel="${esc(a.id)}">Cancel</button>` : ''}</td></tr>`).join('')}</table>`
+    : '<p class="muted">No appointments yet.</p>';
+  document.querySelectorAll('[data-cancel]').forEach(b => { b.onclick = attempt(async () => {
+    await api('POST', `/api/appointments/${b.dataset.cancel}/cancel`);
+    toast('Appointment cancelled; the slot is free again.');
+    await Promise.all([loadAppointments(), loadBills()]);
+    if (state.doctor) await renderSlots();
+  }); });
+}
+
+async function loadBills() {
+  const list = await api('GET', '/api/bills');
+  $('#p-bills').innerHTML = list.length ? list.map(b => `<div class="item ${b.id === state.focusBill ? 'hl' : ''}" id="bill-${esc(b.id)}">
+    <div class="row"><div><strong>${esc(b.category)}</strong> ${statusTag(b.status)}<br><span class="mono">${esc(b.id)}</span></div>
+    <div style="text-align:right"><span class="big">${money(b.payablePaise)}</span><br><span class="muted">of ${money(b.subtotalPaise)}${b.coveragePercent ? ` · insurer pays ${b.coveragePercent}%` : ''}</span></div></div>
+    <div class="muted">${b.items.map(i => esc(i.description) + ' ' + money(i.amountPaise)).join('<br>')}</div>
+    <div class="actions">${b.status === 'UNPAID' ? `<select data-method="${esc(b.id)}" style="width:auto"><option>UPI</option><option>CARD</option><option>CASH</option><option>NETBANKING</option></select>
+      <button class="btn small" data-pay="${esc(b.id)}">Pay</button>` : ''}
+      <button class="btn ghost small" data-share="${esc(b.id)}">Share link</button><span class="mono" data-link="${esc(b.id)}"></span></div></div>`).join('')
+    : '<p class="muted">No bills yet. Booking an appointment creates one.</p>';
+  document.querySelectorAll('[data-pay]').forEach(b => { b.onclick = attempt(async () => {
+    await api('POST', `/api/bills/${b.dataset.pay}/pay`, {method: $(`[data-method="${b.dataset.pay}"]`).value});
+    toast('Payment recorded.');
+    await loadBills();
+  }); });
+  document.querySelectorAll('[data-share]').forEach(b => { b.onclick = attempt(async () => {
+    const link = await api('POST', `/api/bills/${b.dataset.share}/share`);
+    $(`[data-link="${b.dataset.share}"]`).innerHTML = `<a href="${esc(link.shortUrl)}">${esc(link.shortUrl)}</a>`;
+  }); });
+  const focus = state.focusBill && document.getElementById('bill-' + state.focusBill);
+  if (focus) focus.scrollIntoView({behavior: 'smooth', block: 'center'});
+}
+
+async function loadRecords() {
+  const list = await api('GET', `/api/patients/${encodeURIComponent(state.user.id)}/records`);
+  $('#p-records').innerHTML = list.length ? list.map(recordItem).join('') : '<p class="muted">No records yet. A doctor adds them after a visit.</p>';
+}
+const recordItem = r => `<div class="item"><span class="tag">${esc(r.type)}</span> <strong>${esc(r.title)}</strong>
+  <div>${esc(r.details)}</div><div class="muted">${esc(r.authorName)} · ${new Date(r.createdAt).toLocaleString()}</div></div>`;
+
+async function loadPrescriptions() {
+  const list = await api('GET', '/api/prescriptions');
+  $('#p-rx').innerHTML = list.length ? list.map(rxItem).join('') : '<p class="muted">No prescriptions yet.</p>';
+}
+const rxItem = rx => `<div class="item">${statusTag(rx.status)} <span class="mono">${esc(rx.id)}</span>
+  <div>${rx.items.map(i => `${esc(i.name)} × ${i.quantity}${i.dosage ? ' · ' + esc(i.dosage) : ''}`).join('<br>')}</div>
+  <div class="muted">${esc(rx.patientName)} · prescribed by ${esc(rx.doctorName)}${rx.notes ? ' · ' + esc(rx.notes) : ''}</div></div>`;
+
+async function loadInsurance() {
+  const [plans, me] = await Promise.all([api('GET', '/api/insurance/plans'), api('GET', '/api/me')]);
+  const current = me.patient.insurancePlanId || '';
+  if (!plans.length) { $('#p-ins').innerHTML = '<p class="muted">No plans yet: the crawler has not finished. Reload in a few seconds.</p>'; return; }
+  $('#p-ins').innerHTML = `<label for="ins-plan">Plan</label><select id="ins-plan"><option value="">No insurance</option>${plans.map(p =>
+    `<option value="${esc(p.id)}" ${p.id === current ? 'selected' : ''}>${esc(p.provider)} ${esc(p.name)}: consultation ${p.consultation}%, pharmacy ${p.pharmacy}%</option>`).join('')}</select>
+    <div class="actions"><button class="btn" id="ins-save">Save plan</button></div>`;
+  $('#ins-save').onclick = attempt(async () => { await api('PUT', '/api/me/insurance', {planId: $('#ins-plan').value}); toast('Insurance plan saved.'); });
+}
+
+// ---- pharmacy -------------------------------------------------------------------------------
+
+function pharmacyTab() {
+  $('#view').innerHTML = `
+  <section class="card wide">
+    <h2>Medicine search</h2>
+    <p class="hint">Autocomplete over the pharmacy stock plus drugs known only from the crawled reference site. All names and descriptions are synthetic.</p>
+    <label for="m-q">Medicine name</label>
+    <div class="suggest"><input id="m-q" autocomplete="off" placeholder="try  zyv,  bri,  or a typo such as  quorastatn"><ul></ul></div>
+    <div class="latency"></div>
+    <div id="m-detail" style="margin-top:12px"></div>
+  </section>`;
+  attachSuggest($('#m-q'), q => api('GET', '/api/medicines/suggest?q=' + encodeURIComponent(q)),
+    m => `<span>${esc(m.name)} <span class="muted">${esc(m.strength)} ${esc(m.form)}</span></span><span class="tag ${m.stocked ? 'ok' : 'warn'}">${m.stocked ? 'in pharmacy' : 'reference only'}</span>`,
+    attempt(async m => {
+      $('#m-q').value = m.name;
+      const d = await api('GET', '/api/medicines/' + encodeURIComponent(m.id));
+      const med = d.medicine, info = d.info;
+      $('#m-detail').innerHTML = `<div class="item"><strong>${esc(med ? med.name : info.name)}</strong> <span class="tag">${esc(med ? med.category : info.category)}</span>
+        ${med ? `<div class="stats" style="margin:10px 0"><div><small>Price</small>${money(med.pricePaise)}</div><div><small>In stock</small>${med.stock}</div>
+          <div><small>Form</small>${esc(med.form)} ${esc(med.strength)}</div><div><small>Stock ID</small><span class="mono">${esc(med.id)}</span></div></div>`
+          : '<p class="muted">Not stocked by this pharmacy.</p>'}
+        ${info ? `<div><strong>Crawled reference</strong><br>${esc(info.uses)}<br>Possible side effects: ${esc(info.sideEffects)}<br>
+          <span class="muted">Source <span class="mono">${esc(info.sourceUrl)}</span>, crawled ${new Date(info.crawledAt).toLocaleString()}</span></div>`
+          : '<p class="muted">No crawled reference information yet.</p>'}</div>`;
+    }));
+}
+
+// ---- emergency ------------------------------------------------------------------------------
+
+async function emergencyTab() {
+  const zones = await api('GET', '/api/emergency/zones');
+  $('#view').innerHTML = `
+  <section class="card sev">
+    <h2>Request emergency help</h2>
+    <p class="hint">No sign-in needed. Emergency requests have their own rate-limit allowance, so they get through even when a client has used up its normal quota.</p>
+    <form id="e-form">
+      <div class="row"><div><label for="e-name">Caller name</label><input id="e-name" name="callerName" required maxlength="80"></div>
+        <div><label for="e-phone">Phone</label><input id="e-phone" name="phone" required maxlength="20"></div></div>
+      <div class="row"><div><label for="e-zone">Location</label><select id="e-zone" name="zone">${zones.map(z => `<option>${esc(z)}</option>`).join('')}</select></div>
+        <div><label for="e-sev">Severity</label><select id="e-sev" name="severity">
+          <option value="1">1 · Life-threatening</option><option value="2">2 · Serious</option><option value="3" selected>3 · Urgent</option>
+          <option value="4">4 · Moderate</option><option value="5">5 · Minor</option></select></div></div>
+      <label for="e-desc">What happened</label><textarea id="e-desc" name="description" maxlength="500"></textarea>
+      <div class="actions"><button class="btn danger">Request ambulance</button></div>
+    </form>
+  </section>
+  <section class="card"><h2>Request status</h2><div id="e-status"><p class="muted">Submit a request to see dispatch details here.</p></div></section>`;
+  const showStatus = s => {
+    $('#e-status').innerHTML = `<div class="item">${statusTag(s.status)} <span class="mono">${esc(s.id)}</span>
+      <div class="stats" style="margin-top:10px"><div><small>Location</small>${esc(s.zone)}</div><div><small>Severity</small>${s.severity}</div>
+      ${s.status === 'QUEUED' ? `<div><small>Queue position</small><span class="big">${s.queuePosition}</span></div>`
+        : `<div><small>Ambulance</small>${esc(s.ambulanceCallSign || '-')}</div><div><small>ETA</small><span class="big">${s.etaMinutes ?? '-'}</span> min</div>`}</div>
+      <div class="actions"><button class="btn ghost small" id="e-refresh">Refresh</button></div></div>`;
+    $('#e-refresh').onclick = attempt(async () => showStatus(await api('GET', '/api/emergency/' + state.emergencyId)));
+  };
+  $('#e-form').onsubmit = attempt(async e => {
+    e.preventDefault();
+    const body = formData(e.target);
+    body.severity = +body.severity;
+    const s = await api('POST', '/api/emergency', body);
+    state.emergencyId = s.id;
+    showStatus(s);
+    toast(s.status === 'DISPATCHED' ? `${s.ambulanceCallSign} dispatched, about ${s.etaMinutes} minutes away.` : 'All ambulances are busy: you are in the priority queue.');
+  });
+  if (state.emergencyId) attempt(async () => showStatus(await api('GET', '/api/emergency/' + state.emergencyId)))();
+}
+
+// ---- staff desk -----------------------------------------------------------------------------
+
+async function staffTab() {
+  const view = $('#view');
+  if (!state.user) { view.innerHTML = authCards(false); wireAuth(); return; }
+  if (!isStaff()) { view.innerHTML = '<section class="card wide"><h2>Staff desk</h2><p class="hint">This area is for hospital staff. Sign out and use a staff demo account to see it.</p></section>'; return; }
+  const role = state.user.role;
+  const doctor = role === 'DOCTOR', pharmacy = role === 'PHARMACIST' || role === 'ADMIN', triage = role === 'DOCTOR' || role === 'ADMIN';
+  view.innerHTML = `
+  ${doctor ? `<section class="card wide"><h2>My schedule</h2>
+    <p class="hint">Patients who booked with you. Sign in as the demo patient and book ${esc(state.user.name)} to see an entry here.</p>
+    <div class="row"><div style="max-width:200px"><label for="st-date">Date</label><input id="st-date" type="date" value="${today()}"></div></div>
+    <div id="st-schedule" class="scroll" style="margin-top:10px"></div></section>
+  <section class="card"><h2>Add medical record</h2>
+    <form id="st-record"><label for="rec-pid">Patient ID</label><input id="rec-pid" name="patientId" required class="mono">
+      <div class="row"><div><label for="rec-type">Type</label><select id="rec-type" name="type"><option>DIAGNOSIS</option><option>LAB_RESULT</option><option>VITALS</option><option>NOTE</option></select></div>
+      <div><label for="rec-title">Title</label><input id="rec-title" name="title" required maxlength="120"></div></div>
+      <label for="rec-details">Details</label><textarea id="rec-details" name="details" maxlength="4000"></textarea>
+      <div class="actions"><button class="btn">Save record</button><button class="btn ghost" type="button" id="rec-view">View patient's records</button></div></form>
+    <div id="st-records" class="list" style="margin-top:10px"></div></section>
+  <section class="card"><h2>Write prescription</h2>
+    <form id="st-rx"><label for="rx-pid">Patient ID</label><input id="rx-pid" name="patientId" required class="mono">
+      <label for="rx-med">Add medicine</label><div class="suggest"><input id="rx-med" autocomplete="off" placeholder="type a medicine name"><ul></ul></div><div class="latency"></div>
+      <div id="rx-items" class="list"></div>
+      <label for="rx-notes">Notes</label><input id="rx-notes" name="notes" maxlength="1000">
+      <div class="actions"><button class="btn">Issue prescription</button></div></form></section>` : ''}
+  ${pharmacy ? `<section class="card wide"><h2>Pharmacy counter</h2><p class="hint">Dispensing takes the items out of stock and raises the pharmacy bill, as one all-or-nothing step.</p>
+    <div id="st-pending" class="list"></div></section>` : ''}
+  ${triage ? `<section class="card wide"><h2>Emergency board</h2><p class="hint">Open requests, most severe first. Resolving one frees its ambulance for the next in the queue.</p>
+    <div id="st-emerg" class="scroll"></div></section>` : ''}`;
+
+  if (doctor) {
+    const loadSchedule = attempt(async () => {
+      const list = await api('GET', '/api/doctor/appointments?date=' + $('#st-date').value);
+      $('#st-schedule').innerHTML = list.length ? `<table><tr><th>Time</th><th>Patient</th><th>Reason</th><th></th></tr>${list.map(a => `<tr><td>${esc(a.time)}</td>
+        <td>${esc(a.patientName)}<br><span class="mono">${esc(a.patientId)}</span></td><td>${esc(a.reason || '')}</td>
+        <td><button class="btn ghost small" data-use="${esc(a.patientId)}">Use this patient</button></td></tr>`).join('')}</table>` : '<p class="muted">No bookings on this day.</p>';
+      document.querySelectorAll('[data-use]').forEach(b => { b.onclick = () => { $('#rec-pid').value = b.dataset.use; $('#rx-pid').value = b.dataset.use; toast('Patient ID filled in below.'); }; });
+    });
+    $('#st-date').onchange = loadSchedule;
+    loadSchedule();
+    const viewRecords = attempt(async () => {
+      const list = await api('GET', `/api/patients/${encodeURIComponent($('#rec-pid').value.trim())}/records`);
+      $('#st-records').innerHTML = list.length ? list.map(recordItem).join('') : '<p class="muted">This patient has no records.</p>';
+    });
+    $('#rec-view').onclick = viewRecords;
+    $('#st-record').onsubmit = attempt(async e => {
+      e.preventDefault();
+      const body = formData(e.target);
+      await api('POST', `/api/patients/${encodeURIComponent(body.patientId.trim())}/records`, {type: body.type, title: body.title, details: body.details});
+      toast('Record saved.');
+      $('#rec-title').value = ''; $('#rec-details').value = '';
+      viewRecords();
+    });
+    state.rxItems = [];
+    const drawItems = () => {
+      $('#rx-items').innerHTML = state.rxItems.map((it, i) => `<div class="item row"><div><strong>${esc(it.name)}</strong></div>
+        <div style="max-width:90px"><label>Qty</label><input type="number" min="1" max="1000" value="${it.quantity}" data-qty="${i}"></div>
+        <div><label>Dosage</label><input value="${esc(it.dosage)}" data-dose="${i}" placeholder="1 tablet twice a day"></div>
+        <button class="btn ghost small" type="button" data-del="${i}">Remove</button></div>`).join('');
+      document.querySelectorAll('[data-qty]').forEach(el => { el.oninput = () => { state.rxItems[+el.dataset.qty].quantity = +el.value; }; });
+      document.querySelectorAll('[data-dose]').forEach(el => { el.oninput = () => { state.rxItems[+el.dataset.dose].dosage = el.value; }; });
+      document.querySelectorAll('[data-del]').forEach(el => { el.onclick = () => { state.rxItems.splice(+el.dataset.del, 1); drawItems(); }; });
+    };
+    attachSuggest($('#rx-med'), q => api('GET', '/api/medicines/suggest?q=' + encodeURIComponent(q)),
+      m => `<span>${esc(m.name)} <span class="muted">${esc(m.strength)}</span></span><span class="tag ${m.stocked ? 'ok' : 'warn'}">${m.stocked ? 'in pharmacy' : 'not stocked'}</span>`,
+      m => {
+        $('#rx-med').value = '';
+        if (!m.stocked) { toast('That drug is not stocked by the pharmacy.', true); return; }
+        state.rxItems.push({medicineId: m.id, name: m.name + ' ' + m.strength, quantity: 10, dosage: ''});
+        drawItems();
+      });
+    $('#st-rx').onsubmit = attempt(async e => {
+      e.preventDefault();
+      if (!state.rxItems.length) throw new Error('Add at least one medicine.');
+      const rx = await api('POST', '/api/prescriptions', {patientId: $('#rx-pid').value.trim(), notes: $('#rx-notes').value,
+        items: state.rxItems.map(({medicineId, quantity, dosage}) => ({medicineId, quantity, dosage}))});
+      toast('Prescription ' + rx.id + ' issued.');
+      state.rxItems = []; drawItems();
+    });
+  }
+  if (pharmacy) {
+    const loadPending = attempt(async () => {
+      const list = await api('GET', '/api/prescriptions/pending');
+      $('#st-pending').innerHTML = list.length ? list.map(rx => `<div class="item">${rxItem(rx)}<div class="actions"><button class="btn small" data-disp="${esc(rx.id)}">Dispense</button></div></div>`).join('')
+        : '<p class="muted">Nothing waiting. A doctor has to issue a prescription first.</p>';
+      document.querySelectorAll('[data-disp]').forEach(b => { b.onclick = attempt(async () => {
+        const r = await api('POST', `/api/prescriptions/${b.dataset.disp}/dispense`);
+        toast(`Dispensed. Bill ${r.bill.id} raised for ${money(r.bill.payablePaise)}.`);
+        loadPending();
+      }); });
+    });
+    loadPending();
+  }
+  if (triage) {
+    const loadBoard = attempt(async () => {
+      const list = await api('GET', '/api/emergency');
+      $('#st-emerg').innerHTML = list.length ? `<table><tr><th>Sev</th><th>Status</th><th>Location</th><th>Caller</th><th>Ambulance</th><th></th></tr>${list.map(r => `<tr>
+        <td><strong>${r.severity}</strong></td><td>${statusTag(r.status)}</td><td>${esc(r.zone)}</td><td>${esc(r.callerName)}<br><span class="muted">${esc(r.phone)} · ${esc(r.description || '')}</span></td>
+        <td>${esc(r.ambulanceCallSign || 'waiting')}${r.etaMinutes ? ` · ${r.etaMinutes} min` : ''}</td>
+        <td><button class="btn ghost small" data-res="${esc(r.id)}">Resolve</button></td></tr>`).join('')}</table>` : '<p class="muted">No open emergencies.</p>';
+      document.querySelectorAll('[data-res]').forEach(b => { b.onclick = attempt(async () => { await api('POST', `/api/emergency/${b.dataset.res}/resolve`); toast('Resolved.'); loadBoard(); }); });
+    });
+    loadBoard();
+  }
+}
+
+// ---- system ---------------------------------------------------------------------------------
+
+async function systemTab() {
+  const view = $('#view');
+  if (!state.user) { view.innerHTML = authCards(false); wireAuth(); return; }
+  if (state.user.role !== 'ADMIN') { view.innerHTML = '<section class="card wide"><h2>System</h2><p class="hint">Sign in with the Admin demo account to see the cluster, metrics and crawler.</p></section>'; return; }
+  view.innerHTML = `
+  <section class="card wide"><h2>Key-value cache cluster</h2>
+    <p class="hint">Each node is a separate TCP server. The consistent-hash ring decides which node holds each key. Kill a node to simulate a server failure: its keys fall to the next node on the ring and the application keeps working from MongoDB.</p>
+    <div id="sys-cluster" class="scroll"></div>
+    <div class="actions"><button class="btn" id="sys-add">Add a node</button></div></section>
+  <section class="card"><h2>Switches</h2><p class="hint">Turn components off to compare behaviour with and without them.</p><div id="sys-config"></div></section>
+  <section class="card"><h2>Rate limiter test</h2><p class="hint">Sends 30 login attempts with a wrong password as fast as possible. The AUTH class allows a burst of 10, then 1 per second.</p>
+    <div class="actions"><button class="btn" id="sys-flood">Send 30 rapid logins</button></div><div id="sys-flood-out" style="margin-top:10px"></div></section>
+  <section class="card wide"><h2>Requests and rate limiting</h2><div id="sys-requests" class="scroll"></div></section>
+  <section class="card"><h2>Cache, IDs and data</h2><div id="sys-misc"></div></section>
+  <section class="card"><h2>Web crawler</h2><p class="hint">Crawls the two simulated external sites for drug reference pages and insurance plans.</p>
+    <div id="sys-crawl"></div><div class="actions"><button class="btn" id="sys-crawl-go">Run crawl now</button></div></section>`;
+
+  const refresh = attempt(async () => {
+    const [cluster, metrics, crawl] = await Promise.all([api('GET', '/api/admin/cluster'), api('GET', '/api/admin/metrics'), api('GET', '/api/admin/crawl')]);
+    if (state.tab !== 'system') return;
+    $('#sys-cluster').innerHTML = `<table><tr><th>Node</th><th>Port</th><th>Status</th><th>Keys</th><th>Hits / misses</th><th>Requests routed</th><th>Share of ring</th><th></th></tr>
+      ${cluster.nodes.map(n => `<tr><td><strong>${esc(n.id)}</strong></td><td>${n.port}</td><td>${n.up ? '<span class="tag ok">UP</span>' : '<span class="tag bad">DOWN</span>'}</td>
+      <td>${n.keys ?? '-'}</td><td>${n.keys === undefined ? '-' : n.hits + ' / ' + n.misses}</td><td>${n.requests}</td>
+      <td><div class="bar" title="${pct(n.ringShare)}"><i style="width:${Math.min(100, n.ringShare * 100 * cluster.nodes.length / 2)}%"></i></div>${pct(n.ringShare)}</td>
+      <td>${n.up ? `<button class="btn danger small" data-kill="${esc(n.id)}">Kill</button>` : `<button class="btn small" data-restart="${esc(n.id)}">Restart</button>`}</td></tr>`).join('')}</table>
+      <p class="muted">${cluster.replicas} replicas per key · ${cluster.virtualNodes} virtual nodes per server · ${cluster.failovers} failovers so far</p>`;
+    document.querySelectorAll('[data-kill]').forEach(b => { b.onclick = attempt(async () => { await api('POST', `/api/admin/cluster/nodes/${b.dataset.kill}/kill`); toast('Node killed.'); refresh(); }); });
+    document.querySelectorAll('[data-restart]').forEach(b => { b.onclick = attempt(async () => { await api('POST', `/api/admin/cluster/nodes/${b.dataset.restart}/restart`); toast('Node restarted; it rejoins the ring within a second.'); refresh(); }); });
+
+    $('#sys-config').innerHTML = `<div class="row"><div>Cache ${metrics.cache.enabled ? '<span class="tag ok">ON</span>' : '<span class="tag bad">OFF</span>'}</div>
+      <button class="btn ghost small" id="cfg-cache">${metrics.cache.enabled ? 'Turn off' : 'Turn on'}</button></div>
+      <div class="row" style="margin-top:8px"><div>Rate limiter ${metrics.rateLimiterEnabled ? '<span class="tag ok">ON</span>' : '<span class="tag bad">OFF</span>'}</div>
+      <button class="btn ghost small" id="cfg-rate">${metrics.rateLimiterEnabled ? 'Turn off' : 'Turn on'}</button></div>`;
+    $('#cfg-cache').onclick = attempt(async () => { await api('POST', '/api/admin/config', {cacheEnabled: !metrics.cache.enabled}); refresh(); });
+    $('#cfg-rate').onclick = attempt(async () => { await api('POST', '/api/admin/config', {rateLimitEnabled: !metrics.rateLimiterEnabled}); refresh(); });
+
+    $('#sys-requests').innerHTML = `<table><tr><th>Class</th><th>Limit per client</th><th>Requests</th><th>Rejected (429)</th><th>Rejection rate</th><th>Avg service time</th><th>Clients tracked</th></tr>
+      ${Object.entries(metrics.requests).map(([name, r]) => `<tr><td><strong>${name}</strong></td><td>${r.ratePerSecond}/s, burst ${r.burst}</td><td>${r.requests}</td>
+      <td>${r.rejected}</td><td>${pct(r.rejectionRate)}</td><td>${r.avgServiceMs.toFixed(2)} ms</td><td>${r.trackedClients}</td></tr>`).join('')}</table>`;
+    const res = metrics.resources;
+    $('#sys-misc').innerHTML = `<div class="stats">
+      <div><small>Cache hit ratio</small><span class="big">${pct(metrics.cache.hitRatio)}</span></div>
+      <div><small>Cache hits / misses</small>${metrics.cache.hits} / ${metrics.cache.misses}</div>
+      <div><small>IDs generated (worker ${metrics.idGenerator.workerId})</small>${metrics.idGenerator.generated}</div>
+      <div><small>Short links / collisions</small>${metrics.shortLinks.created} / ${metrics.shortLinks.collisions}</div>
+      <div><small>Patients</small>${metrics.data.patients}</div><div><small>Appointments</small>${metrics.data.appointments}</div>
+      <div><small>Records</small>${metrics.data.records}</div><div><small>Bills</small>${metrics.data.bills}</div>
+      <div><small>JVM heap</small>${res.heapUsedMb.toFixed(0)} MB</div><div><small>Process CPU</small>${pct(Math.max(0, res.processCpuLoad))}</div>
+      <div><small>Threads</small>${res.threads}</div></div>`;
+    const last = crawl.lastRun || {};
+    $('#sys-crawl').innerHTML = crawl.running ? '<span class="tag warn">RUNNING</span>' : (last.pagesFetched === undefined
+      ? `<p class="muted">${last.error ? 'Last crawl failed: ' + esc(last.error) : 'Not run yet in this session.'}</p>`
+      : `<div class="stats"><div><small>Pages fetched</small><span class="big">${last.pagesFetched}</span></div><div><small>Throughput</small>${last.pagesPerSecond.toFixed(0)} pages/s</div>
+        <div><small>Drugs / plans stored</small>${last.drugPagesStored} / ${last.insurancePlansStored}</div><div><small>Duplicate URLs skipped</small>${last.duplicateUrlsSkipped}</div>
+        <div><small>Duplicate content skipped</small>${last.duplicateContentSkipped}</div><div><small>Blocked by robots.txt</small>${last.blockedByRobots}</div>
+        <div><small>Retries / failed</small>${last.retries} / ${last.failed}</div><div><small>Workers</small>${last.workers}</div></div>`);
+    $('#sys-crawl-go').disabled = crawl.running;
+  });
+  $('#sys-add').onclick = attempt(async () => { await api('POST', '/api/admin/cluster/nodes'); toast('Node added to the ring.'); refresh(); });
+  $('#sys-crawl-go').onclick = attempt(async () => { await api('POST', '/api/admin/crawl', {workers: 8, perHostDelayMs: 0}); toast('Crawl started.'); refresh(); });
+  $('#sys-flood').onclick = attempt(async () => {
+    const results = await Promise.all(Array.from({length: 30}, () =>
+      fetch('/api/auth/login', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({email: 'nobody@hms.test', password: 'wrong-password'})}).then(r => r.status)));
+    const count = code => results.filter(s => s === code).length;
+    $('#sys-flood-out').innerHTML = `<div class="stats"><div><small>Reached the login check (401)</small><span class="big">${count(401)}</span></div>
+      <div><small>Rejected by rate limiter (429)</small><span class="big">${count(429)}</span></div></div>`;
+    refresh();
+  });
+  refresh();
+  state.timer = setInterval(refresh, 3000);
+}
+
+// ---- navigation -----------------------------------------------------------------------------
+
+const TABS = {patient: patientTab, pharmacy: pharmacyTab, emergency: emergencyTab, staff: staffTab, system: systemTab};
+
+async function show(tab) {
+  clearInterval(state.timer);
+  state.tab = TABS[tab] ? tab : 'patient';
+  renderHeader();
+  try { await TABS[state.tab](); } catch (e) { toast(e.message, true); }
+}
+
+document.querySelectorAll('#tabs button').forEach(b => { b.onclick = () => show(b.dataset.tab); });
+
+(async () => {
+  // A short link such as /s/Ab3xK9Qz redirects to /#/bills/<id>: open the patient portal on that bill.
+  const match = location.hash.match(/^#\/bills\/([A-Za-z0-9]+)$/);
+  if (match) state.focusBill = match[1];
+  await loadUser();
+  show(state.user && isStaff() ? 'staff' : 'patient');
+})();
+</script>
+</body>
+</html>
