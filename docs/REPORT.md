@@ -61,6 +61,10 @@ to their bills that are short enough for a text message.
 | **URL shortener** | Sharing | Short links to a bill (`/s/Ab3xK9Qz`) | The real link contains a long identifier. A short code fits in an SMS, can expire, and hides the internal identifier. |
 | **Web crawler** | External data | Drug reference information and insurance plans from two external sites | This information is published on other organisations' websites and changes there. Typing it in by hand does not scale; a crawler collects and refreshes it. |
 
+[COMPONENT_USAGE.md](COMPONENT_USAGE.md) gives the exact place in the code where each component is called
+(file and line), the endpoints and screens where it can be seen working, and what is deliberately left out
+of each one.
+
 All seven components are used. Some serve more than one function (the key-value store serves seven kinds of
 data; the autocomplete serves two searches), and some functions need more than one component. The table below
 gives the mapping from the functional side.
@@ -232,15 +236,25 @@ bills 2 min, slot availability 1 min).
 ## 4. Working prototype
 
 The prototype is one Spring Boot application with a web portal, started with a single command
-(see the [README](../README.md)). The portal has five tabs:
+(`run.bat`, see the [README](../README.md)). The portal adapts to who is signed in: each role sees only its
+own pages in the side navigation.
 
-| Tab | What it demonstrates |
-|---|---|
-| **Patient portal** | Registration and login; doctor search with live suggestions (the response time of each suggestion request is shown); slot picker and booking; appointments, records, prescriptions and bills; insurance plan; "Share link" on a bill |
-| **Pharmacy** | Medicine search with suggestions; stock and price joined with crawled reference information |
-| **Emergency** | Request form with no login; dispatch result or queue position |
-| **Staff desk** | Doctor: schedule, add record, write prescription. Pharmacist: dispense. Doctor/administrator: emergency board |
-| **System** | Cache cluster with ring shares, kill / restart / add a server; request and rate-limit counters; cache hit ratio; crawler statistics; switches to turn the cache and the rate limiter off; a button that fires 30 rapid logins to show the limiter working |
+| Who | Pages | What they demonstrate |
+|---|---|---|
+| **Anyone, no account** | Sign in / create account, Request ambulance | A full-screen sign-in page; the emergency request and its status. Nothing else is reachable without signing in |
+| **Patient** | Overview, Find a doctor, Appointments, Records & prescriptions, Bills & insurance, Medicines | Doctor and medicine search with suggestions as you type (the response time of each suggestion request is shown); booking dialog with a 14-day date strip and morning/afternoon slots; cancelling with confirmation; paying a bill; sharing it as a short link; choosing an insurance plan and seeing its cover |
+| **Doctor** | My schedule, Patient records, Emergency board, Medicines | The day's patients; a patient's history; adding a record; writing a prescription with medicine suggestions; resolving emergencies |
+| **Pharmacist** | Dispensing, Medicines | Prescriptions waiting at the counter; dispensing (stock and bill in one step) |
+| **Administrator** | System, Manage doctors, Dispensing, Emergency board | One tile per component with live figures; the cache cluster as a ring chart with stop / restart / add-a-server; live charts of requests per second and cache hit ratio; rate-limit counters and a 30-login test; switches to turn the cache and rate limiter off; crawler statistics; adding a doctor |
+
+Search suggestions can be chosen with the arrow keys, dialogs and charts work from the keyboard, and the
+interface uses a white-and-orange theme (with an optional dark mode) and has a phone layout.
+
+![The sign-in page: only the ambulance request is available without an account](img/ui-welcome.png)
+
+<img src="img/ui-booking.png" alt="Patient booking an appointment" width="49%"> <img src="img/ui-doctor.png" alt="Doctor adding a record and prescribing" width="49%">
+
+![The System page for administrators](img/ui-system.png)
 
 `java -jar hms-bench/target/hms-bench.jar demo` runs every workflow through the HTTP API and verifies each
 outcome. Its output on the test machine:
@@ -267,6 +281,9 @@ All 16 workflow steps passed.
 
 The components also have 22 unit tests (`mvn test`), including key-value fail-over over real sockets and a
 complete crawl of the simulated sites with exact expected counts of retries, duplicates and blocked pages.
+Two further scripts in [`scripts/`](../scripts) check 33 business rules through the API (including twelve
+simultaneous bookings of one slot, of which exactly one may succeed) and drive the web portal through every
+role in a browser (49 checks).
 
 ---
 
@@ -454,6 +471,21 @@ the baseline, gives the exact fractions:
 With modulo placement, losing one server of four invalidates three quarters of the cache at once, and the
 database receives that load at the worst possible moment. With the ring, three quarters survive.
 
+**The database tier, sharded.** The experiments above scale out the cache. The database itself was also run
+on a MongoDB sharded cluster: a router, a config server and two shards, then a third. Patients, records,
+bills and prescriptions are placed by a hash of the patient id, appointments by a hash of the doctor id. The
+double-booking index must start with the shard key, and that choice satisfies it. The full set-up and results
+are in [SHARDING.md](SHARDING.md). In brief:
+
+- All workflow and business-rule checks pass unchanged.
+- 100,000 patients split 49.9% / 50.1%, and a patient's own queries reach one shard only.
+- A third shard was added under load, and 27% of patients moved to it in 64 to 85 s with 0 errors in 175,019
+  requests.
+- With one shard stopped, only patients whose data was on it lost access, while doctor search and emergencies
+  were unaffected.
+
+![Patients per shard before and after adding a shard](img/sharding_distribution.png)
+
 ### 5.6 Component-specific metrics
 
 **Unique ID generator: generation rate and collisions**
@@ -612,7 +644,7 @@ by the delay, not by the number of workers, which is the point of it.
 | Autocomplete: response time and accuracy | about 1 µs in the index, 1.0 ms end to end; wanted entry in the top 5 for 48% of 3-letter prefixes, 72% with a typo |
 | Three workload levels | low, medium, high, plus a stress level |
 | Baseline comparisons | cache, search, rate limiter, hashing, ID generation, key-value lookup, autocomplete, crawler |
-| Scalability or failure scenario | patients grown from 1,000 to 100,000; a cache server killed, restarted and added under load |
+| Scalability or failure scenario | patients grown from 1,000 to 100,000; a cache server killed, restarted and added under load; a MongoDB shard added under load and a shard stopped ([SHARDING.md](SHARDING.md)) |
 
 ---
 
@@ -638,8 +670,11 @@ by the delay, not by the number of workers, which is the point of it.
   use MongoDB transactions on a replica set, or a repair job.
 - **The crawler ran against simulated sites.** Real sites need content-type handling, redirects across hosts,
   far larger frontiers held on disk, and re-crawl scheduling.
+- **The database runs as one server by default.** It can run sharded (`run.bat sharded`, [SHARDING.md](SHARDING.md)),
+  but in that test every shard was a single server on the same laptop. Production needs each shard to be a
+  three-member replica set, on its own machine.
 - **Demonstration shortcuts:** plain HTTP, demo accounts with published passwords, no audit log of record
-  access, a single MongoDB instance. Each would have to change before real use.
+  access. Each would have to change before real use.
 
 ## 7. Reproducing the results
 
@@ -648,6 +683,7 @@ run.bat build                  build and run the 22 unit tests
 run.bat                        start the application (http://localhost:8088)
 run.bat demo                   the 16-step workflow check, in a second window
 run.bat bench all              every measurement and graph, about 15 minutes
+run.bat sharded                the application on a local MongoDB sharded cluster (see SHARDING.md section 4)
 ```
 
 `run.bat bench all --quick` does a short trial of everything in about 5 minutes. The benchmark starts its own

@@ -1,0 +1,972 @@
+{
+  "environment" : {
+    "measuredAt" : "2026-10-25T14:39:50+05:30",
+    "quickMode" : false,
+    "os" : "Windows 11 10.0",
+    "java" : "Eclipse Adoptium 17.0.16",
+    "logicalCores" : 14,
+    "memoryGb" : 15.5,
+    "note" : "Load generator, application, cache nodes and MongoDB all ran on this one machine.",
+    "powerSource" : "battery"
+  },
+  "setup" : {
+    "patients" : 20001.0,
+    "doctors" : 5200.0,
+    "records" : 40000.0,
+    "loggedInUsers" : 400,
+    "users" : [ 25, 100, 400 ],
+    "warmupSeconds" : 6.0,
+    "measureSeconds" : 25.0,
+    "thinkTimeMs" : "100-300"
+  },
+  "base" : [ {
+    "users" : 25,
+    "measureSeconds" : 25.0,
+    "thinkTimeMs" : "100-300",
+    "requests" : 2853,
+    "throughputRps" : 114.12,
+    "successRate" : 1.0,
+    "rateLimitedRate" : 0.0,
+    "errorRate" : 0.0,
+    "slotConflicts" : 0,
+    "latencyMs" : {
+      "count" : 2853,
+      "avg" : 14.612,
+      "p50" : 6.06,
+      "p95" : 32.506,
+      "p99" : 148.397,
+      "max" : 836.541
+    },
+    "perOperation" : {
+      "SUGGEST_DOCTOR" : {
+        "count" : 579,
+        "avg" : 25.602,
+        "p50" : 20.373,
+        "p95" : 45.598,
+        "p99" : 165.356,
+        "max" : 274.069
+      },
+      "SEARCH_DOCTOR" : {
+        "count" : 244,
+        "avg" : 26.655,
+        "p50" : 20.34,
+        "p95" : 51.859,
+        "p99" : 180.029,
+        "max" : 254.013
+      },
+      "VIEW_SLOTS" : {
+        "count" : 255,
+        "avg" : 6.854,
+        "p50" : 5.341,
+        "p95" : 10.815,
+        "p99" : 49.652,
+        "max" : 103.687
+      },
+      "BOOK_APPOINTMENT" : {
+        "count" : 152,
+        "avg" : 14.298,
+        "p50" : 10.032,
+        "p95" : 20.153,
+        "p99" : 110.13,
+        "max" : 324.453
+      },
+      "MY_APPOINTMENTS" : {
+        "count" : 287,
+        "avg" : 6.136,
+        "p50" : 4.989,
+        "p95" : 8.06,
+        "p99" : 49.604,
+        "max" : 156.699
+      },
+      "MY_RECORDS" : {
+        "count" : 286,
+        "avg" : 5.512,
+        "p50" : 4.717,
+        "p95" : 8.626,
+        "p99" : 26.315,
+        "max" : 40.005
+      },
+      "MY_PROFILE" : {
+        "count" : 247,
+        "avg" : 4.71,
+        "p50" : 4.06,
+        "p95" : 6.777,
+        "p99" : 30.056,
+        "max" : 34.261
+      },
+      "SUGGEST_MEDICINE" : {
+        "count" : 214,
+        "avg" : 6.023,
+        "p50" : 5.284,
+        "p95" : 9.386,
+        "p99" : 20.869,
+        "max" : 32.506
+      },
+      "MEDICINE_DETAIL" : {
+        "count" : 117,
+        "avg" : 7.545,
+        "p50" : 4.881,
+        "p95" : 21.855,
+        "p99" : 44.457,
+        "max" : 165.936
+      },
+      "MY_BILLS" : {
+        "count" : 165,
+        "avg" : 6.29,
+        "p50" : 5.164,
+        "p95" : 8.744,
+        "p99" : 48.712,
+        "max" : 72.408
+      },
+      "PAY_BILL" : {
+        "count" : 70,
+        "avg" : 9.207,
+        "p50" : 6.949,
+        "p95" : 32.461,
+        "p99" : 73.153,
+        "max" : 73.153
+      },
+      "SHARE_BILL" : {
+        "count" : 67,
+        "avg" : 7.028,
+        "p50" : 5.24,
+        "p95" : 15.344,
+        "p99" : 60.945,
+        "max" : 60.945
+      },
+      "EMERGENCY" : {
+        "count" : 62,
+        "avg" : 12.453,
+        "p50" : 10.031,
+        "p95" : 13.662,
+        "p99" : 90.858,
+        "max" : 90.858
+      },
+      "LOGIN" : {
+        "count" : 21,
+        "avg" : 139.225,
+        "p50" : 147.512,
+        "p95" : 162.765,
+        "p99" : 172.122,
+        "max" : 172.122
+      },
+      "REGISTER" : {
+        "count" : 20,
+        "avg" : 184.914,
+        "p50" : 129.902,
+        "p95" : 398.106,
+        "p99" : 836.541,
+        "max" : 836.541
+      },
+      "FOLLOW_SHORT_LINK" : {
+        "count" : 67,
+        "avg" : 3.283,
+        "p50" : 2.813,
+        "p95" : 6.186,
+        "p99" : 21.989,
+        "max" : 21.989
+      }
+    },
+    "resources" : {
+      "appCpuCoresUsed" : 0.968,
+      "appCpuPercentOfMachine" : 6.918,
+      "machineCores" : 14,
+      "heapUsedMbAvg" : 87.253,
+      "heapUsedMbMax" : 126.992,
+      "threadsMax" : 109
+    },
+    "cacheHitRatio" : 0.0,
+    "level" : "low"
+  }, {
+    "users" : 100,
+    "measureSeconds" : 25.0,
+    "thinkTimeMs" : "100-300",
+    "requests" : 10701,
+    "throughputRps" : 428.04,
+    "successRate" : 1.0,
+    "rateLimitedRate" : 0.0,
+    "errorRate" : 0.0,
+    "slotConflicts" : 3,
+    "latencyMs" : {
+      "count" : 10701,
+      "avg" : 27.446,
+      "p50" : 9.606,
+      "p95" : 109.266,
+      "p99" : 235.487,
+      "max" : 832.247
+    },
+    "perOperation" : {
+      "SUGGEST_DOCTOR" : {
+        "count" : 2158,
+        "avg" : 48.013,
+        "p50" : 30.414,
+        "p95" : 137.666,
+        "p99" : 243.422,
+        "max" : 454.965
+      },
+      "SEARCH_DOCTOR" : {
+        "count" : 860,
+        "avg" : 46.983,
+        "p50" : 30.181,
+        "p95" : 133.905,
+        "p99" : 214.135,
+        "max" : 388.697
+      },
+      "VIEW_SLOTS" : {
+        "count" : 827,
+        "avg" : 12.024,
+        "p50" : 5.93,
+        "p95" : 42.936,
+        "p99" : 92.566,
+        "max" : 126.065
+      },
+      "BOOK_APPOINTMENT" : {
+        "count" : 673,
+        "avg" : 25.231,
+        "p50" : 11.398,
+        "p95" : 92.751,
+        "p99" : 191.2,
+        "max" : 246.635
+      },
+      "MY_APPOINTMENTS" : {
+        "count" : 1088,
+        "avg" : 9.988,
+        "p50" : 4.673,
+        "p95" : 35.695,
+        "p99" : 68.47,
+        "max" : 228.673
+      },
+      "MY_RECORDS" : {
+        "count" : 1243,
+        "avg" : 8.685,
+        "p50" : 4.314,
+        "p95" : 28.912,
+        "p99" : 58.867,
+        "max" : 191.219
+      },
+      "MY_PROFILE" : {
+        "count" : 842,
+        "avg" : 10.349,
+        "p50" : 4.03,
+        "p95" : 35.938,
+        "p99" : 96.777,
+        "max" : 232.443
+      },
+      "SUGGEST_MEDICINE" : {
+        "count" : 817,
+        "avg" : 10.68,
+        "p50" : 5.236,
+        "p95" : 38.429,
+        "p99" : 76.411,
+        "max" : 140.815
+      },
+      "MEDICINE_DETAIL" : {
+        "count" : 400,
+        "avg" : 11.398,
+        "p50" : 5.138,
+        "p95" : 43.296,
+        "p99" : 92.652,
+        "max" : 174.064
+      },
+      "MY_BILLS" : {
+        "count" : 640,
+        "avg" : 10.23,
+        "p50" : 4.687,
+        "p95" : 36.547,
+        "p99" : 101.75,
+        "max" : 210.478
+      },
+      "PAY_BILL" : {
+        "count" : 322,
+        "avg" : 14.597,
+        "p50" : 6.966,
+        "p95" : 45.118,
+        "p99" : 142.735,
+        "max" : 213.453
+      },
+      "SHARE_BILL" : {
+        "count" : 210,
+        "avg" : 13.462,
+        "p50" : 5.616,
+        "p95" : 50.515,
+        "p99" : 119.625,
+        "max" : 178.15
+      },
+      "EMERGENCY" : {
+        "count" : 194,
+        "avg" : 28.718,
+        "p50" : 12.493,
+        "p95" : 102.147,
+        "p99" : 236.141,
+        "max" : 246.807
+      },
+      "LOGIN" : {
+        "count" : 102,
+        "avg" : 254.408,
+        "p50" : 197.846,
+        "p95" : 525.516,
+        "p99" : 743.347,
+        "max" : 783.116
+      },
+      "REGISTER" : {
+        "count" : 115,
+        "avg" : 280.958,
+        "p50" : 201.918,
+        "p95" : 595.508,
+        "p99" : 807.693,
+        "max" : 832.247
+      },
+      "FOLLOW_SHORT_LINK" : {
+        "count" : 210,
+        "avg" : 5.663,
+        "p50" : 2.542,
+        "p95" : 20.012,
+        "p99" : 37.488,
+        "max" : 114.952
+      }
+    },
+    "resources" : {
+      "appCpuCoresUsed" : 2.39,
+      "appCpuPercentOfMachine" : 17.075,
+      "machineCores" : 14,
+      "heapUsedMbAvg" : 93.423,
+      "heapUsedMbMax" : 130.935,
+      "threadsMax" : 102
+    },
+    "cacheHitRatio" : 0.0,
+    "level" : "medium"
+  }, {
+    "users" : 400,
+    "measureSeconds" : 25.0,
+    "thinkTimeMs" : "100-300",
+    "requests" : 11736,
+    "throughputRps" : 469.44,
+    "successRate" : 1.0,
+    "rateLimitedRate" : 0.0,
+    "errorRate" : 0.0,
+    "slotConflicts" : 7,
+    "latencyMs" : {
+      "count" : 11736,
+      "avg" : 619.23,
+      "p50" : 555.101,
+      "p95" : 1062.134,
+      "p99" : 2182.193,
+      "max" : 3446.6
+    },
+    "perOperation" : {
+      "SUGGEST_DOCTOR" : {
+        "count" : 2416,
+        "avg" : 704.087,
+        "p50" : 697.407,
+        "p95" : 1024.712,
+        "p99" : 1171.105,
+        "max" : 1405.17
+      },
+      "SEARCH_DOCTOR" : {
+        "count" : 910,
+        "avg" : 703.915,
+        "p50" : 697.471,
+        "p95" : 1040.551,
+        "p99" : 1179.735,
+        "max" : 1480.93
+      },
+      "VIEW_SLOTS" : {
+        "count" : 956,
+        "avg" : 590.696,
+        "p50" : 575.407,
+        "p95" : 879.05,
+        "p99" : 1004.264,
+        "max" : 1321.915
+      },
+      "BOOK_APPOINTMENT" : {
+        "count" : 689,
+        "avg" : 958.105,
+        "p50" : 938.738,
+        "p95" : 1319.707,
+        "p99" : 1540.927,
+        "max" : 1790.647
+      },
+      "MY_APPOINTMENTS" : {
+        "count" : 1128,
+        "avg" : 465.149,
+        "p50" : 456.842,
+        "p95" : 697.947,
+        "p99" : 819.106,
+        "max" : 972.77
+      },
+      "MY_RECORDS" : {
+        "count" : 1386,
+        "avg" : 468.975,
+        "p50" : 459.7,
+        "p95" : 695.709,
+        "p99" : 812.319,
+        "max" : 948.486
+      },
+      "MY_PROFILE" : {
+        "count" : 914,
+        "avg" : 456.343,
+        "p50" : 447.586,
+        "p95" : 675.546,
+        "p99" : 792.29,
+        "max" : 962.834
+      },
+      "SUGGEST_MEDICINE" : {
+        "count" : 965,
+        "avg" : 468.365,
+        "p50" : 453.42,
+        "p95" : 695.319,
+        "p99" : 833.827,
+        "max" : 1065.183
+      },
+      "MEDICINE_DETAIL" : {
+        "count" : 480,
+        "avg" : 578.846,
+        "p50" : 572.541,
+        "p95" : 829.932,
+        "p99" : 1014.44,
+        "max" : 1132.454
+      },
+      "MY_BILLS" : {
+        "count" : 815,
+        "avg" : 459.974,
+        "p50" : 447.787,
+        "p95" : 676.373,
+        "p99" : 803.7,
+        "max" : 1080.46
+      },
+      "PAY_BILL" : {
+        "count" : 250,
+        "avg" : 572.095,
+        "p50" : 577.437,
+        "p95" : 824.144,
+        "p99" : 929.909,
+        "max" : 1239.969
+      },
+      "SHARE_BILL" : {
+        "count" : 191,
+        "avg" : 585.53,
+        "p50" : 567.267,
+        "p95" : 895.825,
+        "p99" : 1098.959,
+        "max" : 1133.829
+      },
+      "EMERGENCY" : {
+        "count" : 227,
+        "avg" : 874.528,
+        "p50" : 863.703,
+        "p95" : 1189.328,
+        "p99" : 1363.774,
+        "max" : 1667.834
+      },
+      "LOGIN" : {
+        "count" : 113,
+        "avg" : 2181.353,
+        "p50" : 2182.193,
+        "p95" : 3009.857,
+        "p99" : 3154.873,
+        "max" : 3374.242
+      },
+      "REGISTER" : {
+        "count" : 109,
+        "avg" : 2230.762,
+        "p50" : 2247.507,
+        "p95" : 3122.992,
+        "p99" : 3305.879,
+        "max" : 3446.6
+      },
+      "FOLLOW_SHORT_LINK" : {
+        "count" : 187,
+        "avg" : 327.794,
+        "p50" : 322.992,
+        "p95" : 484.536,
+        "p99" : 613.611,
+        "max" : 615.216
+      }
+    },
+    "resources" : {
+      "appCpuCoresUsed" : 2.088,
+      "appCpuPercentOfMachine" : 14.912,
+      "machineCores" : 14,
+      "heapUsedMbAvg" : 95.738,
+      "heapUsedMbMax" : 120.112,
+      "threadsMax" : 241
+    },
+    "cacheHitRatio" : 0.0,
+    "level" : "high"
+  } ],
+  "scaled" : [ {
+    "users" : 25,
+    "measureSeconds" : 25.0,
+    "thinkTimeMs" : "100-300",
+    "requests" : 2942,
+    "throughputRps" : 117.68,
+    "successRate" : 1.0,
+    "rateLimitedRate" : 0.0,
+    "errorRate" : 0.0,
+    "slotConflicts" : 1,
+    "latencyMs" : {
+      "count" : 2942,
+      "avg" : 6.966,
+      "p50" : 2.939,
+      "p95" : 9.616,
+      "p99" : 146.463,
+      "max" : 192.061
+    },
+    "perOperation" : {
+      "SUGGEST_DOCTOR" : {
+        "count" : 606,
+        "avg" : 2.383,
+        "p50" : 2.307,
+        "p95" : 3.32,
+        "p99" : 4.804,
+        "max" : 6.303
+      },
+      "SEARCH_DOCTOR" : {
+        "count" : 243,
+        "avg" : 2.517,
+        "p50" : 2.394,
+        "p95" : 3.48,
+        "p99" : 5.332,
+        "max" : 8.878
+      },
+      "VIEW_SLOTS" : {
+        "count" : 227,
+        "avg" : 5.467,
+        "p50" : 5.426,
+        "p95" : 7.368,
+        "p99" : 8.23,
+        "max" : 10.315
+      },
+      "BOOK_APPOINTMENT" : {
+        "count" : 197,
+        "avg" : 8.287,
+        "p50" : 8.154,
+        "p95" : 10.622,
+        "p99" : 11.849,
+        "max" : 12.822
+      },
+      "MY_APPOINTMENTS" : {
+        "count" : 313,
+        "avg" : 4.36,
+        "p50" : 3.587,
+        "p95" : 7.326,
+        "p99" : 8.673,
+        "max" : 10.26
+      },
+      "MY_RECORDS" : {
+        "count" : 355,
+        "avg" : 2.634,
+        "p50" : 2.595,
+        "p95" : 3.565,
+        "p99" : 4.414,
+        "max" : 4.985
+      },
+      "MY_PROFILE" : {
+        "count" : 213,
+        "avg" : 2.507,
+        "p50" : 2.521,
+        "p95" : 3.27,
+        "p99" : 3.997,
+        "max" : 4.597
+      },
+      "SUGGEST_MEDICINE" : {
+        "count" : 213,
+        "avg" : 2.479,
+        "p50" : 2.373,
+        "p95" : 3.668,
+        "p99" : 4.891,
+        "max" : 9.292
+      },
+      "MEDICINE_DETAIL" : {
+        "count" : 100,
+        "avg" : 4.217,
+        "p50" : 4.158,
+        "p95" : 5.198,
+        "p99" : 5.682,
+        "max" : 5.729
+      },
+      "MY_BILLS" : {
+        "count" : 167,
+        "avg" : 5.892,
+        "p50" : 6.251,
+        "p95" : 8.743,
+        "p99" : 10.644,
+        "max" : 13.587
+      },
+      "PAY_BILL" : {
+        "count" : 79,
+        "avg" : 6.273,
+        "p50" : 6.196,
+        "p95" : 9.395,
+        "p99" : 9.866,
+        "max" : 9.866
+      },
+      "SHARE_BILL" : {
+        "count" : 53,
+        "avg" : 5.139,
+        "p50" : 5.04,
+        "p95" : 6.699,
+        "p99" : 9.417,
+        "max" : 9.417
+      },
+      "EMERGENCY" : {
+        "count" : 59,
+        "avg" : 10.221,
+        "p50" : 9.989,
+        "p95" : 12.446,
+        "p99" : 16.552,
+        "max" : 16.552
+      },
+      "LOGIN" : {
+        "count" : 35,
+        "avg" : 142.772,
+        "p50" : 139.654,
+        "p95" : 170.353,
+        "p99" : 192.061,
+        "max" : 192.061
+      },
+      "REGISTER" : {
+        "count" : 29,
+        "avg" : 145.905,
+        "p50" : 146.463,
+        "p95" : 168.54,
+        "p99" : 172.251,
+        "max" : 172.251
+      },
+      "FOLLOW_SHORT_LINK" : {
+        "count" : 53,
+        "avg" : 3.74,
+        "p50" : 3.55,
+        "p95" : 5.784,
+        "p99" : 7.6,
+        "max" : 7.6
+      }
+    },
+    "resources" : {
+      "appCpuCoresUsed" : 0.965,
+      "appCpuPercentOfMachine" : 6.89,
+      "machineCores" : 14,
+      "heapUsedMbAvg" : 100.953,
+      "heapUsedMbMax" : 129.609,
+      "threadsMax" : 241
+    },
+    "cacheHitRatio" : 0.877,
+    "level" : "low"
+  }, {
+    "users" : 100,
+    "measureSeconds" : 25.0,
+    "thinkTimeMs" : "100-300",
+    "requests" : 11889,
+    "throughputRps" : 475.56,
+    "successRate" : 1.0,
+    "rateLimitedRate" : 0.0,
+    "errorRate" : 0.0,
+    "slotConflicts" : 1,
+    "latencyMs" : {
+      "count" : 11889,
+      "avg" : 6.276,
+      "p50" : 2.562,
+      "p95" : 8.504,
+      "p99" : 150.7,
+      "max" : 269.379
+    },
+    "perOperation" : {
+      "SUGGEST_DOCTOR" : {
+        "count" : 2493,
+        "avg" : 2.122,
+        "p50" : 1.99,
+        "p95" : 3.627,
+        "p99" : 5.783,
+        "max" : 12.425
+      },
+      "SEARCH_DOCTOR" : {
+        "count" : 903,
+        "avg" : 2.184,
+        "p50" : 2.035,
+        "p95" : 3.967,
+        "p99" : 5.237,
+        "max" : 9.85
+      },
+      "VIEW_SLOTS" : {
+        "count" : 909,
+        "avg" : 4.227,
+        "p50" : 4.198,
+        "p95" : 6.43,
+        "p99" : 8.547,
+        "max" : 13.771
+      },
+      "BOOK_APPOINTMENT" : {
+        "count" : 680,
+        "avg" : 7.034,
+        "p50" : 6.962,
+        "p95" : 10.654,
+        "p99" : 19.237,
+        "max" : 25.318
+      },
+      "MY_APPOINTMENTS" : {
+        "count" : 1150,
+        "avg" : 3.422,
+        "p50" : 2.923,
+        "p95" : 6.231,
+        "p99" : 7.797,
+        "max" : 12.105
+      },
+      "MY_RECORDS" : {
+        "count" : 1410,
+        "avg" : 2.314,
+        "p50" : 2.158,
+        "p95" : 4.106,
+        "p99" : 6.058,
+        "max" : 10.018
+      },
+      "MY_PROFILE" : {
+        "count" : 913,
+        "avg" : 2.29,
+        "p50" : 2.106,
+        "p95" : 4.003,
+        "p99" : 6.713,
+        "max" : 8.719
+      },
+      "SUGGEST_MEDICINE" : {
+        "count" : 970,
+        "avg" : 2.159,
+        "p50" : 1.998,
+        "p95" : 3.78,
+        "p99" : 5.496,
+        "max" : 9.292
+      },
+      "MEDICINE_DETAIL" : {
+        "count" : 458,
+        "avg" : 3.527,
+        "p50" : 3.409,
+        "p95" : 5.831,
+        "p99" : 9.081,
+        "max" : 15.625
+      },
+      "MY_BILLS" : {
+        "count" : 706,
+        "avg" : 4.363,
+        "p50" : 4.373,
+        "p95" : 7.19,
+        "p99" : 10.535,
+        "max" : 17.726
+      },
+      "PAY_BILL" : {
+        "count" : 356,
+        "avg" : 5.722,
+        "p50" : 5.504,
+        "p95" : 8.601,
+        "p99" : 14.107,
+        "max" : 27.662
+      },
+      "SHARE_BILL" : {
+        "count" : 219,
+        "avg" : 4.44,
+        "p50" : 4.343,
+        "p95" : 6.685,
+        "p99" : 8.824,
+        "max" : 16.801
+      },
+      "EMERGENCY" : {
+        "count" : 240,
+        "avg" : 9.194,
+        "p50" : 9.208,
+        "p95" : 13.358,
+        "p99" : 16.657,
+        "max" : 22.732
+      },
+      "LOGIN" : {
+        "count" : 141,
+        "avg" : 142.971,
+        "p50" : 150.631,
+        "p95" : 196.506,
+        "p99" : 251.862,
+        "max" : 269.379
+      },
+      "REGISTER" : {
+        "count" : 122,
+        "avg" : 136.086,
+        "p50" : 144.59,
+        "p95" : 184.05,
+        "p99" : 201.117,
+        "max" : 206.803
+      },
+      "FOLLOW_SHORT_LINK" : {
+        "count" : 219,
+        "avg" : 3.085,
+        "p50" : 2.957,
+        "p95" : 4.187,
+        "p99" : 11.068,
+        "max" : 20.06
+      }
+    },
+    "resources" : {
+      "appCpuCoresUsed" : 2.157,
+      "appCpuPercentOfMachine" : 15.41,
+      "machineCores" : 14,
+      "heapUsedMbAvg" : 100.706,
+      "heapUsedMbMax" : 132.459,
+      "threadsMax" : 244
+    },
+    "cacheHitRatio" : 0.891,
+    "level" : "medium"
+  }, {
+    "users" : 400,
+    "measureSeconds" : 25.0,
+    "thinkTimeMs" : "100-300",
+    "requests" : 30496,
+    "throughputRps" : 1219.84,
+    "successRate" : 1.0,
+    "rateLimitedRate" : 0.0,
+    "errorRate" : 0.0,
+    "slotConflicts" : 14,
+    "latencyMs" : {
+      "count" : 30496,
+      "avg" : 90.479,
+      "p50" : 28.417,
+      "p95" : 210.417,
+      "p99" : 2699.721,
+      "max" : 3938.292
+    },
+    "perOperation" : {
+      "SUGGEST_DOCTOR" : {
+        "count" : 6311,
+        "avg" : 31.996,
+        "p50" : 18.425,
+        "p95" : 98.185,
+        "p99" : 195.879,
+        "max" : 997.128
+      },
+      "SEARCH_DOCTOR" : {
+        "count" : 2389,
+        "avg" : 29.741,
+        "p50" : 16.579,
+        "p95" : 93.27,
+        "p99" : 187.607,
+        "max" : 632.087
+      },
+      "VIEW_SLOTS" : {
+        "count" : 2321,
+        "avg" : 52.625,
+        "p50" : 40.445,
+        "p95" : 146.178,
+        "p99" : 208.8,
+        "max" : 714.917
+      },
+      "BOOK_APPOINTMENT" : {
+        "count" : 1809,
+        "avg" : 116.168,
+        "p50" : 82.629,
+        "p95" : 317.757,
+        "p99" : 406.643,
+        "max" : 562.75
+      },
+      "MY_APPOINTMENTS" : {
+        "count" : 3087,
+        "avg" : 42.219,
+        "p50" : 28.604,
+        "p95" : 134.943,
+        "p99" : 214.369,
+        "max" : 665.755
+      },
+      "MY_RECORDS" : {
+        "count" : 3655,
+        "avg" : 32.269,
+        "p50" : 17.922,
+        "p95" : 98.801,
+        "p99" : 199.783,
+        "max" : 961.365
+      },
+      "MY_PROFILE" : {
+        "count" : 2327,
+        "avg" : 32.991,
+        "p50" : 17.882,
+        "p95" : 100.357,
+        "p99" : 195.968,
+        "max" : 948.015
+      },
+      "SUGGEST_MEDICINE" : {
+        "count" : 2375,
+        "avg" : 32.68,
+        "p50" : 20.499,
+        "p95" : 103.983,
+        "p99" : 196.826,
+        "max" : 671.042
+      },
+      "MEDICINE_DETAIL" : {
+        "count" : 1274,
+        "avg" : 54.976,
+        "p50" : 42.117,
+        "p95" : 160.454,
+        "p99" : 216.22,
+        "max" : 339.8
+      },
+      "MY_BILLS" : {
+        "count" : 1786,
+        "avg" : 49.163,
+        "p50" : 31.617,
+        "p95" : 142.966,
+        "p99" : 229.258,
+        "max" : 956.771
+      },
+      "PAY_BILL" : {
+        "count" : 816,
+        "avg" : 87.208,
+        "p50" : 61.429,
+        "p95" : 245.486,
+        "p99" : 348.255,
+        "max" : 784.975
+      },
+      "SHARE_BILL" : {
+        "count" : 573,
+        "avg" : 85.028,
+        "p50" : 54.671,
+        "p95" : 240.531,
+        "p99" : 322.534,
+        "max" : 957.998
+      },
+      "EMERGENCY" : {
+        "count" : 606,
+        "avg" : 185.568,
+        "p50" : 123.91,
+        "p95" : 498.147,
+        "p99" : 644.675,
+        "max" : 1061.097
+      },
+      "LOGIN" : {
+        "count" : 285,
+        "avg" : 2192.029,
+        "p50" : 2706.861,
+        "p95" : 3408.131,
+        "p99" : 3649.269,
+        "max" : 3698.485
+      },
+      "REGISTER" : {
+        "count" : 308,
+        "avg" : 2313.6,
+        "p50" : 2722.86,
+        "p95" : 3421.602,
+        "p99" : 3745.577,
+        "max" : 3938.292
+      },
+      "FOLLOW_SHORT_LINK" : {
+        "count" : 574,
+        "avg" : 41.485,
+        "p50" : 16.129,
+        "p95" : 136.092,
+        "p99" : 185.83,
+        "max" : 256.838
+      }
+    },
+    "resources" : {
+      "appCpuCoresUsed" : 4.579,
+      "appCpuPercentOfMachine" : 32.704,
+      "machineCores" : 14,
+      "heapUsedMbAvg" : 107.795,
+      "heapUsedMbMax" : 132.829,
+      "threadsMax" : 269
+    },
+    "cacheHitRatio" : 0.896,
+    "level" : "high"
+  } ]
+}

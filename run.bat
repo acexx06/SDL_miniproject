@@ -9,6 +9,9 @@ rem    run.bat build           compile everything and run the unit tests
 rem    run.bat test            run the unit tests only
 rem    run.bat demo            scripted walk-through of every workflow (application must be running)
 rem    run.bat bench [args]    performance evaluation, e.g.  run.bat bench all --quick
+rem    run.bat sharded [args]  start a local MongoDB sharded cluster, then the application on it
+rem    run.bat cluster CMD     manage that cluster: start, status, add-shard, kill, revive, stop, reset
+rem                            (see docs\SHARDING.md)
 rem    run.bat help
 rem
 rem  Settings (set before calling):
@@ -33,6 +36,8 @@ if /i "%COMMAND%"=="build" goto build
 if /i "%COMMAND%"=="test"  goto test
 if /i "%COMMAND%"=="demo"  goto demo
 if /i "%COMMAND%"=="bench" goto bench
+if /i "%COMMAND%"=="sharded" goto sharded
+if /i "%COMMAND%"=="cluster" goto cluster
 if /i "%COMMAND%"=="help"  goto help
 echo Unknown command "%COMMAND%".
 echo.
@@ -43,7 +48,9 @@ rem ---------------------------------------------------------------- commands
 :start
 call :need_java || exit /b 1
 call :need_jars || exit /b 1
+if "%HMS_SHARDED%"=="1" goto start_checked
 call :need_mongo || exit /b 1
+:start_checked
 call :port_open %HMS_PORT%
 if not errorlevel 1 (
     echo [error] Port %HMS_PORT% is already in use.
@@ -107,6 +114,25 @@ if "%REST%"=="" (
 java -Xmx2g -jar "%BENCH_JAR%" %REST%
 exit /b %errorlevel%
 
+:sharded
+call :need_java || exit /b 1
+call :need_jars || exit /b 1
+powershell -NoProfile -ExecutionPolicy Bypass -File "scripts\sharded-cluster.ps1" start
+if errorlevel 1 (
+    echo [error] The sharded cluster could not be started; see docs\SHARDING.md.
+    exit /b 1
+)
+echo   Database: MongoDB sharded cluster, router on 127.0.0.1:27100, database hms_sharded
+echo   Stop the cluster afterwards with:   run.bat cluster stop
+set "HMS_SHARDED=1"
+set "REST=--spring.mongodb.uri=mongodb://127.0.0.1:27100/hms_sharded %REST%"
+goto start
+
+:cluster
+if "%REST%"=="" set "REST=status"
+powershell -NoProfile -ExecutionPolicy Bypass -File "scripts\sharded-cluster.ps1" %REST%
+exit /b %errorlevel%
+
 :help
 echo Usage:
 echo   run.bat                 build if needed, start the application, open the browser
@@ -115,6 +141,9 @@ echo   run.bat build           compile everything and run the unit tests
 echo   run.bat test            run the unit tests only
 echo   run.bat demo            scripted walk-through of every workflow, application must be running
 echo   run.bat bench [args]    performance evaluation, e.g.  run.bat bench all --quick
+echo   run.bat sharded [args]  start a local MongoDB sharded cluster, then the application on it
+echo   run.bat cluster CMD     manage that cluster: start, status, add-shard NAME PORT, kill NAME,
+echo                           revive NAME PORT, stop, reset   (see docs\SHARDING.md)
 echo.
 echo Settings:  HMS_PORT (default 8088),  HMS_NO_BROWSER=1 to not open the browser
 exit /b 0

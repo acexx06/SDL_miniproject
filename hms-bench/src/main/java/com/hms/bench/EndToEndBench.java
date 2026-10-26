@@ -454,6 +454,71 @@ public final class EndToEndBench {
         return result;
     }
 
+    // ---- base system against the final scaled system ------------------------------------------
+
+    /**
+     * Runs the same workload at the same load levels twice on the same data: once as a base system with the
+     * scaling components switched off (no cache, searches answered by database queries, no rate limiter) and
+     * once as the final scaled system with everything on.
+     */
+    public Map<String, Object> runComparison() throws Exception {
+        Map<String, Object> result = new LinkedHashMap<>();
+        try (AppProcess app = AppProcess.start(appJar, mongoUri, outDir.resolve("app-compare.log"))) {
+            connect(app);
+            configure(null, false);
+            int patients = quick ? 5_000 : 20_000;
+            int extraDoctors = quick ? 1_000 : 5_000;
+            System.out.println("  [compare] loading " + patients + " patients and " + extraDoctors + " more doctors ...");
+            seedPatients(patients);
+            adminCall("POST", "/api/admin/seed/doctors?count=" + extraDoctors, null);
+            int[] levels = quick ? new int[]{10, 40, 120} : new int[]{25, 100, 400};
+            String[] names = {"low", "medium", "high"};
+            Workload workload = prepareWorkload(levels[levels.length - 1]);
+            double warmup = quick ? 3 : 6;
+            double measure = quick ? 8 : 25;
+            Object data = Json.at(adminCall("GET", "/api/admin/metrics", null), "data");
+            Map<String, Object> setup = new LinkedHashMap<>();
+            setup.put("patients", Json.num(data, "patients"));
+            setup.put("doctors", Json.num(data, "doctors"));
+            setup.put("records", Json.num(data, "records"));
+            setup.put("loggedInUsers", workload.accounts().size());
+            setup.put("users", levels);
+            setup.put("warmupSeconds", warmup);
+            setup.put("measureSeconds", measure);
+            setup.put("thinkTimeMs", THINK_MIN_MS + "-" + THINK_MAX_MS);
+            stage(result, "setup", setup);
+
+            // Exercise both code paths unmeasured first, so neither run pays for the JVM warming up.
+            System.out.println("  [compare] warming up both configurations ...");
+            for (boolean scaled : new boolean[]{false, true}) {
+                configure(scaled, scaled);
+                workload.useDatabaseSearch(!scaled);
+                workload.run(levels[1], 0, quick ? 5 : 15, THINK_MIN_MS, THINK_MAX_MS, null);
+            }
+
+            for (String mode : new String[]{"base", "scaled"}) {
+                boolean scaled = mode.equals("scaled");
+                configure(scaled, scaled);
+                workload.useDatabaseSearch(!scaled);
+                List<Map<String, Object>> rows = new ArrayList<>();
+                for (int i = 0; i < levels.length; i++) {
+                    int users = levels[i];
+                    System.out.println("  [compare] " + mode + " system, " + names[i] + " load: " + users + " users ...");
+                    Map<String, Object> level = measured(warmup, measure,
+                            () -> workload.run(users, warmup, measure, THINK_MIN_MS, THINK_MAX_MS, null));
+                    level.put("level", names[i]);
+                    rows.add(level);
+                    stage(result, mode, rows);
+                    System.out.println("      " + level.get("throughputRps") + " req/s, avg " + Json.num(level, "latencyMs", "avg")
+                            + " ms, p95 " + Json.num(level, "latencyMs", "p95") + " ms, errors " + level.get("errorRate"));
+                }
+            }
+            configure(true, true);
+            workload.useDatabaseSearch(false);
+        }
+        return result;
+    }
+
     // ---- failure and scale-out timeline --------------------------------------------------------
 
     /**

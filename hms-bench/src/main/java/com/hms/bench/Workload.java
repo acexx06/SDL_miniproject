@@ -104,6 +104,11 @@ public final class Workload {
     private final List<String> medicineQueries;
     private final List<String> bookingDates = new ArrayList<>();
     private final AtomicInteger registrations = new AtomicInteger();
+    /**
+     * When set, doctor and medicine searches go to the database query instead of the autocomplete index, which is
+     * how a system without the index would answer them. Used for the base-versus-scaled comparison.
+     */
+    private volatile boolean databaseSearch;
     private final String runTag = Long.toString(System.currentTimeMillis(), 36);
 
     public Workload(Http http, List<Account> accounts, List<String> doctorIds, List<String> medicineIds,
@@ -134,6 +139,10 @@ public final class Workload {
 
     private static <T> T pick(List<T> list, Random rng) {
         return list.get(rng.nextInt(list.size()));
+    }
+
+    public void useDatabaseSearch(boolean on) {
+        databaseSearch = on;
     }
 
     public List<Account> accounts() {
@@ -272,8 +281,10 @@ public final class Workload {
 
     private void perform(Op op, Account a, Random rng, Tally tally) {
         switch (op) {
-            case SUGGEST_DOCTOR -> call(op, tally, "GET", "/api/doctors/suggest?q=" + Http.enc(pick(doctorQueries, rng)), a, null);
-            case SEARCH_DOCTOR -> call(op, tally, "GET", "/api/doctors/search?q=" + Http.enc(pick(doctorQueries, rng)), a, null);
+            case SUGGEST_DOCTOR -> call(op, tally, "GET", (databaseSearch ? "/api/doctors/search?mode=db&limit=8&q=" : "/api/doctors/suggest?q=")
+                    + Http.enc(pick(doctorQueries, rng)), a, null);
+            case SEARCH_DOCTOR -> call(op, tally, "GET", (databaseSearch ? "/api/doctors/search?mode=db&q=" : "/api/doctors/search?q=")
+                    + Http.enc(pick(doctorQueries, rng)), a, null);
             case VIEW_SLOTS -> call(op, tally, "GET", "/api/doctors/" + pick(doctorIds, rng) + "/slots?date=" + pick(bookingDates, rng), a, null);
             case BOOK_APPOINTMENT -> {
                 Http.Response r = call(op, tally, "POST", "/api/appointments", a, Map.of("doctorId", pick(doctorIds, rng),
@@ -289,7 +300,8 @@ public final class Workload {
             case MY_APPOINTMENTS -> call(op, tally, "GET", "/api/appointments", a, null);
             case MY_RECORDS -> call(op, tally, "GET", "/api/patients/" + a.patientId + "/records", a, null);
             case MY_PROFILE -> call(op, tally, "GET", "/api/me", a, null);
-            case SUGGEST_MEDICINE -> call(op, tally, "GET", "/api/medicines/suggest?q=" + Http.enc(pick(medicineQueries, rng)), a, null);
+            case SUGGEST_MEDICINE -> call(op, tally, "GET", (databaseSearch ? "/api/medicines/search?q=" : "/api/medicines/suggest?q=")
+                    + Http.enc(pick(medicineQueries, rng)), a, null);
             case MEDICINE_DETAIL -> call(op, tally, "GET", "/api/medicines/" + pick(medicineIds, rng), a, null);
             case MY_BILLS -> call(op, tally, "GET", "/api/bills", a, null);
             case PAY_BILL -> {

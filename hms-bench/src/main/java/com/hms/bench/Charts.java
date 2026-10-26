@@ -109,6 +109,9 @@ public final class Charts {
         // No value printed on each bar: small bars cannot hold one, and RESULTS.md has every number in a table.
         chart.getStyler().setLabelsVisible(false);
         chart.getStyler().setSeriesColors(series.stream().map(Series::color).toArray(Color[]::new));
+        if (categories.size() > 6) {
+            chart.getStyler().setXAxisLabelRotation(20);
+        }
         for (Series s : series) {
             CategorySeries added = chart.addSeries(s.name(), categories, s.y());
             added.setFillColor(s.color());
@@ -301,6 +304,81 @@ public final class Charts {
                 "Patients in the database (log scale)", "95th percentile response time (ms)", true, false,
                 List.of(new Series("With key-value cache", BLUE, column(growth, "patients"), column(growth, "recordAccess_cacheOn", "latencyMs", "p95")),
                         new Series("MongoDB only (baseline)", ORANGE, column(growth, "patients"), column(growth, "recordAccess_cacheOff", "latencyMs", "p95"))), null);
+        }
+    }
+
+    /** Graphs for docs/TEST_REPORT.md: the base system against the final scaled system. */
+    public void compare(Map<String, Object> c) throws IOException {
+        List<Map<String, Object>> base = Json.at(c, "base");
+        List<Map<String, Object>> scaled = Json.at(c, "scaled");
+        if (base == null || scaled == null || base.isEmpty() || scaled.isEmpty()) {
+            return;
+        }
+        int levels = Math.min(base.size(), scaled.size());
+        List<Map<String, Object>> b = base.subList(0, levels);
+        List<Map<String, Object>> s = scaled.subList(0, levels);
+        List<String> names = b.stream().map(v -> v.get("level") + " (" + ((Number) v.get("users")).intValue() + " users)").toList();
+        barChart("compare_p95", "95th percentile response time: base system against final scaled system",
+                "Load level (concurrent users)", "95th percentile response time (ms)", names,
+                List.of(Series.bars("Final scaled system", BLUE, column(s, "latencyMs", "p95")),
+                        Series.bars("Base system (baseline)", ORANGE, column(b, "latencyMs", "p95"))));
+        barChart("compare_throughput", "Requests served per second: base system against final scaled system",
+                "Load level (concurrent users)", "Requests per second", names,
+                List.of(Series.bars("Final scaled system", BLUE, column(s, "throughputRps")),
+                        Series.bars("Base system (baseline)", ORANGE, column(b, "throughputRps"))));
+        Map<String, Object> topBase = b.get(levels - 1);
+        Map<String, Object> topScaled = s.get(levels - 1);
+        List<String> ops = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+        for (Map.Entry<String, String> op : CompareReport.OPERATIONS.entrySet()) {
+            if (List.of("LOGIN", "PAY_BILL", "EMERGENCY").contains(op.getKey())) {
+                continue; // dominated by password hashing or writes, which both systems do the same way
+            }
+            if (Json.at(topBase, "perOperation", op.getKey()) != null && Json.at(topScaled, "perOperation", op.getKey()) != null) {
+                ops.add(op.getKey());
+                labels.add(op.getValue());
+            }
+        }
+        barChart("compare_ops", "Average response time per operation at " + ((Number) topBase.get("users")).intValue() + " users",
+                "Operation", "Average response time (ms)", labels,
+                List.of(Series.bars("Final scaled system", BLUE, ops.stream().map(o -> Json.num(topScaled, "perOperation", o, "avg")).toList()),
+                        Series.bars("Base system (baseline)", ORANGE, ops.stream().map(o -> Json.num(topBase, "perOperation", o, "avg")).toList())));
+    }
+
+    /** Graphs for docs/SHARDING.md, from results/sharding.json. */
+    public void sharding(Map<String, Object> s) throws IOException {
+        Map<String, Object> before = Json.at(s, "before-add-shard", "collections");
+        Map<String, Object> after = Json.at(s, "after-add-shard", "collections");
+        if (before != null && after != null) {
+            List<String> shards = Json.at(s, "after-add-shard", "shards");
+            List<Double> beforeCounts = new ArrayList<>();
+            List<Double> afterCounts = new ArrayList<>();
+            for (String shard : shards) {
+                Object row = Json.at(before, "patients", "perShard", shard);
+                beforeCounts.add(row == null ? null : Json.num(row, "documents"));
+                afterCounts.add(Json.num(after, "patients", "perShard", shard, "documents"));
+            }
+            barChart("sharding_distribution", "Patients owned by each shard, before and after adding a third shard",
+                    "Shard", "Patient documents", shards,
+                    List.of(Series.bars("After adding shard3", BLUE, afterCounts),
+                            Series.bars("Before: two shards", ORANGE, beforeCounts)));
+        }
+        Map<String, Object> during = Json.at(s, "load-while-adding-shard3");
+        Map<String, Object> timing = Json.at(s, "add-shard-timing");
+        if (during != null && timing != null) {
+            List<Number> perSecond = Json.at(during, "okPerSecond");
+            List<Double> seconds = new ArrayList<>();
+            for (int i = 0; i < perSecond.size(); i++) {
+                seconds.add((double) i);
+            }
+            double start = Json.num(during, "startedAtEpochMs");
+            double added = Math.round((Json.num(timing, "addedAtEpochMs") - start) / 1000.0);
+            double balanced = Math.round((Json.num(timing, "balancedAtEpochMs") - start) / 1000.0);
+            lineChart("sharding_timeline", "Requests served per second while a shard is added and data moves ("
+                            + (long) Json.num(during, "errors") + " errors)",
+                    "Seconds (vertical lines: shard3 added at " + (int) added + " s, balanced at " + (int) balanced + " s)",
+                    "Successful requests per second", false, false,
+                    List.of(new Series("Requests per second", BLUE, seconds, perSecond)), List.of(added, balanced));
         }
     }
 

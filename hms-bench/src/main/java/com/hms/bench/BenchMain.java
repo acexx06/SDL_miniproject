@@ -19,6 +19,7 @@ import java.util.Map;
  *   components  measure the seven components in isolation      -> results/components.json
  *   load        load levels and baseline comparisons, end to end -> results/load.json
  *   timeline    kill, restart and add a cache server under load   -> results/timeline.json
+ *   compare     the same load on the base system and the final scaled system -> results/compare.json
  *   report      draw the graphs and write docs/RESULTS.md from the JSON files
  *   all         components, load, timeline, report
  *
@@ -38,11 +39,17 @@ public final class BenchMain {
     public static void main(String[] args) throws Exception {
         System.setProperty("java.awt.headless", "true");
         if (args.length == 0 || args[0].equals("--help") || args[0].equals("help")) {
-            System.out.println("usage: hms-bench <demo|components|load|timeline|report|all> "
+            System.out.println("usage: hms-bench <demo|components|load|timeline|compare|report|all> "
                     + "[--quick] [--url URL] [--mongo URI] [--app-jar PATH] [--out DIR] [--docs DIR]");
+            System.out.println("       hms-bench shard <init-rs|setup|add|status|explain> ...   (MongoDB sharded cluster)");
             return;
         }
         String command = args[0];
+        if (command.equals("shard")) {
+            // Sharded-cluster set-up and inspection; see ShardingTool and scripts/sharded-cluster.ps1.
+            new ShardingTool(Path.of("results")).run(List.of(args).subList(1, args.length));
+            System.exit(0);
+        }
         boolean quick = false;
         String url = "http://localhost:8088";
         String mongo = "mongodb://localhost:27017";
@@ -62,7 +69,7 @@ public final class BenchMain {
         }
 
         long start = System.nanoTime();
-        List<String> commands = command.equals("all") ? List.of("components", "load", "timeline", "report") : List.of(command);
+        List<String> commands = command.equals("all") ? List.of("components", "load", "timeline", "compare", "report") : List.of(command);
         for (String current : commands) {
             System.out.println("== " + current + (quick ? " (quick)" : "") + " ==");
             switch (current) {
@@ -79,6 +86,12 @@ public final class BenchMain {
                             .onCheckpoint(checkpointTo(out.resolve("timeline.partial.json"), quick));
                     save(out.resolve("timeline.json"), quick, bench.runTimelines());
                     Files.deleteIfExists(out.resolve("timeline.partial.json"));
+                }
+                case "compare" -> {
+                    EndToEndBench bench = new EndToEndBench(quick, AppProcess.findJar(appJar), mongo, out)
+                            .onCheckpoint(checkpointTo(out.resolve("compare.partial.json"), quick));
+                    save(out.resolve("compare.json"), quick, bench.runComparison());
+                    Files.deleteIfExists(out.resolve("compare.partial.json"));
                 }
                 case "report" -> report(out, docs);
                 default -> throw new IllegalArgumentException("unknown command " + current);
@@ -126,7 +139,27 @@ public final class BenchMain {
             env.put("memoryGb", Math.round(os.getTotalMemorySize() / 1073741824.0 * 10) / 10.0);
         }
         env.put("note", "Load generator, application, cache nodes and MongoDB all ran on this one machine.");
+        String power = powerSource();
+        if (power != null) {
+            env.put("powerSource", power);
+        }
         return env;
+    }
+
+    /** On Windows laptops, whether the machine was on battery (which throttles the processor) or on mains power. */
+    private static String powerSource() {
+        if (!System.getProperty("os.name", "").startsWith("Windows")) {
+            return null;
+        }
+        try {
+            Process p = new ProcessBuilder("powershell", "-NoProfile", "-Command", "(Get-CimInstance Win32_Battery).BatteryStatus")
+                    .redirectErrorStream(true).start();
+            String status = new String(p.getInputStream().readAllBytes()).trim();
+            p.waitFor(15, java.util.concurrent.TimeUnit.SECONDS);
+            return status.isEmpty() ? "mains power (no battery)" : status.equals("1") ? "battery" : "mains power";
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private static void report(Path out, Path docs) throws Exception {
@@ -142,6 +175,16 @@ public final class BenchMain {
         }
         if (timeline != null) {
             charts.timeline(timeline);
+        }
+        Map<String, Object> compare = loadIfPresent(out.resolve("compare.json"));
+        if (compare != null) {
+            charts.compare(compare);
+            Files.writeString(docs.resolve("TEST_REPORT.md"), new CompareReport(compare).render());
+            System.out.println("  wrote " + docs.resolve("TEST_REPORT.md"));
+        }
+        Map<String, Object> sharding = loadIfPresent(out.resolve("sharding.json"));
+        if (sharding != null) {
+            charts.sharding(sharding);
         }
         ArchitectureDiagram.write(docs.resolve("img").resolve("architecture.png"));
         System.out.println("  wrote " + charts.written().size() + " graphs and the architecture diagram to " + docs.resolve("img"));

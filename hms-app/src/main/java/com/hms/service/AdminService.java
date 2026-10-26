@@ -12,6 +12,7 @@ import com.hms.domain.UserAccount;
 import com.hms.sim.SyntheticData;
 import com.hms.web.ApiException;
 import com.sun.management.OperatingSystemMXBean;
+import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -150,10 +151,10 @@ public class AdminService {
                     sampleEmails.add(email);
                 }
             }
-            mongo.insert(accounts, UserAccount.class);
-            mongo.insert(patients, Patient.class);
-            mongo.insert(records, MedicalRecord.class);
-            mongo.insert(appointments, Appointment.class);
+            insertUnordered(accounts, UserAccount.class);
+            insertUnordered(patients, Patient.class);
+            insertUnordered(records, MedicalRecord.class);
+            insertUnordered(appointments, Appointment.class);
         }
 
         Map<String, Object> result = new LinkedHashMap<>();
@@ -163,5 +164,14 @@ public class AdminService {
         result.put("sampleIds", sampleIds);
         result.put("sampleEmails", sampleEmails);
         return result;
+    }
+
+    /**
+     * Bulk insert without ordering. With a sharded database an ordered insert must be cut into a new
+     * round trip whenever the next document belongs to a different shard, which with hashed shard keys
+     * is almost every document; unordered, the router sends one batch per shard.
+     */
+    private <T> void insertUnordered(List<T> documents, Class<T> type) {
+        mongo.bulkOps(BulkOperations.BulkMode.UNORDERED, type).insert(documents).execute();
     }
 }

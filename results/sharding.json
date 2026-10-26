@@ -1,0 +1,2204 @@
+{
+  "note": "Two runs on one laptop (Core Ultra 7 155U, 15.5 GB, mains power). Run A: distribution, loads (single MongoDB, 2 and 3 shards), add-shard under load, shard failure. Run B: a second add-shard under load while other software (a game, WSL) was busy, used for the timeline graph. Keys without a suffix are run B unless listed under runA.",
+  "after-setup": {
+    "takenAt": "2026-10-25T23:27:06+05:30",
+    "shards": [
+      "shard1",
+      "shard2"
+    ],
+    "primaryShard": "shard1",
+    "collections": {
+      "patients": {
+        "shardKey": "{\"_id\": \"hashed\"}",
+        "perShard": {
+          "shard1": {
+            "documents": 0,
+            "megabytes": 0,
+            "orphaned": 0,
+            "chunks": 1
+          },
+          "shard2": {
+            "documents": 0,
+            "megabytes": 0,
+            "orphaned": 0,
+            "chunks": 1
+          }
+        }
+      },
+      "records": {
+        "shardKey": "{\"patientId\": \"hashed\"}",
+        "perShard": {
+          "shard1": {
+            "documents": 0,
+            "megabytes": 0,
+            "orphaned": 0,
+            "chunks": 1
+          },
+          "shard2": {
+            "documents": 0,
+            "megabytes": 0,
+            "orphaned": 0,
+            "chunks": 1
+          }
+        }
+      },
+      "bills": {
+        "shardKey": "{\"patientId\": \"hashed\"}",
+        "perShard": {
+          "shard1": {
+            "documents": 0,
+            "megabytes": 0,
+            "orphaned": 0,
+            "chunks": 1
+          },
+          "shard2": {
+            "documents": 0,
+            "megabytes": 0,
+            "orphaned": 0,
+            "chunks": 1
+          }
+        }
+      },
+      "prescriptions": {
+        "shardKey": "{\"patientId\": \"hashed\"}",
+        "perShard": {
+          "shard1": {
+            "documents": 0,
+            "megabytes": 0,
+            "orphaned": 0,
+            "chunks": 1
+          },
+          "shard2": {
+            "documents": 0,
+            "megabytes": 0,
+            "orphaned": 0,
+            "chunks": 1
+          }
+        }
+      },
+      "appointments": {
+        "shardKey": "{\"doctorId\": \"hashed\"}",
+        "perShard": {
+          "shard1": {
+            "documents": 0,
+            "megabytes": 0,
+            "orphaned": 0,
+            "chunks": 1
+          },
+          "shard2": {
+            "documents": 0,
+            "megabytes": 0,
+            "orphaned": 0,
+            "chunks": 1
+          }
+        }
+      },
+      "sessions": {
+        "shardKey": "{\"_id\": \"hashed\"}",
+        "perShard": {
+          "shard1": {
+            "documents": 0,
+            "megabytes": 0,
+            "orphaned": 0,
+            "chunks": 1
+          },
+          "shard2": {
+            "documents": 0,
+            "megabytes": 0,
+            "orphaned": 0,
+            "chunks": 1
+          }
+        }
+      }
+    }
+  },
+  "two-shards": {
+    "takenAt": "2026-10-25T23:28:10+05:30",
+    "shards": [
+      "shard1",
+      "shard2"
+    ],
+    "primaryShard": "shard1",
+    "collections": {
+      "patients": {
+        "shardKey": "{\"_id\": \"hashed\"}",
+        "perShard": {
+          "shard1": {
+            "documents": 49912,
+            "megabytes": 11.04,
+            "orphaned": 0,
+            "chunks": 1
+          },
+          "shard2": {
+            "documents": 50089,
+            "megabytes": 11.08,
+            "orphaned": 0,
+            "chunks": 1
+          }
+        }
+      },
+      "records": {
+        "shardKey": "{\"patientId\": \"hashed\"}",
+        "perShard": {
+          "shard1": {
+            "documents": 99822,
+            "megabytes": 28.65,
+            "orphaned": 0,
+            "chunks": 1
+          },
+          "shard2": {
+            "documents": 100178,
+            "megabytes": 28.76,
+            "orphaned": 0,
+            "chunks": 1
+          }
+        }
+      },
+      "bills": {
+        "shardKey": "{\"patientId\": \"hashed\"}",
+        "perShard": {
+          "shard1": {
+            "documents": 0,
+            "megabytes": 0,
+            "orphaned": 0,
+            "chunks": 1
+          },
+          "shard2": {
+            "documents": 0,
+            "megabytes": 0,
+            "orphaned": 0,
+            "chunks": 1
+          }
+        }
+      },
+      "prescriptions": {
+        "shardKey": "{\"patientId\": \"hashed\"}",
+        "perShard": {
+          "shard1": {
+            "documents": 0,
+            "megabytes": 0,
+            "orphaned": 0,
+            "chunks": 1
+          },
+          "shard2": {
+            "documents": 0,
+            "megabytes": 0,
+            "orphaned": 0,
+            "chunks": 1
+          }
+        }
+      },
+      "appointments": {
+        "shardKey": "{\"doctorId\": \"hashed\"}",
+        "perShard": {
+          "shard1": {
+            "documents": 54727,
+            "megabytes": 17.01,
+            "orphaned": 0,
+            "chunks": 1
+          },
+          "shard2": {
+            "documents": 45273,
+            "megabytes": 14.08,
+            "orphaned": 0,
+            "chunks": 1
+          }
+        }
+      },
+      "sessions": {
+        "shardKey": "{\"_id\": \"hashed\"}",
+        "perShard": {
+          "shard1": {
+            "documents": 0,
+            "megabytes": 0,
+            "orphaned": 0,
+            "chunks": 1
+          },
+          "shard2": {
+            "documents": 1,
+            "megabytes": 0,
+            "orphaned": 0,
+            "chunks": 1
+          }
+        }
+      }
+    }
+  },
+  "before-add-shard": {
+    "takenAt": "2026-10-25T23:30:45+05:30",
+    "shards": [
+      "shard1",
+      "shard2"
+    ],
+    "primaryShard": "shard1",
+    "collections": {
+      "patients": {
+        "shardKey": "{\"_id\": \"hashed\"}",
+        "perShard": {
+          "shard1": {
+            "documents": 49912,
+            "megabytes": 11.04,
+            "orphaned": 0,
+            "chunks": 1
+          },
+          "shard2": {
+            "documents": 50089,
+            "megabytes": 11.08,
+            "orphaned": 0,
+            "chunks": 1
+          }
+        }
+      },
+      "records": {
+        "shardKey": "{\"patientId\": \"hashed\"}",
+        "perShard": {
+          "shard1": {
+            "documents": 99822,
+            "megabytes": 28.65,
+            "orphaned": 0,
+            "chunks": 1
+          },
+          "shard2": {
+            "documents": 100178,
+            "megabytes": 28.76,
+            "orphaned": 0,
+            "chunks": 1
+          }
+        }
+      },
+      "bills": {
+        "shardKey": "{\"patientId\": \"hashed\"}",
+        "perShard": {
+          "shard1": {
+            "documents": 0,
+            "megabytes": 0,
+            "orphaned": 0,
+            "chunks": 1
+          },
+          "shard2": {
+            "documents": 0,
+            "megabytes": 0,
+            "orphaned": 0,
+            "chunks": 1
+          }
+        }
+      },
+      "prescriptions": {
+        "shardKey": "{\"patientId\": \"hashed\"}",
+        "perShard": {
+          "shard1": {
+            "documents": 0,
+            "megabytes": 0,
+            "orphaned": 0,
+            "chunks": 1
+          },
+          "shard2": {
+            "documents": 0,
+            "megabytes": 0,
+            "orphaned": 0,
+            "chunks": 1
+          }
+        }
+      },
+      "appointments": {
+        "shardKey": "{\"doctorId\": \"hashed\"}",
+        "perShard": {
+          "shard1": {
+            "documents": 54727,
+            "megabytes": 17.01,
+            "orphaned": 0,
+            "chunks": 1
+          },
+          "shard2": {
+            "documents": 45273,
+            "megabytes": 14.08,
+            "orphaned": 0,
+            "chunks": 1
+          }
+        }
+      },
+      "sessions": {
+        "shardKey": "{\"_id\": \"hashed\"}",
+        "perShard": {
+          "shard1": {
+            "documents": 300,
+            "megabytes": 0.07,
+            "orphaned": 0,
+            "chunks": 1
+          },
+          "shard2": {
+            "documents": 304,
+            "megabytes": 0.07,
+            "orphaned": 0,
+            "chunks": 1
+          }
+        }
+      }
+    }
+  },
+  "after-add-shard": {
+    "takenAt": "2026-10-25T23:32:12+05:30",
+    "shards": [
+      "shard1",
+      "shard2",
+      "shard3"
+    ],
+    "primaryShard": "shard1",
+    "collections": {
+      "patients": {
+        "shardKey": "{\"_id\": \"hashed\"}",
+        "perShard": {
+          "shard1": {
+            "documents": 36358,
+            "megabytes": 8.04,
+            "orphaned": 13554,
+            "chunks": 1
+          },
+          "shard2": {
+            "documents": 36535,
+            "megabytes": 8.08,
+            "orphaned": 13554,
+            "chunks": 1
+          },
+          "shard3": {
+            "documents": 27108,
+            "megabytes": 6,
+            "orphaned": 0,
+            "chunks": 6
+          }
+        }
+      },
+      "records": {
+        "shardKey": "{\"patientId\": \"hashed\"}",
+        "perShard": {
+          "shard1": {
+            "documents": 68484,
+            "megabytes": 19.66,
+            "orphaned": 31338,
+            "chunks": 1
+          },
+          "shard2": {
+            "documents": 68840,
+            "megabytes": 19.76,
+            "orphaned": 31338,
+            "chunks": 1
+          },
+          "shard3": {
+            "documents": 62676,
+            "megabytes": 17.99,
+            "orphaned": 0,
+            "chunks": 18
+          }
+        }
+      },
+      "bills": {
+        "shardKey": "{\"patientId\": \"hashed\"}",
+        "perShard": {
+          "shard1": {
+            "documents": 0,
+            "megabytes": 0,
+            "orphaned": 0,
+            "chunks": 1
+          },
+          "shard2": {
+            "documents": 0,
+            "megabytes": 0,
+            "orphaned": 0,
+            "chunks": 1
+          },
+          "shard3": {
+            "documents": 0,
+            "megabytes": 0,
+            "orphaned": 0,
+            "chunks": 0
+          }
+        }
+      },
+      "prescriptions": {
+        "shardKey": "{\"patientId\": \"hashed\"}",
+        "perShard": {
+          "shard1": {
+            "documents": 0,
+            "megabytes": 0,
+            "orphaned": 0,
+            "chunks": 1
+          },
+          "shard2": {
+            "documents": 0,
+            "megabytes": 0,
+            "orphaned": 0,
+            "chunks": 1
+          },
+          "shard3": {
+            "documents": 0,
+            "megabytes": 0,
+            "orphaned": 0,
+            "chunks": 0
+          }
+        }
+      },
+      "appointments": {
+        "shardKey": "{\"doctorId\": \"hashed\"}",
+        "perShard": {
+          "shard1": {
+            "documents": 36514,
+            "megabytes": 11.35,
+            "orphaned": 18213,
+            "chunks": 1
+          },
+          "shard2": {
+            "documents": 36277,
+            "megabytes": 11.28,
+            "orphaned": 8996,
+            "chunks": 1
+          },
+          "shard3": {
+            "documents": 27209,
+            "megabytes": 8.46,
+            "orphaned": 0,
+            "chunks": 9
+          }
+        }
+      },
+      "sessions": {
+        "shardKey": "{\"_id\": \"hashed\"}",
+        "perShard": {
+          "shard1": {
+            "documents": 300,
+            "megabytes": 0.07,
+            "orphaned": 0,
+            "chunks": 1
+          },
+          "shard2": {
+            "documents": 304,
+            "megabytes": 0.07,
+            "orphaned": 0,
+            "chunks": 1
+          },
+          "shard3": {
+            "documents": 0,
+            "megabytes": 0,
+            "orphaned": 0,
+            "chunks": 0
+          }
+        }
+      }
+    }
+  },
+  "add-shard-timing": {
+    "addedAtEpochMs": 1792951247343,
+    "balancedAtEpochMs": 1792951332615,
+    "secondsToBalance": 85
+  },
+  "load-two-shards": {
+    "startedAtEpochMs": 1792951146582,
+    "seconds": 30,
+    "threads": 8,
+    "patients": 200,
+    "requests": 17867,
+    "errors": 0,
+    "errorStatuses": {},
+    "throughput": 596,
+    "latencyMs": {
+      "count": 17875,
+      "avg": 13.361,
+      "p50": 10.67,
+      "p95": 30.384,
+      "p99": 47.214,
+      "max": 122.301
+    },
+    "okPerSecond": [
+      359,
+      343,
+      365,
+      393,
+      503,
+      398,
+      284,
+      345,
+      336,
+      517,
+      532,
+      676,
+      577,
+      611,
+      752,
+      729,
+      607,
+      485,
+      727,
+      689,
+      705,
+      648,
+      857,
+      788,
+      762,
+      773,
+      839,
+      635,
+      696,
+      936
+    ],
+    "errorsPerSecond": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "load-while-adding-shard3": {
+    "startedAtEpochMs": 1792951234648,
+    "seconds": 120,
+    "threads": 8,
+    "patients": 200,
+    "requests": 74620,
+    "errors": 0,
+    "errorStatuses": {},
+    "throughput": 622,
+    "latencyMs": {
+      "count": 74628,
+      "avg": 12.81,
+      "p50": 10.493,
+      "p95": 27.298,
+      "p99": 43.73,
+      "max": 282.544
+    },
+    "okPerSecond": [
+      449,
+      515,
+      451,
+      487,
+      570,
+      440,
+      387,
+      446,
+      450,
+      450,
+      354,
+      603,
+      578,
+      503,
+      439,
+      514,
+      468,
+      500,
+      343,
+      320,
+      356,
+      530,
+      634,
+      468,
+      586,
+      674,
+      706,
+      781,
+      760,
+      575,
+      811,
+      727,
+      754,
+      755,
+      702,
+      751,
+      770,
+      737,
+      694,
+      698,
+      723,
+      796,
+      705,
+      923,
+      877,
+      502,
+      607,
+      628,
+      668,
+      537,
+      368,
+      353,
+      438,
+      391,
+      465,
+      698,
+      551,
+      622,
+      537,
+      515,
+      627,
+      684,
+      673,
+      582,
+      566,
+      755,
+      838,
+      610,
+      622,
+      604,
+      541,
+      732,
+      723,
+      614,
+      670,
+      755,
+      734,
+      724,
+      516,
+      477,
+      577,
+      757,
+      719,
+      642,
+      744,
+      601,
+      780,
+      818,
+      593,
+      538,
+      544,
+      681,
+      503,
+      673,
+      619,
+      751,
+      848,
+      762,
+      747,
+      671,
+      612,
+      779,
+      663,
+      535,
+      626,
+      585,
+      598,
+      780,
+      721,
+      598,
+      674,
+      626,
+      614,
+      604,
+      756,
+      735,
+      755,
+      814,
+      539,
+      751
+    ],
+    "errorsPerSecond": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "runA": {
+    "two-shards": {
+      "takenAt": "2026-10-25T22:50:10+05:30",
+      "shards": [
+        "shard1",
+        "shard2"
+      ],
+      "primaryShard": "shard1",
+      "collections": {
+        "patients": {
+          "shardKey": "{\"_id\": \"hashed\"}",
+          "perShard": {
+            "shard1": {
+              "documents": 50063,
+              "megabytes": 11.08,
+              "orphaned": 0,
+              "chunks": 1
+            },
+            "shard2": {
+              "documents": 49938,
+              "megabytes": 11.05,
+              "orphaned": 0,
+              "chunks": 1
+            }
+          }
+        },
+        "records": {
+          "shardKey": "{\"patientId\": \"hashed\"}",
+          "perShard": {
+            "shard1": {
+              "documents": 100126,
+              "megabytes": 28.74,
+              "orphaned": 0,
+              "chunks": 1
+            },
+            "shard2": {
+              "documents": 99874,
+              "megabytes": 28.67,
+              "orphaned": 0,
+              "chunks": 1
+            }
+          }
+        },
+        "bills": {
+          "shardKey": "{\"patientId\": \"hashed\"}",
+          "perShard": {
+            "shard1": {
+              "documents": 0,
+              "megabytes": 0,
+              "orphaned": 0,
+              "chunks": 1
+            },
+            "shard2": {
+              "documents": 0,
+              "megabytes": 0,
+              "orphaned": 0,
+              "chunks": 1
+            }
+          }
+        },
+        "prescriptions": {
+          "shardKey": "{\"patientId\": \"hashed\"}",
+          "perShard": {
+            "shard1": {
+              "documents": 0,
+              "megabytes": 0,
+              "orphaned": 0,
+              "chunks": 1
+            },
+            "shard2": {
+              "documents": 0,
+              "megabytes": 0,
+              "orphaned": 0,
+              "chunks": 1
+            }
+          }
+        },
+        "appointments": {
+          "shardKey": "{\"doctorId\": \"hashed\"}",
+          "perShard": {
+            "shard1": {
+              "documents": 53395,
+              "megabytes": 16.6,
+              "orphaned": 2965,
+              "chunks": 1
+            },
+            "shard2": {
+              "documents": 46605,
+              "megabytes": 14.49,
+              "orphaned": 0,
+              "chunks": 2
+            }
+          }
+        },
+        "sessions": {
+          "shardKey": "{\"_id\": \"hashed\"}",
+          "perShard": {
+            "shard1": {
+              "documents": 204,
+              "megabytes": 0.05,
+              "orphaned": 0,
+              "chunks": 1
+            },
+            "shard2": {
+              "documents": 199,
+              "megabytes": 0.05,
+              "orphaned": 0,
+              "chunks": 1
+            }
+          }
+        }
+      }
+    },
+    "explain": {
+      "patientIdUsed": "PAT0Hjwc4oopFE",
+      "queries": [
+        {
+          "query": "records of one patient (filter on the shard key)",
+          "routerStage": "SINGLE_SHARD",
+          "shardsReached": [
+            "shard2"
+          ]
+        },
+        {
+          "query": "one patient by id (filter on the shard key)",
+          "routerStage": "SINGLE_SHARD",
+          "shardsReached": [
+            "shard2"
+          ]
+        },
+        {
+          "query": "all diagnoses (no shard key in the filter)",
+          "routerStage": "SHARD_MERGE",
+          "shardsReached": [
+            "shard1",
+            "shard2"
+          ]
+        },
+        {
+          "query": "bills over Rs 1,000 (no shard key in the filter)",
+          "routerStage": "SHARD_MERGE",
+          "shardsReached": [
+            "shard2",
+            "shard1"
+          ]
+        }
+      ]
+    },
+    "before-add-shard": {
+      "takenAt": "2026-10-25T22:50:35+05:30",
+      "shards": [
+        "shard1",
+        "shard2"
+      ],
+      "primaryShard": "shard1",
+      "collections": {
+        "patients": {
+          "shardKey": "{\"_id\": \"hashed\"}",
+          "perShard": {
+            "shard1": {
+              "documents": 50063,
+              "megabytes": 11.08,
+              "orphaned": 0,
+              "chunks": 1
+            },
+            "shard2": {
+              "documents": 49938,
+              "megabytes": 11.05,
+              "orphaned": 0,
+              "chunks": 1
+            }
+          }
+        },
+        "records": {
+          "shardKey": "{\"patientId\": \"hashed\"}",
+          "perShard": {
+            "shard1": {
+              "documents": 100126,
+              "megabytes": 28.74,
+              "orphaned": 0,
+              "chunks": 1
+            },
+            "shard2": {
+              "documents": 99874,
+              "megabytes": 28.67,
+              "orphaned": 0,
+              "chunks": 1
+            }
+          }
+        },
+        "bills": {
+          "shardKey": "{\"patientId\": \"hashed\"}",
+          "perShard": {
+            "shard1": {
+              "documents": 0,
+              "megabytes": 0,
+              "orphaned": 0,
+              "chunks": 1
+            },
+            "shard2": {
+              "documents": 0,
+              "megabytes": 0,
+              "orphaned": 0,
+              "chunks": 1
+            }
+          }
+        },
+        "prescriptions": {
+          "shardKey": "{\"patientId\": \"hashed\"}",
+          "perShard": {
+            "shard1": {
+              "documents": 0,
+              "megabytes": 0,
+              "orphaned": 0,
+              "chunks": 1
+            },
+            "shard2": {
+              "documents": 0,
+              "megabytes": 0,
+              "orphaned": 0,
+              "chunks": 1
+            }
+          }
+        },
+        "appointments": {
+          "shardKey": "{\"doctorId\": \"hashed\"}",
+          "perShard": {
+            "shard1": {
+              "documents": 53395,
+              "megabytes": 16.6,
+              "orphaned": 2965,
+              "chunks": 1
+            },
+            "shard2": {
+              "documents": 46605,
+              "megabytes": 14.49,
+              "orphaned": 0,
+              "chunks": 2
+            }
+          }
+        },
+        "sessions": {
+          "shardKey": "{\"_id\": \"hashed\"}",
+          "perShard": {
+            "shard1": {
+              "documents": 291,
+              "megabytes": 0.07,
+              "orphaned": 0,
+              "chunks": 1
+            },
+            "shard2": {
+              "documents": 313,
+              "megabytes": 0.07,
+              "orphaned": 0,
+              "chunks": 1
+            }
+          }
+        }
+      }
+    },
+    "after-add-shard": {
+      "takenAt": "2026-10-25T22:51:40+05:30",
+      "shards": [
+        "shard1",
+        "shard2",
+        "shard3"
+      ],
+      "primaryShard": "shard1",
+      "collections": {
+        "patients": {
+          "shardKey": "{\"_id\": \"hashed\"}",
+          "perShard": {
+            "shard1": {
+              "documents": 36509,
+              "megabytes": 8.08,
+              "orphaned": 13554,
+              "chunks": 1
+            },
+            "shard2": {
+              "documents": 36384,
+              "megabytes": 8.05,
+              "orphaned": 13554,
+              "chunks": 1
+            },
+            "shard3": {
+              "documents": 27108,
+              "megabytes": 6,
+              "orphaned": 0,
+              "chunks": 6
+            }
+          }
+        },
+        "records": {
+          "shardKey": "{\"patientId\": \"hashed\"}",
+          "perShard": {
+            "shard1": {
+              "documents": 68788,
+              "megabytes": 19.75,
+              "orphaned": 31338,
+              "chunks": 1
+            },
+            "shard2": {
+              "documents": 68536,
+              "megabytes": 19.67,
+              "orphaned": 31338,
+              "chunks": 1
+            },
+            "shard3": {
+              "documents": 62676,
+              "megabytes": 17.99,
+              "orphaned": 0,
+              "chunks": 18
+            }
+          }
+        },
+        "bills": {
+          "shardKey": "{\"patientId\": \"hashed\"}",
+          "perShard": {
+            "shard1": {
+              "documents": 0,
+              "megabytes": 0,
+              "orphaned": 0,
+              "chunks": 1
+            },
+            "shard2": {
+              "documents": 0,
+              "megabytes": 0,
+              "orphaned": 0,
+              "chunks": 1
+            },
+            "shard3": {
+              "documents": 0,
+              "megabytes": 0,
+              "orphaned": 0,
+              "chunks": 0
+            }
+          }
+        },
+        "prescriptions": {
+          "shardKey": "{\"patientId\": \"hashed\"}",
+          "perShard": {
+            "shard1": {
+              "documents": 0,
+              "megabytes": 0,
+              "orphaned": 0,
+              "chunks": 1
+            },
+            "shard2": {
+              "documents": 0,
+              "megabytes": 0,
+              "orphaned": 0,
+              "chunks": 1
+            },
+            "shard3": {
+              "documents": 0,
+              "megabytes": 0,
+              "orphaned": 0,
+              "chunks": 0
+            }
+          }
+        },
+        "appointments": {
+          "shardKey": "{\"doctorId\": \"hashed\"}",
+          "perShard": {
+            "shard1": {
+              "documents": 35618,
+              "megabytes": 11.07,
+              "orphaned": 20742,
+              "chunks": 1
+            },
+            "shard2": {
+              "documents": 34580,
+              "megabytes": 10.75,
+              "orphaned": 12025,
+              "chunks": 2
+            },
+            "shard3": {
+              "documents": 29802,
+              "megabytes": 9.27,
+              "orphaned": 0,
+              "chunks": 10
+            }
+          }
+        },
+        "sessions": {
+          "shardKey": "{\"_id\": \"hashed\"}",
+          "perShard": {
+            "shard1": {
+              "documents": 291,
+              "megabytes": 0.07,
+              "orphaned": 0,
+              "chunks": 1
+            },
+            "shard2": {
+              "documents": 313,
+              "megabytes": 0.07,
+              "orphaned": 0,
+              "chunks": 1
+            },
+            "shard3": {
+              "documents": 0,
+              "megabytes": 0,
+              "orphaned": 0,
+              "chunks": 0
+            }
+          }
+        }
+      }
+    },
+    "add-shard-timing": {
+      "addedAtEpochMs": 1792948835753,
+      "balancedAtEpochMs": 1792948900529,
+      "secondsToBalance": 64
+    },
+    "load-two-shards": {
+      "startedAtEpochMs": 1792948779342,
+      "seconds": 30,
+      "threads": 8,
+      "patients": 200,
+      "requests": 47981,
+      "errors": 0,
+      "errorStatuses": {},
+      "throughput": 1599,
+      "latencyMs": {
+        "count": 47989,
+        "avg": 4.972,
+        "p50": 4.391,
+        "p95": 8.375,
+        "p99": 13.475,
+        "max": 71.569
+      },
+      "okPerSecond": [
+        1254,
+        1161,
+        1056,
+        1124,
+        1170,
+        1139,
+        1303,
+        1305,
+        1484,
+        1692,
+        1521,
+        1745,
+        1581,
+        1233,
+        1737,
+        1621,
+        1788,
+        1542,
+        1876,
+        1994,
+        1906,
+        1990,
+        1832,
+        1656,
+        1767,
+        1967,
+        1994,
+        1847,
+        1718,
+        1978
+      ],
+      "errorsPerSecond": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "load-while-adding-shard3": {
+      "startedAtEpochMs": 1792948821469,
+      "seconds": 120,
+      "threads": 8,
+      "patients": 200,
+      "requests": 100399,
+      "errors": 0,
+      "errorStatuses": {},
+      "throughput": 837,
+      "latencyMs": {
+        "count": 100407,
+        "avg": 9.537,
+        "p50": 5.291,
+        "p95": 24.601,
+        "p99": 90.729,
+        "max": 1398.283
+      },
+      "okPerSecond": [
+        974,
+        803,
+        1281,
+        1163,
+        908,
+        1143,
+        1150,
+        1058,
+        1138,
+        1162,
+        728,
+        1010,
+        903,
+        1032,
+        1194,
+        1447,
+        1562,
+        1610,
+        1554,
+        1500,
+        1491,
+        1306,
+        1450,
+        1305,
+        1377,
+        1408,
+        1504,
+        1690,
+        1721,
+        1378,
+        1462,
+        1521,
+        1557,
+        1610,
+        1564,
+        1462,
+        1640,
+        1632,
+        1737,
+        1395,
+        1276,
+        1201,
+        1620,
+        1574,
+        1482,
+        1322,
+        1475,
+        1569,
+        1407,
+        1477,
+        1064,
+        528,
+        958,
+        1045,
+        796,
+        514,
+        1054,
+        1093,
+        221,
+        158,
+        178,
+        1020,
+        768,
+        134,
+        124,
+        138,
+        156,
+        398,
+        206,
+        185,
+        121,
+        303,
+        195,
+        155,
+        245,
+        45,
+        50,
+        237,
+        218,
+        153,
+        81,
+        82,
+        181,
+        158,
+        1776,
+        1208,
+        1216,
+        1080,
+        1002,
+        997,
+        848,
+        626,
+        733,
+        790,
+        1005,
+        812,
+        261,
+        188,
+        374,
+        302,
+        51,
+        196,
+        269,
+        184,
+        169,
+        93,
+        224,
+        219,
+        336,
+        72,
+        176,
+        1057,
+        436,
+        1233,
+        779,
+        259,
+        47,
+        206,
+        190,
+        90
+      ],
+      "errorsPerSecond": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "load-three-shards": {
+      "startedAtEpochMs": 1792948964166,
+      "seconds": 30,
+      "threads": 8,
+      "patients": 200,
+      "requests": 37670,
+      "errors": 0,
+      "errorStatuses": {},
+      "throughput": 1256,
+      "latencyMs": {
+        "count": 37678,
+        "avg": 6.338,
+        "p50": 5.098,
+        "p95": 12.582,
+        "p99": 23.799,
+        "max": 111.479
+      },
+      "okPerSecond": [
+        1407,
+        1344,
+        1342,
+        1542,
+        1315,
+        1388,
+        1386,
+        1391,
+        1104,
+        1613,
+        1467,
+        1134,
+        1223,
+        1266,
+        1295,
+        1595,
+        1672,
+        1626,
+        899,
+        1529,
+        1316,
+        857,
+        651,
+        1503,
+        1313,
+        1247,
+        1136,
+        671,
+        670,
+        768
+      ],
+      "errorsPerSecond": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "load-single-mongod": {
+      "startedAtEpochMs": 1792950537782,
+      "seconds": 30,
+      "threads": 8,
+      "patients": 200,
+      "requests": 34325,
+      "errors": 0,
+      "errorStatuses": {},
+      "throughput": 1144,
+      "latencyMs": {
+        "count": 34333,
+        "avg": 6.938,
+        "p50": 5.367,
+        "p95": 16.111,
+        "p99": 27.511,
+        "max": 109.758
+      },
+      "okPerSecond": [
+        860,
+        1144,
+        766,
+        965,
+        1151,
+        892,
+        662,
+        1218,
+        1334,
+        873,
+        1367,
+        1192,
+        907,
+        1132,
+        921,
+        950,
+        677,
+        826,
+        898,
+        1182,
+        1019,
+        1666,
+        1356,
+        1387,
+        1702,
+        1347,
+        1109,
+        1740,
+        1318,
+        1764
+      ],
+      "errorsPerSecond": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "load-single-mongod-repeat": {
+      "startedAtEpochMs": 1792950585981,
+      "seconds": 30,
+      "threads": 8,
+      "patients": 200,
+      "requests": 38506,
+      "errors": 0,
+      "errorStatuses": {},
+      "throughput": 1284,
+      "latencyMs": {
+        "count": 38514,
+        "avg": 6.181,
+        "p50": 4.863,
+        "p95": 14.045,
+        "p99": 23.076,
+        "max": 83.168
+      },
+      "okPerSecond": [
+        939,
+        1005,
+        940,
+        1322,
+        1005,
+        1111,
+        1246,
+        1016,
+        1013,
+        1406,
+        1102,
+        1170,
+        1050,
+        1382,
+        1385,
+        1079,
+        1448,
+        1210,
+        1219,
+        1663,
+        1400,
+        1270,
+        1373,
+        1667,
+        1950,
+        1444,
+        1309,
+        1495,
+        1262,
+        1625
+      ],
+      "errorsPerSecond": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "load-control-no-change": {
+      "startedAtEpochMs": 1792950852486,
+      "seconds": 120,
+      "threads": 8,
+      "patients": 200,
+      "requests": 79558,
+      "errors": 0,
+      "errorStatuses": {},
+      "throughput": 663,
+      "latencyMs": {
+        "count": 79566,
+        "avg": 12.012,
+        "p50": 9.715,
+        "p95": 25.551,
+        "p99": 44.175,
+        "max": 264.218
+      },
+      "okPerSecond": [
+        293,
+        190,
+        274,
+        334,
+        271,
+        297,
+        234,
+        381,
+        447,
+        506,
+        618,
+        429,
+        653,
+        572,
+        510,
+        332,
+        386,
+        555,
+        560,
+        545,
+        515,
+        464,
+        486,
+        660,
+        624,
+        555,
+        780,
+        740,
+        574,
+        523,
+        293,
+        426,
+        784,
+        667,
+        717,
+        691,
+        774,
+        652,
+        663,
+        734,
+        503,
+        425,
+        666,
+        706,
+        653,
+        621,
+        579,
+        827,
+        821,
+        782,
+        753,
+        522,
+        559,
+        636,
+        768,
+        613,
+        739,
+        811,
+        820,
+        801,
+        622,
+        571,
+        541,
+        703,
+        773,
+        788,
+        795,
+        785,
+        785,
+        801,
+        600,
+        514,
+        871,
+        692,
+        585,
+        822,
+        851,
+        702,
+        869,
+        807,
+        685,
+        630,
+        794,
+        805,
+        694,
+        707,
+        841,
+        887,
+        715,
+        791,
+        739,
+        593,
+        714,
+        795,
+        725,
+        679,
+        692,
+        753,
+        894,
+        861,
+        734,
+        632,
+        706,
+        771,
+        839,
+        813,
+        679,
+        836,
+        848,
+        737,
+        658,
+        712,
+        848,
+        966,
+        835,
+        625,
+        876,
+        819,
+        895,
+        944
+      ],
+      "errorsPerSecond": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "failure-shard2-down": {
+      "stoppedShard": "shard2",
+      "cacheEnabled": false,
+      "adminSignInAttempts": 2,
+      "groups": {
+        "data on other shards": {
+          "recordsRead": 120,
+          "signedInFirstTry": 58,
+          "profileRead": 120,
+          "signedInAfterRetry": 62,
+          "patients": 123,
+          "slowestReadMs": 108
+        },
+        "data on shard2": {
+          "recordsRead": 6,
+          "signedInFirstTry": 39,
+          "profileRead": 0,
+          "signedInAfterRetry": 36,
+          "patients": 77,
+          "slowestReadMs": 15531
+        },
+        "unsharded functions (HTTP status)": {
+          "doctor search": 200,
+          "emergency request (no login)": 201
+        }
+      }
+    },
+    "after-revive": {
+      "stoppedShard": "none",
+      "cacheEnabled": false,
+      "adminSignInAttempts": 1,
+      "groups": {
+        "data on other shards": {
+          "signedInFirstTry": 200,
+          "profileRead": 200,
+          "signedInAfterRetry": 0,
+          "patients": 200,
+          "slowestReadMs": 1112,
+          "recordsRead": 200
+        },
+        "unsharded functions (HTTP status)": {
+          "doctor search": 200,
+          "emergency request (no login)": 201
+        }
+      }
+    },
+    "healthy-recheck": {
+      "stoppedShard": "none",
+      "cacheEnabled": false,
+      "adminSignInAttempts": 1,
+      "groups": {
+        "data on other shards": {
+          "recordsRead": 200,
+          "slowestReadMs": 357,
+          "patients": 200,
+          "signedInAfterRetry": 0,
+          "profileRead": 200,
+          "signedInFirstTry": 200
+        },
+        "unsharded functions (HTTP status)": {
+          "doctor search": 200,
+          "emergency request (no login)": 201
+        }
+      }
+    }
+  },
+  "explain": {
+    "patientIdUsed": "PAT0Hjwc4oopFE",
+    "queries": [
+      {
+        "query": "records of one patient (filter on the shard key)",
+        "routerStage": "SINGLE_SHARD",
+        "shardsReached": [
+          "shard2"
+        ]
+      },
+      {
+        "query": "one patient by id (filter on the shard key)",
+        "routerStage": "SINGLE_SHARD",
+        "shardsReached": [
+          "shard2"
+        ]
+      },
+      {
+        "query": "all diagnoses (no shard key in the filter)",
+        "routerStage": "SHARD_MERGE",
+        "shardsReached": [
+          "shard1",
+          "shard2"
+        ]
+      },
+      {
+        "query": "bills over Rs 1,000 (no shard key in the filter)",
+        "routerStage": "SHARD_MERGE",
+        "shardsReached": [
+          "shard2",
+          "shard1"
+        ]
+      }
+    ]
+  }
+}

@@ -15,7 +15,11 @@ designed around seven system-design components that are implemented from scratch
 
 All data is synthetic. No real patient or medical data is used anywhere.
 
+- **[docs/SUMMARY.md](docs/SUMMARY.md)** — start here: the whole project and its results on a few pages
+- **[docs/TEST_REPORT.md](docs/TEST_REPORT.md)** — base system against the final scaled system under the same load (generated)
 - **[docs/REPORT.md](docs/REPORT.md)** — requirement analysis, component mapping with justification, architecture, evaluation and discussion
+- **[docs/COMPONENT_USAGE.md](docs/COMPONENT_USAGE.md)** — exactly where each of the seven components is used: file, line, endpoint and screen
+- **[docs/SHARDING.md](docs/SHARDING.md)** — the system on a MongoDB sharded cluster: shard keys, data spread, a shard added under load, a shard failure
 - **[docs/RESULTS.md](docs/RESULTS.md)** — every measured number as tables and graphs (generated)
 
 ## Requirements
@@ -23,6 +27,8 @@ All data is synthetic. No real patient or medical data is used anywhere.
 - JDK 17 or newer
 - Maven 3.9+
 - MongoDB running on `localhost:27017` (no authentication; any recent version)
+- Only for the sharded set-up: the MongoDB server programs `mongod` and `mongos`, version 7.1 or newer
+  (they come with the normal MongoDB server installation)
 
 ## Build and run
 
@@ -36,6 +42,8 @@ On Windows, double-click **`run.bat`** or run it from a terminal (in PowerShell 
 | `run.bat test` | runs the unit tests only |
 | `run.bat demo` | scripted walk-through of every workflow (the application must be running in another window) |
 | `run.bat bench all --quick` | performance evaluation; anything after `bench` goes to the benchmark tool |
+| `run.bat sharded` | starts a local MongoDB **sharded cluster** (router, config server, two shards), then the application on it |
+| `run.bat cluster status` | manages that cluster: `status`, `add-shard shard3 27203`, `kill shard2`, `revive shard2 27202`, `stop`, `reset` ([docs/SHARDING.md](docs/SHARDING.md)) |
 
 Set `HMS_PORT` first to use another port (`set HMS_PORT=8089`), and `HMS_NO_BROWSER=1` to not open the browser.
 
@@ -63,10 +71,12 @@ All settings are in [application.properties](hms-app/src/main/resources/applicat
 | Patient | `patient@hms.test` | `Patient@12345` | search a doctor, book, view bills and records, pick an insurance plan |
 | Doctor | `doctor@hms.test` | `Doctor@12345` | see the schedule, add a record, write a prescription |
 | Pharmacist | `pharmacist@hms.test` | `Pharma@12345` | dispense a prescription |
-| Administrator | `admin@hms.test` | `Admin@12345` | System tab: kill / add a cache server, metrics, crawler, rate-limit test |
+| Administrator | `admin@hms.test` | `Admin@12345` | the System page: live component figures and charts, stop / add a cache server, crawler, rate-limit test; add a doctor |
 
-You can also register a new patient from the first tab. To see the doctor's side of a booking, book the
-doctor whose name is shown when you sign in with the doctor account.
+The sign-in page has one-click buttons for all four. You can also register a new patient there. To see the
+doctor's side of a booking, book the doctor whose name is shown when you sign in with the doctor account.
+Without an account only the ambulance request is available; everything else needs a sign-in. The navigation
+shows each role only its own pages. The portal is white and orange, has an optional dark mode, and works on a phone.
 
 ## Scripted demonstration
 
@@ -87,7 +97,7 @@ link, an emergency request, the cluster view and the rate limiter, and checks ea
 java -jar hms-bench/target/hms-bench.jar all
 ```
 
-runs everything (about 15 minutes) and regenerates `docs/RESULTS.md` and the graphs in `docs/img/`.
+runs everything (about 20 minutes) and regenerates `docs/RESULTS.md`, `docs/TEST_REPORT.md` and the graphs in `docs/img/`.
 The parts can also be run one at a time:
 
 | Command | What it measures | Output |
@@ -95,7 +105,8 @@ The parts can also be run one at a time:
 | `components` | each of the seven components on its own, against a baseline | `results/components.json` |
 | `load` | the mixed workload at four load levels; data growth; cache, search and rate-limiter baselines | `results/load.json` |
 | `timeline` | a cache server killed, restarted and another added while under load | `results/timeline.json` |
-| `report` | draws the graphs and writes `docs/RESULTS.md` from the JSON files | `docs/` |
+| `compare` | the same workload on the base system (no cache, database searches, no rate limiter) and the final scaled system, at three load levels | `results/compare.json` |
+| `report` | draws the graphs and writes `docs/RESULTS.md` and `docs/TEST_REPORT.md` from the JSON files | `docs/` |
 
 Add `--quick` for a short trial run. `load` and `timeline` start their own copy of the application on
 port 8095 with a scratch database named `hms_bench`, so they do not disturb a running instance or its
@@ -114,12 +125,14 @@ hms-app/          the Spring Boot + MongoDB application
     web/            rate-limit filter, authentication, error handling
     resources/static/index.html   the web portal
 hms-bench/        load generator, component benchmarks, scenarios, graphs, demo
-docs/             report, generated results, graphs
+scripts/          end-to-end checks (business rules, web portal in a browser); the sharded-cluster script
+docs/             summary, report, component map, generated results, graphs
 results/          raw measurements (JSON)
 ```
 
 Unit tests: `mvn test` (22 tests covering every component, including key-value fail-over over real
-sockets and a full crawl of the simulated sites).
+sockets and a full crawl of the simulated sites). Two more end-to-end checks (33 business rules, and a
+49-check browser test of every role) are in [scripts/](scripts/README.md).
 
 ## API overview
 

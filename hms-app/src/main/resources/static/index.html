@@ -4,109 +4,468 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>HMS · Hospital Management System</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b7a75'/%3E%3Cpath d='M13 7h6v6h6v6h-6v6h-6v-6H7v-6h6z' fill='white'/%3E%3C/svg%3E">
 <style>
+  /* ---- design tokens ------------------------------------------------------------------ */
+  /* Light (white and orange) is the default. Dark is only used when chosen with the theme button. */
   :root {
-    --bg: #f4f7f9; --card: #ffffff; --text: #17252e; --muted: #5d707c; --line: #dbe3e8;
-    --accent: #0b7a75; --accent-text: #ffffff; --soft: #e6f3f2; --bad: #b3261e; --bad-soft: #fbeae9;
-    --warn: #8a5a00; --warn-soft: #fff4d6; --ok: #1b6e3c; --ok-soft: #e3f4e9;
+    color-scheme: light;
+    --bg: #fcfaf8; --surface: #ffffff; --surface-2: #fbf3ec; --text: #1f1a17; --text-2: #57493f; --muted: #7a6a5f;
+    --line: #f0e6dd; --line-strong: #e3d4c7;
+    --accent: #cf4a0a; --accent-hover: #b4400a; --accent-text: #c2410c; --accent-soft: #fff0e4; --accent-bright: #f97316; --on-accent: #ffffff;
+    --good: #15803d; --good-soft: #e8f6ec; --warn: #92400e; --warn-soft: #fef3c7; --bad: #b91c1c; --bad-soft: #fdecec;
+    --danger: #c81e1e;
+    --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a; --series-4: #eda100; --series-5: #e87ba4; --series-6: #008300;
+    --chart-line: #eb6834; --grid: #ece6df; --axis: #d3c8bd; --chart-ink: #6b5d52;
+    --sev-1: #d03b3b; --sev-2: #ec835a; --sev-3: #fab219; --sev-4: #8a97a0; --sev-5: #b9c3c9;
+    --hero-1: #fff8f1; --hero-2: #ffe9d6; --hero-glow: #ffd2ad;
+    --shadow: 0 1px 2px rgba(60, 30, 10, .04), 0 4px 12px rgba(60, 30, 10, .05);
+    --shadow-lg: 0 18px 50px rgba(60, 30, 10, .16);
+    --radius: 14px;
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #10181d; --card: #18242b; --text: #e6edf1; --muted: #9bb0bc; --line: #2b3b45;
-      --accent: #3fbfb6; --accent-text: #06211f; --soft: #1d3436; --bad: #ff8a80; --bad-soft: #3a1f1d;
-      --warn: #ffcf66; --warn-soft: #3a2f12; --ok: #7fd9a2; --ok-soft: #17332b;
-    }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #14100e; --surface: #1c1714; --surface-2: #241e1a; --text: #f5ede6; --text-2: #d4c4b6; --muted: #a8968a;
+    --line: #33291f; --line-strong: #45382c;
+    --accent: #fb8a3c; --accent-hover: #fda65f; --accent-text: #fb8a3c; --accent-soft: #3a2416; --accent-bright: #fb8a3c; --on-accent: #1a0c03;
+    --good: #7fd9a2; --good-soft: #15301f; --warn: #ffcf66; --warn-soft: #33290f; --bad: #ff8a80; --bad-soft: #3a1c1a;
+    --danger: #d23b3b;
+    --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500; --series-5: #d55181; --series-6: #008300;
+    --chart-line: #d95926; --grid: #2c2622; --axis: #45382c; --chart-ink: #c3b6aa;
+    --sev-4: #7b8a93; --sev-5: #55646c;
+    --hero-1: #1c1511; --hero-2: #2a1a10; --hero-glow: #4a2510;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3); --shadow-lg: 0 18px 50px rgba(0, 0, 0, .5);
   }
+
+  /* ---- base ----------------------------------------------------------------------------- */
   * { box-sizing: border-box; }
-  body { margin: 0; font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); }
-  header { display: flex; align-items: center; gap: 16px; padding: 14px 24px; background: var(--card); border-bottom: 1px solid var(--line); }
-  header h1 { font-size: 18px; margin: 0; flex: 1; }
-  header h1 span { color: var(--accent); }
-  #who { color: var(--muted); font-size: 14px; }
-  nav { display: flex; gap: 4px; padding: 0 20px; background: var(--card); border-bottom: 1px solid var(--line); overflow-x: auto; }
-  nav button { border: 0; background: none; color: var(--muted); padding: 12px 16px; font: inherit; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
-  nav button.on { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
-  main { max-width: 1120px; margin: 0 auto; padding: 20px 16px 60px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); align-items: start; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; min-width: 0; }
-  .card.wide { grid-column: 1 / -1; }
-  .card h2 { font-size: 16px; margin: 0 0 4px; }
-  .card p.hint { color: var(--muted); margin: 0 0 12px; font-size: 13.5px; }
-  label { display: block; font-size: 13px; color: var(--muted); margin: 10px 0 3px; }
-  input, select, textarea { width: 100%; padding: 8px 10px; font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 7px; }
-  textarea { min-height: 70px; resize: vertical; }
-  input:focus, select:focus, textarea:focus, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-  button.btn { border: 1px solid var(--accent); background: var(--accent); color: var(--accent-text); padding: 8px 14px; border-radius: 7px; font: inherit; font-weight: 600; cursor: pointer; }
-  button.btn.ghost { background: transparent; color: var(--accent); }
-  button.btn.danger { background: #b3261e; border-color: #b3261e; color: #fff; }
-  button.btn.small { padding: 4px 10px; font-size: 13px; font-weight: 500; }
-  button.btn:disabled { opacity: .45; cursor: not-allowed; }
-  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
-  .row > * { flex: 1; min-width: 120px; }
-  .row > button { flex: 0 0 auto; min-width: 0; }
-  .actions { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; }
-  table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
-  th { color: var(--muted); font-weight: 600; font-size: 12.5px; }
-  .scroll { overflow-x: auto; }
-  .tag { display: inline-block; padding: 1px 8px; border-radius: 99px; font-size: 12px; font-weight: 600; background: var(--soft); color: var(--accent); }
-  .tag.ok { background: var(--ok-soft); color: var(--ok); }
-  .tag.bad { background: var(--bad-soft); color: var(--bad); }
-  .tag.warn { background: var(--warn-soft); color: var(--warn); }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; }
+  body { font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); }
+  h1, h2, h3 { margin: 0; line-height: 1.25; }
+  h1 { font-size: 26px; letter-spacing: -.01em; }
+  h2 { font-size: 16px; }
+  h3 { font-size: 14px; }
+  p { margin: 0; }
+  a { color: var(--accent-text); }
   .muted { color: var(--muted); }
-  .mono { font-family: ui-monospace, Consolas, monospace; font-size: 12.5px; word-break: break-all; }
-  .suggest { position: relative; }
-  .suggest ul { list-style: none; margin: 4px 0 0; padding: 4px; position: absolute; z-index: 5; left: 0; right: 0; background: var(--card); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.14); }
-  .suggest ul:empty { display: none; }
-  .suggest li button { width: 100%; text-align: left; border: 0; background: none; color: var(--text); padding: 7px 9px; border-radius: 6px; font: inherit; cursor: pointer; display: flex; justify-content: space-between; gap: 10px; }
-  .suggest li button:hover, .suggest li button:focus { background: var(--soft); }
-  .latency { font-size: 12px; color: var(--muted); min-height: 18px; margin-top: 4px; }
-  .slots { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-  .slots button { border: 1px solid var(--line); background: var(--bg); color: var(--text); border-radius: 6px; padding: 5px 10px; font: inherit; cursor: pointer; }
-  .slots button.sel { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
-  .slots button:disabled { opacity: .35; text-decoration: line-through; cursor: not-allowed; }
-  .list { display: grid; gap: 8px; }
-  .item { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
-  .item.hl { border-color: var(--accent); box-shadow: 0 0 0 2px var(--soft); }
-  .bar { height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; min-width: 80px; }
-  .bar i { display: block; height: 100%; background: var(--accent); }
-  .big { font-size: 22px; font-weight: 700; }
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
-  .stats div { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
-  .stats small { color: var(--muted); display: block; }
-  #toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 8px; max-width: 90vw; display: none; z-index: 20; }
-  #toast.bad { background: var(--bad); color: #fff; }
-  .sev { border-left: 4px solid var(--bad); }
+  .small { font-size: 13px; }
+  .mono { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 12.5px; word-break: break-all; }
+  .num { font-variant-numeric: tabular-nums; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  svg.i { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* ---- shell ---------------------------------------------------------------------------- */
+  .app { display: grid; grid-template-columns: 252px minmax(0, 1fr); min-height: 100vh; }
+  .sidebar { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; gap: 4px; padding: 22px 16px;
+    background: var(--surface); border-right: 1px solid var(--line); overflow-y: auto; }
+  .brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 16px; text-decoration: none; color: var(--text); }
+  .brand-mark { width: 34px; height: 34px; border-radius: 9px; background: var(--accent); display: grid; place-items: center; }
+  .brand-mark svg { width: 20px; height: 20px; fill: var(--on-accent); }
+  .brand b { display: block; font-size: 15px; }
+  .brand span { font-size: 12px; color: var(--muted); }
+  .nav { display: flex; flex-direction: column; gap: 2px; }
+  .nav-label { font-size: 11.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); padding: 12px 10px 4px; }
+  .nav a { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; color: var(--text-2); text-decoration: none; font-weight: 500; }
+  .nav a:hover { background: var(--surface-2); color: var(--text); }
+  .nav a[aria-current="page"] { background: var(--accent-soft); color: var(--accent-text); font-weight: 600; }
+  .nav a.danger { color: var(--bad); }
+  .nav a.danger[aria-current="page"] { background: var(--bad-soft); }
+  .sidebar-foot { margin-top: auto; padding-top: 14px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; }
+  .userbox { display: flex; align-items: center; gap: 10px; padding: 4px 6px; }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 13px;
+    background: var(--accent-soft); color: var(--accent); flex: none; }
+  .userbox .who { min-width: 0; }
+  .userbox .who b { display: block; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .foot-actions { display: flex; gap: 6px; }
+  .main { min-width: 0; display: flex; flex-direction: column; }
+  .topbar { display: flex; align-items: center; gap: 12px; padding: 26px 40px 6px; width: 100%; max-width: 1520px; margin: 0 auto; }
+  .topbar .titles { flex: 1; min-width: 0; }
+  .topbar p { color: var(--muted); margin-top: 2px; }
+  #menu-btn { display: none; }
+  .page { padding: 18px 40px 56px; display: flex; flex-direction: column; gap: 22px; max-width: 1520px; width: 100%; margin: 0 auto; }
+  .footnote { padding: 0 40px 24px; color: var(--muted); font-size: 12.5px; max-width: 1520px; width: 100%; margin: 0 auto; }
+  .scrim { display: none; }
+
+  /* ---- building blocks ------------------------------------------------------------------ */
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px 24px; min-width: 0; }
+  .card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .card-head h2 { flex: 1; }
+  .card-head p { width: 100%; color: var(--muted); font-size: 13.5px; }
+  .grid { display: grid; gap: 18px; }
+  .cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .split { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); align-items: start; }
+  .stack { display: flex; flex-direction: column; gap: 10px; }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .spacer { flex: 1; }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 1px solid var(--accent); background: var(--accent);
+    color: var(--on-accent); padding: 8px 14px; border-radius: 8px; font: inherit; font-weight: 600; cursor: pointer; text-decoration: none; white-space: nowrap; }
+  .btn:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .btn.secondary { background: var(--surface); color: var(--text); border-color: var(--line-strong); }
+  .btn.secondary:hover { background: var(--surface-2); }
+  .btn.ghost { background: transparent; color: var(--accent); border-color: transparent; padding-left: 8px; padding-right: 8px; }
+  .btn.ghost:hover { background: var(--accent-soft); }
+  .btn.danger { background: var(--danger); border-color: var(--danger); color: #fff; }
+  .btn.danger:hover { filter: brightness(1.08); }
+  .btn.small { padding: 5px 10px; font-size: 13px; font-weight: 500; }
+  .btn.block { width: 100%; }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .icon-btn { border: 1px solid var(--line); background: var(--surface); color: var(--text-2); border-radius: 8px; padding: 7px; cursor: pointer; display: inline-grid; place-items: center; }
+  .icon-btn:hover { background: var(--surface-2); color: var(--text); }
+
+  label { display: block; font-size: 13px; font-weight: 500; color: var(--text-2); margin: 12px 0 4px; }
+  input, select, textarea { width: 100%; padding: 9px 11px; font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--line-strong); border-radius: 8px; }
+  input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--accent); }
+  textarea { min-height: 76px; resize: vertical; }
+  .field-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0 12px; }
+  .form-actions { margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .hint { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+
+  .chip { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: 99px; font-size: 12px; font-weight: 600;
+    background: var(--surface-2); color: var(--text-2); white-space: nowrap; }
+  .chip svg.i { width: 13px; height: 13px; stroke-width: 2.4; }
+  .chip.good { background: var(--good-soft); color: var(--good); }
+  .chip.warn { background: var(--warn-soft); color: var(--warn); }
+  .chip.bad { background: var(--bad-soft); color: var(--bad); }
+  .chip.accent { background: var(--accent-soft); color: var(--accent-text); }
+  .powered { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 600; color: var(--accent-text); background: var(--accent-soft);
+    border-radius: 6px; padding: 2px 8px; }
+  .powered svg.i { width: 13px; height: 13px; }
+
+  .tabs { display: inline-flex; padding: 3px; background: var(--surface-2); border-radius: 9px; gap: 2px; }
+  .tabs button { border: 0; background: none; color: var(--text-2); padding: 6px 14px; border-radius: 7px; font: inherit; font-weight: 500; cursor: pointer; }
+  .tabs button[aria-selected="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+
+  .stat { padding: 16px 18px; }
+  .stat .label { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+  .stat .value { font-size: 28px; font-weight: 650; margin-top: 6px; line-height: 1.2; }
+  .stat .sub { font-size: 13px; color: var(--text-2); margin-top: 2px; }
+
+  .list { display: flex; flex-direction: column; }
+  .list > .item { display: flex; gap: 14px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); }
+  .list > .item:first-child { border-top: 0; padding-top: 2px; }
+  .item .body { flex: 1; min-width: 0; }
+  .item .body b { display: block; }
+  .datebox { width: 52px; flex: none; text-align: center; border-radius: 10px; background: var(--accent-soft); color: var(--accent); padding: 6px 0; line-height: 1.1; }
+  .datebox b { display: block; font-size: 19px; }
+  .datebox span { font-size: 11px; font-weight: 600; text-transform: uppercase; }
+  .empty { text-align: center; color: var(--muted); padding: 26px 10px; }
+  .empty svg.i { width: 30px; height: 30px; display: block; margin: 0 auto 8px; opacity: .6; }
+  .loading { color: var(--muted); padding: 20px 0; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  th { color: var(--muted); font-weight: 600; font-size: 12.5px; }
+  td.r, th.r { text-align: right; }
+  .table-wrap { overflow-x: auto; }
+
+  /* search with suggestions */
+  .combo { position: relative; }
+  .searchbar { display: flex; align-items: center; gap: 8px; border: 1px solid var(--line-strong); border-radius: 10px; padding: 0 12px; background: var(--surface); }
+  .searchbar:focus-within { outline: 2px solid var(--accent); border-color: var(--accent); }
+  .searchbar svg.i { color: var(--muted); }
+  .searchbar input { border: 0; padding: 12px 0; font-size: 16px; background: transparent; }
+  .searchbar input:focus { outline: none; }
+  .combo-list { list-style: none; margin: 6px 0 0; padding: 6px; position: absolute; z-index: 20; left: 0; right: 0; background: var(--surface);
+    border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow-lg); max-height: 360px; overflow-y: auto; }
+  .combo-list li { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 7px; cursor: pointer; }
+  .combo-list li[aria-selected="true"], .combo-list li:hover { background: var(--accent-soft); }
+  .combo-list li .t { flex: 1; min-width: 0; }
+  .combo-meta { font-size: 12.5px; color: var(--muted); min-height: 19px; margin-top: 6px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .pill-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+  .pill { border: 1px solid var(--line-strong); background: var(--surface); color: var(--text-2); border-radius: 99px; padding: 6px 13px; font: inherit; font-size: 13.5px; cursor: pointer; white-space: nowrap; }
+  .pill:hover { border-color: var(--accent); color: var(--accent); }
+  .pill[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+
+  /* doctor cards */
+  .doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+  .doc { display: flex; flex-direction: column; gap: 12px; }
+  .doc-top { display: flex; gap: 12px; align-items: center; }
+  .doc .avatar { width: 44px; height: 44px; font-size: 15px; }
+  .doc-meta { display: flex; gap: 14px; font-size: 13.5px; color: var(--text-2); }
+  .doc-meta span { display: inline-flex; align-items: center; gap: 4px; }
+  .doc-meta svg.i { width: 15px; height: 15px; }
+
+  /* date and slot pickers */
+  .days { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 6px; }
+  .day { flex: none; width: 62px; border: 1px solid var(--line-strong); background: var(--surface); border-radius: 10px; padding: 7px 0; text-align: center; cursor: pointer; color: var(--text); font: inherit; line-height: 1.2; }
+  .day small { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: 600; }
+  .day b { font-size: 18px; }
+  .day[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .day[aria-pressed="true"] small { color: inherit; }
+  .day:disabled { opacity: .35; cursor: not-allowed; }
+  .slot-group h3 { font-size: 12.5px; color: var(--muted); font-weight: 600; margin: 12px 0 6px; }
+  .slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(74px, 1fr)); gap: 6px; }
+  .slot { border: 1px solid var(--line-strong); background: var(--surface); color: var(--text); border-radius: 8px; padding: 7px 0; font: inherit; font-size: 14px; cursor: pointer; }
+  .slot:hover:not(:disabled) { border-color: var(--accent); }
+  .slot[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+  .slot:disabled { color: var(--muted); background: var(--surface-2); text-decoration: line-through; cursor: not-allowed; border-color: var(--line); }
+
+  /* bills */
+  .bill { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  .bill.focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .bill-lines { font-size: 13.5px; color: var(--text-2); margin: 8px 0; }
+  .bill-lines div { display: flex; justify-content: space-between; gap: 12px; }
+  .meter { height: 8px; border-radius: 99px; background: var(--accent-soft); overflow: hidden; }
+  .meter i { display: block; height: 100%; background: var(--accent); border-radius: 99px; }
+  .amount { font-size: 22px; font-weight: 650; }
+  .linkbox { display: flex; gap: 6px; align-items: center; background: var(--surface-2); border-radius: 8px; padding: 6px 6px 6px 10px; margin-top: 10px; }
+  .linkbox a { flex: 1; min-width: 0; }
+
+  /* emergency */
+  .sev-group { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+  .sev-group label { margin: 0; }
+  .sev-group input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .sev-opt { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 9px 4px; border: 1px solid var(--line-strong); border-radius: 9px; cursor: pointer; text-align: center; font-size: 12.5px; color: var(--text-2); }
+  .sev-opt i { width: 12px; height: 12px; border-radius: 50%; display: block; }
+  .sev-opt b { font-size: 15px; color: var(--text); }
+  .sev-group input:checked + .sev-opt { border-color: var(--text); box-shadow: inset 0 0 0 1px var(--text); }
+  .sev-group input:focus-visible + .sev-opt { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .sev-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .eta { font-size: 44px; font-weight: 700; line-height: 1; }
+  .hero-emergency { border-left: 4px solid var(--danger); }
+
+  /* welcome */
+  .hero { background: linear-gradient(135deg, var(--accent-soft), var(--surface)); }
+  .hero h1 { font-size: 28px; margin-bottom: 8px; }
+  .quick { display: flex; gap: 12px; align-items: center; padding: 14px; border: 1px solid var(--line); border-radius: 10px; text-decoration: none; color: var(--text); background: var(--surface); }
+  .quick:hover { border-color: var(--accent); }
+  .quick .qi { width: 38px; height: 38px; border-radius: 9px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); flex: none; }
+  .quick-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 18px; }
+  .quick-grid .quick { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .quick.danger .qi { background: var(--bad-soft); color: var(--bad); }
+  .demo-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .demo { display: flex; align-items: center; gap: 10px; text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 10px; font: inherit; color: var(--text); cursor: pointer; }
+  .demo:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .demo .avatar { width: 32px; height: 32px; font-size: 12px; }
+  .demo small { display: block; color: var(--muted); font-size: 12px; }
+
+  /* system */
+  .comp { display: flex; flex-direction: column; gap: 4px; }
+  .comp .k { font-size: 22px; font-weight: 650; }
+  .comp-head { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; }
+  .comp-head .qi { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
+  .switch { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .switch:first-of-type { border-top: 0; }
+  .toggle { position: relative; width: 44px; height: 24px; border-radius: 99px; border: 0; background: var(--line-strong); cursor: pointer; flex: none; }
+  .toggle::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .15s; box-shadow: 0 1px 2px rgba(0,0,0,.3); }
+  .toggle[aria-checked="true"] { background: var(--accent); }
+  .toggle[aria-checked="true"]::after { transform: translateX(20px); }
+  .chart-host { position: relative; }
+  .chart-host svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .chart-host svg:focus { outline: none; }
+  .chart-host svg:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+  .tooltip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow-lg);
+    padding: 7px 10px; font-size: 12.5px; white-space: nowrap; z-index: 5; display: none; }
+  .tooltip b { display: block; font-size: 15px; }
+  .tooltip .key { display: inline-block; width: 12px; height: 2px; vertical-align: middle; margin-right: 6px; }
+  .donut-wrap { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 18px; align-items: center; }
+  .keydot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  details.tableview summary { cursor: pointer; color: var(--accent); font-size: 13px; margin-top: 8px; }
+
+  /* dialog and toasts */
+  dialog { border: 0; padding: 0; border-radius: 14px; box-shadow: var(--shadow-lg); background: var(--surface); color: var(--text); width: min(560px, calc(100vw - 32px)); max-height: calc(100vh - 48px); }
+  dialog::backdrop { background: rgba(10, 18, 22, .45); }
+  .dlg-head { display: flex; align-items: center; gap: 10px; padding: 18px 20px 10px; }
+  .dlg-head h2 { flex: 1; font-size: 17px; }
+  .dlg-body { padding: 4px 20px 8px; overflow-y: auto; max-height: calc(100vh - 190px); }
+  .dlg-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 20px 18px; }
+  #toasts { position: fixed; right: 20px; bottom: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 50; max-width: min(420px, calc(100vw - 40px)); }
+  .toast { display: flex; gap: 10px; align-items: flex-start; background: var(--text); color: var(--bg); padding: 11px 14px; border-radius: 10px; box-shadow: var(--shadow-lg); font-size: 14px; }
+  .toast.bad { background: var(--danger); color: #fff; }
+  .toast svg.i { margin-top: 1px; }
+
+  /* guests: no sidebar; a slim bar, and a full-screen landing page */
+  .guestbar { display: flex; align-items: center; gap: 10px; padding: 14px 40px; border-bottom: 1px solid var(--line); background: var(--surface); }
+  .guestbar .brand { padding: 0; }
+  .app.guest { grid-template-columns: minmax(0, 1fr); }
+  .app.guest .sidebar, .app.guest #menu-btn { display: none; }
+  .app.landing .topbar, .app.landing .guestbar, .app.landing .footnote { display: none; }
+  .app.landing .page { padding: 0; max-width: none; }
+  .landing { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); min-height: 100vh; }
+  .landing-hero { position: relative; overflow: hidden; padding: 44px 64px; display: flex; flex-direction: column; gap: 44px;
+    background: radial-gradient(circle at 88% 12%, var(--hero-glow) 0, transparent 38%), radial-gradient(circle at 8% 92%, var(--hero-glow) 0, transparent 34%),
+      linear-gradient(160deg, var(--hero-1) 0%, var(--hero-2) 100%); }
+  .landing-hero::after { content: ""; position: absolute; right: -120px; bottom: 120px; width: 360px; height: 360px; border-radius: 50%;
+    border: 46px solid var(--accent-bright); opacity: .08; pointer-events: none; }
+  .brand.big .brand-mark { width: 42px; height: 42px; border-radius: 11px; }
+  .brand.big b { font-size: 18px; }
+  .eyebrow { display: inline-block; font-size: 12.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-text);
+    background: var(--surface); border: 1px solid var(--line); border-radius: 99px; padding: 5px 12px; margin-bottom: 18px; }
+  .hero-copy { max-width: 620px; position: relative; z-index: 1; }
+  .hero-copy h1 { font-size: clamp(34px, 4.2vw, 56px); line-height: 1.06; letter-spacing: -.025em; margin-bottom: 16px; }
+  .hero-copy h1 em { font-style: normal; color: var(--accent); }
+  .hero-copy > p { font-size: 17px; color: var(--text-2); max-width: 540px; }
+  .features { list-style: none; margin: 30px 0 0; padding: 0; display: grid; gap: 14px; }
+  .features li { display: flex; gap: 14px; align-items: flex-start; background: rgba(255, 255, 255, .62); border: 1px solid var(--line);
+    border-radius: 12px; padding: 14px 16px; backdrop-filter: blur(4px); }
+  :root[data-theme="dark"] .features li { background: rgba(255, 255, 255, .03); }
+  .features .qi { width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; background: var(--accent); color: var(--on-accent); flex: none; }
+  .features b { display: block; }
+  .features span { color: var(--text-2); font-size: 14px; }
+  .emergency-cta { margin-top: auto; position: relative; z-index: 1; display: flex; align-items: center; gap: 16px; padding: 18px 22px; border-radius: 14px;
+    background: var(--danger); color: #fff; text-decoration: none; box-shadow: 0 10px 30px rgba(200, 30, 30, .25); max-width: 620px; }
+  .emergency-cta:hover { filter: brightness(1.06); }
+  .emergency-cta .qi { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: rgba(255, 255, 255, .18); flex: none; }
+  .emergency-cta .qi svg.i { width: 24px; height: 24px; }
+  .emergency-cta b { display: block; font-size: 17px; }
+  .emergency-cta small { opacity: .92; font-size: 14px; }
+  .emergency-cta .go { margin-left: auto; }
+  .landing-auth { display: grid; place-items: center; padding: 48px 40px; background: var(--surface); }
+  .auth-card { width: min(440px, 100%); }
+  .auth-card h2 { font-size: 26px; letter-spacing: -.01em; }
+  .auth-card .tabs { margin: 22px 0 6px; width: 100%; }
+  .auth-card .tabs button { flex: 1; }
+  .auth-card input, .auth-card select { padding: 11px 13px; }
+  .auth-card .btn.block { padding: 12px; font-size: 15.5px; }
+  .divider { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 13px; margin: 26px 0 14px; }
+  .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+
+  /* ---- responsive ----------------------------------------------------------------------- */
+  @media (max-width: 1100px) {
+    .cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .cols-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .split { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 860px) {
+    .app { grid-template-columns: minmax(0, 1fr); }
+    .sidebar { position: fixed; z-index: 40; left: 0; top: 0; width: 272px; transform: translateX(-100%); visibility: hidden; transition: transform .2s, visibility .2s; }
+    .app.nav-open .sidebar { transform: none; visibility: visible; box-shadow: var(--shadow-lg); }
+    .app.nav-open .scrim { display: block; position: fixed; inset: 0; background: rgba(10, 18, 22, .4); z-index: 30; }
+    #menu-btn { display: inline-grid; }
+    .topbar { padding: 14px 16px 2px; }
+    .page { padding: 12px 16px 40px; }
+    .footnote { padding: 0 16px 20px; }
+    .cols-2, .cols-3 { grid-template-columns: minmax(0, 1fr); }
+    .donut-wrap { grid-template-columns: minmax(0, 1fr); justify-items: center; }
+    .demo-grid { grid-template-columns: minmax(0, 1fr); }
+    .landing { grid-template-columns: minmax(0, 1fr); }
+    .landing-hero { padding: 28px 20px; gap: 28px; }
+    .landing-auth { padding: 32px 20px; }
+    .guestbar { padding: 12px 16px; }
+  }
+  @media (max-width: 520px) {
+    .cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .stat { padding: 12px 14px; }
+    .stat .value { font-size: 19px; }
+    .sev-group { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
 </style>
 </head>
 <body>
-<header>
-  <h1><span>HMS</span> · Hospital Management System</h1>
-  <div id="who"></div>
-</header>
-<nav id="tabs">
-  <button data-tab="patient">Patient portal</button>
-  <button data-tab="pharmacy">Pharmacy</button>
-  <button data-tab="emergency">Emergency</button>
-  <button data-tab="staff">Staff desk</button>
-  <button data-tab="system">System</button>
-</nav>
-<main id="view"></main>
-<div id="toast" role="status"></div>
+<div class="app" id="app">
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <a class="brand" href="#/">
+      <span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 3h5v6.5H21v5h-6.5V21h-5v-6.5H3v-5h6.5z"/></svg></span>
+      <span><b>HMS</b><span>Hospital Management System</span></span>
+    </a>
+    <nav class="nav" id="nav"></nav>
+    <div class="sidebar-foot" id="sidebar-foot"></div>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+  <div class="main">
+    <header class="guestbar" id="guestbar" hidden>
+      <a class="brand" href="#/welcome">
+        <span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 3h5v6.5H21v5h-6.5V21h-5v-6.5H3v-5h6.5z"/></svg></span>
+        <span><b>HMS</b><span>Hospital Management System</span></span>
+      </a>
+      <span class="spacer"></span>
+      <a class="btn secondary" href="#/welcome" id="gb-signin">Sign in</a>
+    </header>
+    <header class="topbar">
+      <button class="icon-btn" id="menu-btn" aria-label="Open menu" aria-controls="sidebar"></button>
+      <div class="titles"><h1 id="page-title">Loading…</h1><p id="page-sub"></p></div>
+      <div id="top-actions" class="row"></div>
+    </header>
+    <main class="page" id="page" tabindex="-1"></main>
+    <div class="footnote">All people, medicines and insurers in this prototype are synthetic. Nothing here is real patient or medical information.</div>
+  </div>
+</div>
+<dialog id="modal" aria-labelledby="modal-title"></dialog>
+<div id="toasts" role="status" aria-live="polite"></div>
 
 <script>
 'use strict';
+
+// ===== helpers ===================================================================================
+
 const $ = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 const money = paise => '₹' + (paise / 100).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-const today = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
-const pct = x => (x * 100).toFixed(1) + '%';
+const pct = (x, digits = 1) => (x * 100).toFixed(digits) + '%';
+const compact = n => n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e4 ? (n / 1e3).toFixed(1) + 'K' : Math.round(n).toLocaleString('en-IN');
+const isoDay = d => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+const today = () => isoDay(new Date());
+const nowHHMM = () => new Date().toTimeString().slice(0, 5);
+const parseDay = s => new Date(s + 'T00:00:00');
+const fmtDay = s => parseDay(s).toLocaleDateString('en-IN', {weekday: 'short', day: 'numeric', month: 'short'});
+const fmtDateTime = s => new Date(s).toLocaleString('en-IN', {day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'});
+const initials = name => String(name || '?').replace(/^Dr\.?\s*/, '').split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
-const state = {
-  token: localStorage.getItem('hms.token'), user: null, tab: 'patient',
-  doctor: null, slotDate: today(), slot: null, rxItems: [], emergencyId: null, focusBill: null, timer: null
+const ICONS = {
+  home: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/>',
+  calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  file: '<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/>',
+  receipt: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',
+  pill: '<path d="M10.5 3.5a5 5 0 0 1 7 7l-7 7a5 5 0 0 1-7-7z"/><path d="M7 10l7 7"/>',
+  siren: '<path d="M7 18v-6a5 5 0 0 1 10 0v6"/><path d="M5 21h14M12 2v2M4.2 5.2l1.4 1.4M19.8 5.2l-1.4 1.4M4 18h16"/>',
+  users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/>',
+  server: '<rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/>',
+  userplus: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M19 8v6M16 11h6"/>',
+  login: '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/>',
+  logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  moon: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
+  menu: '<path d="M4 6h16M4 12h16M4 18h16"/>',
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  x: '<path d="M6 6l12 12M18 6L6 18"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  star: '<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.5 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+  copy: '<rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/>',
+  refresh: '<path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/>',
+  alert: '<path d="M12 3l9.5 17h-19z"/><path d="M12 10v4M12 17h.01"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  shield: '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>',
+  gauge: '<path d="M4 18a9 9 0 1 1 16 0"/><path d="M12 14l4-5"/>',
+  hash: '<path d="M5 9h15M4 15h15M10 3L8 21M16 3l-2 18"/>',
+  zap: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+  globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
+  database: '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
+  activity: '<path d="M3 12h4l3-8 4 16 3-8h4"/>',
+  stethoscope: '<path d="M6 3v6a4 4 0 0 0 8 0V3M10 13v2a5 5 0 0 0 10 0v-2"/><circle cx="20" cy="11" r="2"/>',
+  ambulance: '<path d="M3 7h11v10H3zM14 10h4l3 3v4h-7"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/><path d="M8.5 9.5v4M6.5 11.5h4"/>',
+  heart: '<path d="M12 20s-7-4.4-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.6-9 9-9 9z"/>',
 };
+const icon = (name, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[name] || ''}</svg>`;
+const powered = (what, title) => `<span class="powered" title="${esc(title || '')}">${icon('zap')}${esc(what)}</span>`;
+const empty = (ic, text) => `<div class="empty">${icon(ic)}${esc(text)}</div>`;
 
-// ---- plumbing -------------------------------------------------------------------------------
+const STATUS = {
+  BOOKED: ['good', 'check', 'Booked'], COMPLETED: ['', 'check', 'Completed'], CANCELLED: ['bad', 'x', 'Cancelled'],
+  PAID: ['good', 'check', 'Paid'], UNPAID: ['warn', 'clock', 'Unpaid'],
+  ISSUED: ['warn', 'clock', 'Waiting at pharmacy'], DISPENSING: ['warn', 'clock', 'Dispensing'], DISPENSED: ['good', 'check', 'Dispensed'],
+  QUEUED: ['warn', 'clock', 'Queued'], DISPATCHED: ['good', 'ambulance', 'Dispatched'], RESOLVED: ['', 'check', 'Resolved'],
+  FREE: ['good', 'check', 'Free'], BUSY: ['warn', 'ambulance', 'On a call'],
+};
+const chip = (cls, ic, text) => `<span class="chip ${cls}">${icon(ic)}${esc(text)}</span>`;
+const statusChip = s => { const [cls, ic, text] = STATUS[s] || ['', 'clock', s]; return `<span class="chip ${cls}">${icon(ic)}${esc(text)}</span>`; };
+const SEVERITY = {1: 'Critical', 2: 'Serious', 3: 'Urgent', 4: 'Moderate', 5: 'Minor'};
+const sevChip = n => `<span class="chip"><span class="sev-dot" style="background:var(--sev-${n})"></span>${n} · ${SEVERITY[n]}</span>`;
+const RECORD_TYPES = {DIAGNOSIS: 'Diagnosis', LAB_RESULT: 'Lab result', VITALS: 'Vitals', NOTE: 'Note'};
+
+// ===== state, API, feedback =====================================================================
+
+const state = {token: null, user: null, timers: [], charts: {}};
+try { state.token = localStorage.getItem('hms.token'); } catch { /* storage unavailable */ }
 
 async function api(method, path, body) {
   const headers = {};
@@ -117,546 +476,1117 @@ async function api(method, path, body) {
   let data = null;
   if (text) { try { data = JSON.parse(text); } catch { data = text; } }
   if (!res.ok) {
-    if (res.status === 401 && state.token && !path.startsWith('/api/auth/')) signOut();
-    const err = new Error(data && data.error ? data.error : 'Request failed (' + res.status + ')');
+    if (res.status === 401 && state.token && !path.startsWith('/api/auth/')) { setSession(null); toast('Your session has ended. Please sign in again.', true); go('welcome'); }
+    const err = new Error(res.status === 429 ? 'Too many requests. Please wait a moment and try again.' : (data && data.error) || `Request failed (${res.status})`);
     err.status = res.status;
     throw err;
   }
   return data;
 }
 
-let toastTimer;
-function toast(message, bad) {
-  const el = $('#toast');
-  el.textContent = message;
-  el.className = bad ? 'bad' : '';
-  el.style.display = 'block';
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { el.style.display = 'none'; }, 4200);
-}
-const attempt = fn => async (...args) => { try { await fn(...args); } catch (e) { toast(e.message, true); } };
-const formData = form => Object.fromEntries(new FormData(form).entries());
-const isStaff = () => state.user && state.user.role !== 'PATIENT';
-const statusTag = s => {
-  const kind = {PAID: 'ok', BOOKED: 'ok', DISPENSED: 'ok', RESOLVED: 'ok', DISPATCHED: 'ok', UNPAID: 'warn', ISSUED: 'warn',
-    QUEUED: 'warn', DISPENSING: 'warn', CANCELLED: 'bad'}[s] || '';
-  return `<span class="tag ${kind}">${esc(s)}</span>`;
-};
-
-function signOut() {
-  state.token = null; state.user = null;
-  localStorage.removeItem('hms.token');
-  renderHeader();
+function toast(message, bad = false) {
+  const el = document.createElement('div');
+  el.className = 'toast' + (bad ? ' bad' : '');
+  el.innerHTML = icon(bad ? 'alert' : 'check');
+  const span = document.createElement('span');
+  span.textContent = message;
+  el.appendChild(span);
+  $('#toasts').appendChild(el);
+  setTimeout(() => el.remove(), bad ? 6000 : 4200);
 }
 
-async function loadUser() {
-  if (!state.token) { state.user = null; return; }
-  try { state.user = (await api('GET', '/api/me')).user; } catch { state.user = null; }
+/** Runs an async action, turning any error into a red toast. Returns undefined on failure. */
+const attempt = fn => async (...args) => { try { return await fn(...args); } catch (e) { toast(e.message, true); } };
+
+function setSession(result) {
+  state.token = result ? result.token : null;
+  state.user = result ? result.user : null;
+  try { result ? localStorage.setItem('hms.token', result.token) : localStorage.removeItem('hms.token'); } catch { /* ignore */ }
 }
 
-function renderHeader() {
-  $('#who').innerHTML = state.user
-    ? `${esc(state.user.name)} <span class="tag">${esc(state.user.role)}</span> <button class="btn ghost small" id="logout">Sign out</button>`
-    : 'Not signed in';
-  const out = $('#logout');
-  if (out) out.onclick = attempt(async () => { try { await api('POST', '/api/auth/logout'); } catch { /* already gone */ } signOut(); show(state.tab); });
-  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === state.tab));
+const every = (fn, ms) => { state.timers.push(setInterval(fn, ms)); };
+const stopTimers = () => { state.timers.forEach(clearInterval); state.timers = []; };
+
+// ===== dialogs ==================================================================================
+
+/** Opens the shared dialog. `body` is HTML; `onMount(root, close)` wires it up. Resolves with what close() was given. */
+function openModal({title, body, actions = '', wide = false, onMount}) {
+  const dlg = $('#modal');
+  dlg.style.width = wide ? 'min(760px, calc(100vw - 32px))' : '';
+  dlg.innerHTML = `<div class="dlg-head"><h2 id="modal-title">${esc(title)}</h2>
+    <button class="icon-btn" data-close aria-label="Close">${icon('x')}</button></div>
+    <div class="dlg-body">${body}</div>${actions ? `<div class="dlg-foot">${actions}</div>` : ''}`;
+  return new Promise(resolve => {
+    let result;
+    const close = value => { result = value; dlg.close(); };
+    dlg.onclose = () => resolve(result);
+    $$('[data-close]', dlg).forEach(b => { b.onclick = () => close(undefined); });
+    dlg.showModal();
+    if (onMount) onMount(dlg, close);
+  });
 }
 
-/** Wires a text input to a suggestions endpoint: one request per keystroke, results in a dropdown. */
-function attachSuggest(input, fetcher, renderItem, onPick) {
-  const wrap = input.closest('.suggest');
-  const list = $('ul', wrap);
-  const latency = wrap.parentElement.querySelector('.latency');
+function confirmDialog({title, text, confirm = 'Confirm', danger = false, extra = ''}) {
+  return openModal({title, body: `<p>${esc(text)}</p>${extra}`,
+    actions: `<button class="btn secondary" data-close>Keep as is</button><button class="btn ${danger ? 'danger' : ''}" data-ok>${esc(confirm)}</button>`,
+    onMount: (root, close) => { const ok = $('[data-ok]', root); ok.focus(); ok.onclick = () => close(root.querySelector('form') ? new FormData(root.querySelector('form')) : true); }});
+}
+
+// ===== search box with suggestions ==============================================================
+
+/**
+ * Turns `<div class="combo"><div class="searchbar"><input></div><ul class="combo-list"></ul></div>` into an
+ * accessible autocomplete: one request per pause in typing, arrow keys and Enter to choose, Escape to close.
+ */
+function suggestBox(input, {fetch, render, onPick, meta}) {
+  const combo = input.closest('.combo');
+  const list = $('.combo-list', combo);
+  const metaEl = meta ? $(meta) : null;
+  let items = [];
+  let active = -1;
   let seq = 0;
-  input.addEventListener('input', async () => {
+  list.id = list.id || 'lb-' + Math.random().toString(36).slice(2);
+  list.setAttribute('role', 'listbox');
+  list.hidden = true;
+  Object.entries({role: 'combobox', 'aria-autocomplete': 'list', 'aria-expanded': 'false', 'aria-controls': list.id, autocomplete: 'off'})
+    .forEach(([k, v]) => input.setAttribute(k, v));
+  const close = () => { list.hidden = true; input.setAttribute('aria-expanded', 'false'); input.removeAttribute('aria-activedescendant'); active = -1; };
+  const mark = i => {
+    active = i;
+    $$('li', list).forEach((li, j) => li.setAttribute('aria-selected', String(j === i)));
+    if (i >= 0) { input.setAttribute('aria-activedescendant', `${list.id}-${i}`); list.children[i].scrollIntoView({block: 'nearest'}); }
+  };
+  const pick = i => { const item = items[i]; close(); if (item) onPick(item); };
+  input.addEventListener('input', debounce(async () => {
     const q = input.value.trim();
     const mine = ++seq;
-    if (!q) { list.innerHTML = ''; if (latency) latency.textContent = ''; return; }
+    if (!q) { close(); if (metaEl) metaEl.innerHTML = ''; return; }
     const t0 = performance.now();
     try {
-      const items = await fetcher(q);
+      const found = await fetch(q);
       if (mine !== seq) return; // a newer keystroke has already been answered
-      if (latency) latency.textContent = `${items.length} suggestion${items.length === 1 ? '' : 's'} in ${(performance.now() - t0).toFixed(1)} ms`;
-      list.innerHTML = items.map((item, i) => `<li><button type="button" data-i="${i}">${renderItem(item)}</button></li>`).join('');
-      list.querySelectorAll('button').forEach(b => { b.onclick = () => { list.innerHTML = ''; onPick(items[+b.dataset.i]); }; });
+      items = found;
+      const ms = performance.now() - t0;
+      if (metaEl) metaEl.innerHTML = `${powered('Autocomplete', 'Answered from the in-memory trie index, not the database')}
+        <span>${plural(items.length, 'suggestion')} in ${ms.toFixed(1)} ms</span>`;
+      list.innerHTML = items.map((it, i) => `<li role="option" id="${list.id}-${i}" aria-selected="false" data-i="${i}">${render(it)}</li>`).join('');
+      list.hidden = items.length === 0;
+      input.setAttribute('aria-expanded', String(items.length > 0));
+      active = -1;
     } catch (e) {
-      list.innerHTML = '';
-      if (latency) latency.textContent = e.status === 429 ? 'Typing too fast: rate limit reached, wait a moment.' : e.message;
+      if (metaEl) metaEl.textContent = e.status === 429 ? 'Typing faster than the rate limiter allows. Pause for a moment.' : e.message;
+      close();
     }
+  }, 70));
+  input.addEventListener('keydown', e => {
+    if (list.hidden && e.key !== 'Enter') return;
+    if (e.key === 'ArrowDown') { e.preventDefault(); mark(Math.min(items.length - 1, active + 1)); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); mark(Math.max(0, active - 1)); }
+    else if (e.key === 'Enter' && !list.hidden && active >= 0) { e.preventDefault(); pick(active); }
+    else if (e.key === 'Escape') { close(); }
   });
-  input.addEventListener('keydown', e => { if (e.key === 'Escape') list.innerHTML = ''; });
+  list.addEventListener('mousedown', e => { const li = e.target.closest('li'); if (li) { e.preventDefault(); pick(+li.dataset.i); } });
+  input.addEventListener('blur', () => setTimeout(close, 120));
 }
 
-// ---- sign in / register ---------------------------------------------------------------------
+const comboHtml = (id, placeholder, label) => `<div class="combo">
+  <label class="sr-only" for="${id}">${esc(label)}</label>
+  <div class="searchbar">${icon('search')}<input id="${id}" placeholder="${esc(placeholder)}"></div>
+  <ul class="combo-list"></ul></div>`;
 
-const DEMO = {
-  Patient: ['patient@hms.test', 'Patient@12345'], Doctor: ['doctor@hms.test', 'Doctor@12345'],
-  Pharmacist: ['pharmacist@hms.test', 'Pharma@12345'], Admin: ['admin@hms.test', 'Admin@12345']
-};
+// ===== charts (SVG, drawn by hand) ==============================================================
 
-function authCards(showRegister) {
-  return `
-  <section class="card">
-    <h2>Sign in</h2>
-    <p class="hint">Demo accounts (synthetic): ${Object.keys(DEMO).map(k => `<button class="btn ghost small" type="button" data-demo="${k}">${k}</button>`).join(' ')}</p>
-    <form id="login">
-      <label for="l-email">Email</label><input id="l-email" name="email" type="email" required autocomplete="username">
-      <label for="l-pass">Password</label><input id="l-pass" name="password" type="password" required autocomplete="current-password">
-      <div class="actions"><button class="btn">Sign in</button></div>
-    </form>
-  </section>
-  ${showRegister ? `<section class="card">
-    <h2>New patient registration</h2>
-    <p class="hint">Use made-up details only. You receive a unique patient ID from the ID generator.</p>
-    <form id="register">
-      <label for="r-name">Full name</label><input id="r-name" name="name" required maxlength="80">
-      <label for="r-email">Email</label><input id="r-email" name="email" type="email" required>
-      <label for="r-pass">Password (8+ characters)</label><input id="r-pass" name="password" type="password" required minlength="8" autocomplete="new-password">
-      <div class="row">
-        <div><label for="r-phone">Phone</label><input id="r-phone" name="phone" maxlength="20"></div>
-        <div><label for="r-dob">Date of birth</label><input id="r-dob" name="dateOfBirth" type="date"></div>
-      </div>
-      <div class="row">
-        <div><label for="r-gender">Gender</label><select id="r-gender" name="gender"><option>Female</option><option>Male</option><option>Other</option></select></div>
-        <div><label for="r-blood">Blood group</label><select id="r-blood" name="bloodGroup">${['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'].map(b => `<option>${b}</option>`).join('')}</select></div>
-      </div>
-      <div class="actions"><button class="btn">Register</button></div>
-    </form>
-  </section>` : ''}`;
+/** Rounds up to 1, 2, 2.5 or 5 times a power of ten, for axis maxima. */
+function niceMax(v) {
+  if (!(v > 0)) return 1;
+  const p = Math.pow(10, Math.floor(Math.log10(v)));
+  return [1, 2, 2.5, 5, 10].map(m => m * p).find(m => m >= v);
 }
 
-function wireAuth() {
-  document.querySelectorAll('[data-demo]').forEach(b => { b.onclick = () => { [$('#l-email').value, $('#l-pass').value] = DEMO[b.dataset.demo]; }; });
-  const signedIn = async result => {
-    state.token = result.token; state.user = result.user;
-    localStorage.setItem('hms.token', result.token);
-    toast('Welcome, ' + result.user.name);
-    show(isStaff() && state.tab === 'patient' ? 'staff' : state.tab);
+/**
+ * A single-series line chart of the last `windowMs` of samples, with a crosshair and tooltip that follow the
+ * pointer (or the arrow keys) to the nearest sample.
+ */
+function lineChart(host, {name, color, format, windowMs = 120000, yMax: fixedMax}) {
+  host.classList.add('chart-host');
+  const tip = document.createElement('div');
+  tip.className = 'tooltip';
+  host.appendChild(tip);
+  let points = [];
+  let hover = null;
+  let svg = null;
+  const H = 190, M = {l: 46, r: 14, t: 12, b: 26};
+
+  function geometry() {
+    const W = Math.max(300, host.clientWidth);
+    const now = points.length ? points[points.length - 1].t : Date.now();
+    const yMax = fixedMax || niceMax(Math.max(...points.map(p => p.v ?? 0), 0) * 1.1);
+    const x = t => M.l + (W - M.l - M.r) * (1 - (now - t) / windowMs);
+    const y = v => M.t + (H - M.t - M.b) * (1 - v / yMax);
+    return {W, now, yMax, x, y};
+  }
+
+  function draw() {
+    const {W, yMax, x, y} = geometry();
+    const ticks = [0, yMax / 2, yMax];
+    let grid = ticks.map(v => `<line x1="${M.l}" x2="${W - M.r}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)" stroke-width="1"/>
+      <text x="${M.l - 8}" y="${y(v) + 4}" text-anchor="end" font-size="11" fill="var(--chart-ink)">${esc(format(v, true))}</text>`).join('');
+    grid += [[windowMs, `−${Math.round(windowMs / 60000)} min`], [windowMs / 2, `−${Math.round(windowMs / 120000)} min`], [0, 'now']]
+      .map(([ago, text]) => `<text x="${M.l + (W - M.l - M.r) * (1 - ago / windowMs)}" y="${H - 6}" text-anchor="${ago === 0 ? 'end' : ago === windowMs ? 'start' : 'middle'}" font-size="11" fill="var(--chart-ink)">${text}</text>`).join('');
+    let line = '';
+    let area = '';
+    let run = [];
+    const flush = () => {
+      if (run.length > 1) {
+        const d = run.map((p, i) => `${i ? 'L' : 'M'}${x(p.t).toFixed(1)},${y(p.v).toFixed(1)}`).join('');
+        line += `<path d="${d}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+        area += `<path d="${d}L${x(run[run.length - 1].t).toFixed(1)},${y(0)}L${x(run[0].t).toFixed(1)},${y(0)}Z" fill="${color}" opacity="0.1"/>`;
+      }
+      run = [];
+    };
+    points.forEach(p => { if (p.v == null) flush(); else run.push(p); });
+    flush();
+    const last = [...points].reverse().find(p => p.v != null);
+    const end = last ? `<circle cx="${x(last.t)}" cy="${y(last.v)}" r="4" fill="${color}" stroke="var(--surface)" stroke-width="2"/>` : '';
+    host.querySelector('svg')?.remove();
+    host.insertAdjacentHTML('afterbegin', `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" tabindex="0" role="img"
+      aria-label="${esc(name)} over the last ${Math.round(windowMs / 60000)} minutes${last ? ', latest ' + esc(format(last.v)) : ''}">
+      ${grid}<line x1="${M.l}" x2="${W - M.r}" y1="${y(0)}" y2="${y(0)}" stroke="var(--axis)" stroke-width="1"/>
+      ${area}${line}${end}<g class="xhair"></g><rect class="hit" x="${M.l}" y="${M.t}" width="${W - M.l - M.r}" height="${H - M.t - M.b}" fill="transparent"/></svg>`);
+    svg = host.querySelector('svg');
+    const pickAt = clientX => {
+      const r = svg.getBoundingClientRect();
+      const px = (clientX - r.left) * (W / r.width);
+      let best = null;
+      points.forEach((p, i) => { if (p.v != null && (best === null || Math.abs(x(p.t) - px) < Math.abs(x(points[best].t) - px))) best = i; });
+      return best;
+    };
+    svg.addEventListener('pointermove', e => { hover = pickAt(e.clientX); showHover(); });
+    svg.addEventListener('pointerleave', () => { hover = null; showHover(); });
+    svg.addEventListener('focus', () => { if (hover == null) hover = points.length - 1; showHover(); });
+    svg.addEventListener('blur', () => { hover = null; showHover(); });
+    svg.addEventListener('keydown', e => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      e.preventDefault();
+      hover = Math.max(0, Math.min(points.length - 1, (hover ?? points.length - 1) + (e.key === 'ArrowLeft' ? -1 : 1)));
+      showHover();
+    });
+    showHover();
+  }
+
+  function showHover() {
+    const g = svg && svg.querySelector('.xhair');
+    if (!g) return;
+    const p = hover != null ? points[hover] : null;
+    if (!p || p.v == null) { g.innerHTML = ''; tip.style.display = 'none'; return; }
+    const {W, x, y} = geometry();
+    g.innerHTML = `<line x1="${x(p.t)}" x2="${x(p.t)}" y1="${M.t}" y2="${H - M.b}" stroke="var(--axis)" stroke-width="1"/>
+      <circle cx="${x(p.t)}" cy="${y(p.v)}" r="5" fill="${color}" stroke="var(--surface)" stroke-width="2"/>`;
+    tip.innerHTML = '';
+    const value = document.createElement('b');
+    value.textContent = format(p.v);
+    const label = document.createElement('div');
+    label.innerHTML = `<span class="key" style="background:${color}"></span>`;
+    label.append(`${name} · ${Math.max(0, Math.round((Date.now() - p.t) / 1000))} s ago`);
+    tip.append(value, label);
+    tip.style.display = 'block';
+    const r = svg.getBoundingClientRect();
+    const scale = r.width / W;
+    const left = x(p.t) * scale;
+    tip.style.left = Math.min(Math.max(0, left - tip.offsetWidth / 2), r.width - tip.offsetWidth) + 'px';
+    tip.style.top = Math.max(0, y(p.v) * scale - tip.offsetHeight - 12) + 'px';
+  }
+
+  return {update(next) { points = next; draw(); }};
+}
+
+/** Donut of each cache server's share of the hash ring, with a hover tooltip per segment and direct labels. */
+function donut(host, segments, centre) {
+  host.classList.add('chart-host');
+  const R = 80, r = 52, C = 90;
+  const total = segments.reduce((s, x) => s + x.value, 0) || 1;
+  let a = -Math.PI / 2;
+  const arc = (a0, a1) => {
+    const large = a1 - a0 > Math.PI ? 1 : 0;
+    const p = (rad, ang) => `${(C + rad * Math.cos(ang)).toFixed(2)},${(C + rad * Math.sin(ang)).toFixed(2)}`;
+    return `M${p(R, a0)}A${R},${R} 0 ${large} 1 ${p(R, a1)}L${p(r, a1)}A${r},${r} 0 ${large} 0 ${p(r, a0)}Z`;
   };
-  $('#login').onsubmit = attempt(async e => { e.preventDefault(); await signedIn(await api('POST', '/api/auth/login', formData(e.target))); });
-  const reg = $('#register');
-  if (reg) reg.onsubmit = attempt(async e => {
+  const paths = segments.map((s, i) => {
+    const a0 = a;
+    const a1 = a + 2 * Math.PI * s.value / total;
+    a = a1;
+    const d = segments.length === 1 ? `M${C},${C - R}A${R},${R} 0 1 1 ${C - 0.01},${C - R}L${C - 0.01},${C - r}A${r},${r} 0 1 0 ${C},${C - r}Z` : arc(a0, a1);
+    return `<path d="${d}" fill="${s.color}" stroke="var(--surface)" stroke-width="2" data-i="${i}" tabindex="0" role="img"
+      aria-label="${esc(s.label)}: ${pct(s.value / total)} of the ring"></path>`;
+  }).join('');
+  host.innerHTML = `<svg viewBox="0 0 180 180" width="180" height="180" style="max-width:180px">${paths}
+    <text x="90" y="88" text-anchor="middle" font-size="26" font-weight="650" fill="var(--text)">${esc(centre[0])}</text>
+    <text x="90" y="108" text-anchor="middle" font-size="12" fill="var(--chart-ink)">${esc(centre[1])}</text></svg><div class="tooltip"></div>`;
+  const tip = $('.tooltip', host);
+  const show = (el, ev) => {
+    const s = segments[+el.dataset.i];
+    $$('path', host).forEach(p => p.setAttribute('opacity', p === el ? '1' : '0.55'));
+    tip.innerHTML = '';
+    const b = document.createElement('b');
+    b.textContent = pct(s.value / total);
+    const d = document.createElement('div');
+    d.innerHTML = `<span class="key" style="background:${s.color}"></span>`;
+    d.append(`${s.label} · ${s.detail}`);
+    tip.append(b, d);
+    tip.style.display = 'block';
+    const hr = host.getBoundingClientRect();
+    const er = el.getBoundingClientRect();
+    tip.style.left = Math.max(0, (ev && ev.clientX ? ev.clientX : er.left + er.width / 2) - hr.left - tip.offsetWidth / 2) + 'px';
+    tip.style.top = Math.max(0, (ev && ev.clientY ? ev.clientY : er.top) - hr.top - tip.offsetHeight - 12) + 'px';
+  };
+  const hide = () => { tip.style.display = 'none'; $$('path', host).forEach(p => p.setAttribute('opacity', '1')); };
+  $$('path', host).forEach(p => {
+    p.addEventListener('pointermove', e => show(p, e));
+    p.addEventListener('pointerleave', hide);
+    p.addEventListener('focus', () => show(p));
+    p.addEventListener('blur', hide);
+  });
+}
+
+// ===== navigation ===============================================================================
+
+const ROLE_HOME = {GUEST: 'welcome', PATIENT: 'home', DOCTOR: 'schedule', PHARMACIST: 'dispense', ADMIN: 'system'};
+const ROLE_NAME = {PATIENT: 'Patient', DOCTOR: 'Doctor', PHARMACIST: 'Pharmacist', ADMIN: 'Administrator'};
+
+const NAV = [
+  {id: 'welcome', label: 'Sign in', icon: 'login', roles: ['GUEST'], title: 'Welcome', sub: 'Book doctors, see your records and pay bills in one place.'},
+  {id: 'home', label: 'Overview', icon: 'home', roles: ['PATIENT'], title: 'Overview'},
+  {id: 'doctors', label: 'Find a doctor', icon: 'stethoscope', roles: ['PATIENT', 'ADMIN'], title: 'Find a doctor', sub: 'Search by name or specialization, then pick a time.'},
+  {id: 'appointments', label: 'Appointments', icon: 'calendar', roles: ['PATIENT'], title: 'My appointments'},
+  {id: 'health', label: 'Records & prescriptions', icon: 'file', roles: ['PATIENT'], title: 'Records & prescriptions', sub: 'Added by your doctors after each visit.'},
+  {id: 'bills', label: 'Bills & insurance', icon: 'receipt', roles: ['PATIENT'], title: 'Bills & insurance'},
+  {id: 'schedule', label: 'My schedule', icon: 'calendar', roles: ['DOCTOR'], title: 'My schedule', sub: 'Patients who booked with you.'},
+  {id: 'patients', label: 'Patient records', icon: 'users', roles: ['DOCTOR'], title: 'Patient records', sub: 'Open a patient to read their history, add a record or prescribe.'},
+  {id: 'dispense', label: 'Dispensing', icon: 'pill', roles: ['PHARMACIST', 'ADMIN'], title: 'Pharmacy counter', sub: 'Prescriptions waiting to be handed out.'},
+  {id: 'emergencies', label: 'Emergency board', icon: 'siren', roles: ['DOCTOR', 'ADMIN'], title: 'Emergency board', sub: 'Open requests, most severe first.'},
+  {id: 'system', label: 'System', icon: 'server', roles: ['ADMIN'], title: 'System', sub: 'The seven system-design components, live.'},
+  {id: 'staff', label: 'Manage doctors', icon: 'userplus', roles: ['ADMIN'], title: 'Manage doctors', sub: 'Add a doctor and their login. They are searchable straight away.'},
+  {id: 'pharmacy', label: 'Medicines', icon: 'pill', roles: ['PATIENT', 'DOCTOR', 'PHARMACIST', 'ADMIN'], title: 'Medicines', sub: 'Pharmacy stock and reference information.'},
+  {id: 'emergency', label: 'Request ambulance', icon: 'siren', roles: ['GUEST', 'PATIENT'], danger: true, title: 'Request an ambulance', sub: 'No account needed: help is sent to anyone who asks.'},
+];
+
+const role = () => state.user ? state.user.role : 'GUEST';
+const go = (page, param) => { const hash = '#/' + page + (param ? '/' + param : ''); if (location.hash === hash) render(); else location.hash = hash; };
+
+function parseRoute() {
+  const [page, ...rest] = location.hash.replace(/^#\/?/, '').split('/');
+  return {page: page || '', param: rest.length ? decodeURIComponent(rest.join('/')) : null};
+}
+
+function renderShell(active) {
+  const r = role();
+  const app = $('#app');
+  app.classList.toggle('guest', r === 'GUEST');
+  app.classList.toggle('landing', r === 'GUEST' && active === 'welcome');
+  $('#guestbar').hidden = r !== 'GUEST';
+  $('#gb-signin').hidden = active === 'welcome';
+  const items = NAV.filter(n => n.roles.includes(r));
+  $('#nav').innerHTML = items.map(n => `<a href="#/${n.id}" class="${n.danger ? 'danger' : ''}" ${n.id === active ? 'aria-current="page"' : ''}>${icon(n.icon)}<span>${esc(n.label)}</span></a>`).join('');
+  const dark = document.documentElement.dataset.theme === 'dark';
+  $('#sidebar-foot').innerHTML = (state.user ? `<div class="userbox"><span class="avatar">${esc(initials(state.user.name))}</span>
+      <span class="who"><b>${esc(state.user.name)}</b><span class="muted small">${esc(ROLE_NAME[state.user.role] || '')}</span></span></div>` : '')
+    + `<div class="foot-actions">${state.user ? `<button class="btn secondary small" id="signout" style="flex:1">${icon('logout')}Sign out</button>` : ''}
+      <button class="icon-btn" id="theme-btn" aria-label="Switch to ${dark ? 'light' : 'dark'} theme" title="Switch theme">${icon(dark ? 'sun' : 'moon')}</button></div>`;
+  $('#theme-btn').onclick = () => {
+    const next = dark ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('hms.theme', next); } catch { /* ignore */ }
+    render();
+  };
+  const out = $('#signout');
+  if (out) out.onclick = async () => { try { await api('POST', '/api/auth/logout'); } catch { /* already gone */ } setSession(null); toast('Signed out.'); go('welcome'); };
+  $('#app').classList.remove('nav-open');
+}
+
+async function render() {
+  stopTimers();
+  const r = role();
+  let {page, param} = parseRoute();
+  let item = NAV.find(n => n.id === page);
+  if (!item || !item.roles.includes(r)) {
+    if (r === 'GUEST' && NAV.some(n => n.id === page)) {
+      try { sessionStorage.setItem('hms.next', location.hash); } catch { /* ignore */ }
+      toast(page === 'bills' ? 'Please sign in to see this bill.' : 'Please sign in to continue.');
+    }
+    page = ROLE_HOME[r];
+    param = null;
+    item = NAV.find(n => n.id === page);
+    history.replaceState(null, '', '#/' + page);
+  }
+  renderShell(page);
+  $('#page-title').textContent = item.title;
+  $('#page-sub').textContent = item.sub || '';
+  $('#top-actions').innerHTML = '';
+  document.title = `${item.title} · HMS`;
+  const view = $('#page');
+  view.innerHTML = '<div class="loading">Loading…</div>';
+  try {
+    await PAGES[page](view, param);
+  } catch (e) {
+    view.innerHTML = `<div class="card">${empty('alert', 'This page could not be loaded: ' + e.message)}</div>`;
+  }
+}
+
+async function signedIn(result) {
+  setSession(result);
+  toast(`Welcome, ${result.user.name}.`);
+  let next = null;
+  try { next = sessionStorage.getItem('hms.next'); sessionStorage.removeItem('hms.next'); } catch { /* ignore */ }
+  const nextPage = next ? next.replace(/^#\/?/, '').split('/')[0] : '';
+  if (next && NAV.some(n => n.id === nextPage && n.roles.includes(result.user.role))) { if (location.hash === next) render(); else location.hash = next; } else go(ROLE_HOME[result.user.role]);
+}
+
+// ===== pages ====================================================================================
+
+const PAGES = {};
+
+// ---- welcome (signed out) ----
+
+const DEMO = [
+  ['Patient', 'patient@hms.test', 'Patient@12345', 'Book, records, bills'],
+  ['Doctor', 'doctor@hms.test', 'Doctor@12345', 'Schedule, prescribe'],
+  ['Pharmacist', 'pharmacist@hms.test', 'Pharma@12345', 'Dispense medicines'],
+  ['Administrator', 'admin@hms.test', 'Admin@12345', 'System dashboard'],
+];
+
+PAGES.welcome = async view => {
+  view.innerHTML = `<div class="landing">
+    <section class="landing-hero">
+      <a class="brand big" href="#/welcome">
+        <span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 3h5v6.5H21v5h-6.5V21h-5v-6.5H3v-5h6.5z"/></svg></span>
+        <span><b>HMS</b><span>Hospital Management System</span></span>
+      </a>
+      <div class="hero-copy">
+        <span class="eyebrow">Patients · Doctors · Pharmacy</span>
+        <h1>Your hospital,<br><em>in one place.</em></h1>
+        <p>Book a doctor in seconds, keep your records and prescriptions together, and pay bills with your insurance already applied.</p>
+        <ul class="features">
+          <li><span class="qi">${icon('calendar')}</span><div><b>Book appointments</b><span>Search doctors by name or specialization and pick a free time.</span></div></li>
+          <li><span class="qi">${icon('file')}</span><div><b>Records and prescriptions</b><span>Everything your doctors add after a visit, in one place.</span></div></li>
+          <li><span class="qi">${icon('receipt')}</span><div><b>Bills and insurance</b><span>Your plan's cover is applied for you. Share any bill with a short link.</span></div></li>
+        </ul>
+      </div>
+      <a class="emergency-cta" href="#/emergency"><span class="qi">${icon('siren')}</span>
+        <span><b>Medical emergency?</b><small>Request an ambulance. No account or sign-in needed.</small></span>${icon('login', 'go')}</a>
+    </section>
+    <section class="landing-auth"><div class="auth-card">
+      <h2 id="auth-title">Welcome back</h2>
+      <p class="muted" id="auth-sub">Sign in to book appointments and see your records.</p>
+      <div class="tabs" role="tablist">
+        <button role="tab" aria-selected="true" data-tab="in">Sign in</button><button role="tab" aria-selected="false" data-tab="up">Create account</button>
+      </div>
+      <form id="login-form">
+        <label for="l-email">Email</label><input id="l-email" name="email" type="email" required autocomplete="username" placeholder="you@example.com">
+        <label for="l-pass">Password</label><input id="l-pass" name="password" type="password" required autocomplete="current-password">
+        <div class="form-actions"><button class="btn block">${icon('login')}Sign in</button></div>
+      </form>
+      <form id="register-form" hidden>
+        <label for="r-name">Full name</label><input id="r-name" name="name" required maxlength="80" autocomplete="name">
+        <label for="r-email">Email</label><input id="r-email" name="email" type="email" required autocomplete="email">
+        <label for="r-pass">Password</label><input id="r-pass" name="password" type="password" required minlength="8" autocomplete="new-password">
+        <p class="hint">At least 8 characters. Please use made-up details: this is a prototype.</p>
+        <div class="field-row">
+          <div><label for="r-phone">Phone</label><input id="r-phone" name="phone" maxlength="20" autocomplete="tel"></div>
+          <div><label for="r-dob">Date of birth</label><input id="r-dob" name="dateOfBirth" type="date" max="${today()}"></div>
+        </div>
+        <div class="field-row">
+          <div><label for="r-gender">Gender</label><select id="r-gender" name="gender"><option>Female</option><option>Male</option><option>Other</option></select></div>
+          <div><label for="r-blood">Blood group</label><select id="r-blood" name="bloodGroup">${['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-'].map(b => `<option>${b}</option>`).join('')}</select></div>
+        </div>
+        <div class="form-actions"><button class="btn block">${icon('userplus')}Create account</button></div>
+      </form>
+      <div class="divider">or try a demo account</div>
+      <div class="demo-grid">${DEMO.map(([name, , , what], i) => `<button class="demo" data-demo="${i}"><span class="avatar">${initials(name)}</span>
+        <span><b>${name}</b><small>${what}</small></span></button>`).join('')}</div>
+      <p class="hint" style="margin-top:14px">Everything in this prototype is synthetic: no real patients, doctors or medicines.</p>
+    </div></section></div>`;
+  $$('[data-tab]', view).forEach(t => { t.onclick = () => {
+    const signIn = t.dataset.tab === 'in';
+    $$('[data-tab]', view).forEach(x => x.setAttribute('aria-selected', String(x === t)));
+    $('#login-form').hidden = !signIn;
+    $('#register-form').hidden = signIn;
+    $('#auth-title').textContent = signIn ? 'Welcome back' : 'Create your account';
+    $('#auth-sub').textContent = signIn ? 'Sign in to book appointments and see your records.' : 'You get a patient ID straight away and can book at once.';
+  }; });
+  $$('[data-demo]', view).forEach(b => { b.onclick = attempt(async () => {
+    const [, email, password] = DEMO[+b.dataset.demo];
+    await signedIn(await api('POST', '/api/auth/login', {email, password}));
+  }); });
+  $('#login-form').onsubmit = attempt(async e => {
     e.preventDefault();
-    const body = formData(e.target);
+    await signedIn(await api('POST', '/api/auth/login', Object.fromEntries(new FormData(e.target))));
+  });
+  $('#register-form').onsubmit = attempt(async e => {
+    e.preventDefault();
+    const body = Object.fromEntries(new FormData(e.target));
     if (!body.dateOfBirth) delete body.dateOfBirth;
     await signedIn(await api('POST', '/api/auth/register', body));
   });
-}
+};
 
-// ---- patient portal -------------------------------------------------------------------------
+// ---- patient overview ----
 
-async function patientTab() {
-  const view = $('#view');
-  if (!state.user) { view.innerHTML = authCards(true); wireAuth(); return; }
-  if (isStaff()) { view.innerHTML = `<section class="card wide"><h2>Patient portal</h2><p class="hint">You are signed in as staff. Open the Staff desk tab, or sign out to use the patient portal.</p></section>`; return; }
-  view.innerHTML = `
-  <section class="card wide">
-    <h2>Find a doctor</h2>
-    <p class="hint">Suggestions come from the autocomplete index: names and specializations, most-booked first, tolerant of one typo. Patient ID <span class="mono">${esc(state.user.id)}</span></p>
-    <div class="row">
-      <div><label for="d-q">Doctor name or specialization</label>
-        <div class="suggest"><input id="d-q" autocomplete="off" placeholder="try  car,  neuro,  sharma,  or the typo  cardoilogy"><ul></ul></div>
-        <div class="latency"></div></div>
-      <div style="max-width:240px"><label for="d-spec">Specialization</label><select id="d-spec"><option value="">Any</option></select></div>
-      <button class="btn" id="d-go">Search</button>
+const isUpcoming = a => a.status === 'BOOKED' && (a.date > today() || (a.date === today() && a.time >= nowHHMM()));
+const byWhen = (a, b) => (a.date + a.time).localeCompare(b.date + b.time);
+const dateBox = day => { const d = parseDay(day); return `<div class="datebox"><b>${d.getDate()}</b><span>${d.toLocaleDateString('en-IN', {month: 'short'})}</span></div>`; };
+
+PAGES.home = async view => {
+  const [me, appts, bills, records, plans] = await Promise.all([api('GET', '/api/me'), api('GET', '/api/appointments'), api('GET', '/api/bills'),
+    api('GET', `/api/patients/${encodeURIComponent(state.user.id)}/records`), api('GET', '/api/insurance/plans')]);
+  $('#page-title').textContent = `Hello, ${state.user.name.split(' ')[0]}`;
+  $('#page-sub').textContent = 'Here is what is coming up.';
+  const upcoming = appts.filter(isUpcoming).sort(byWhen);
+  const unpaid = bills.filter(b => b.status === 'UNPAID');
+  const plan = plans.find(p => p.id === me.patient.insurancePlanId);
+  const next = upcoming[0];
+  view.innerHTML = `<div class="grid cols-4">
+      <div class="card stat"><div class="label">${icon('calendar')}Next appointment</div>
+        <div class="value">${next ? esc(fmtDay(next.date)) : '—'}</div><div class="sub">${next ? `${esc(next.time)} · ${esc(next.doctorName)}` : 'Nothing booked'}</div></div>
+      <div class="card stat"><div class="label">${icon('receipt')}To pay</div>
+        <div class="value">${money(unpaid.reduce((s, b) => s + b.payablePaise, 0))}</div><div class="sub">${plural(unpaid.length, 'unpaid bill')}</div></div>
+      <div class="card stat"><div class="label">${icon('file')}Medical records</div>
+        <div class="value">${records.length}</div><div class="sub">${records[0] ? 'Latest: ' + esc(records[0].title) : 'None yet'}</div></div>
+      <div class="card stat"><div class="label">${icon('shield')}Insurance</div>
+        <div class="value" style="font-size:18px">${plan ? esc(plan.name) : 'None'}</div><div class="sub">${plan ? esc(plan.provider) : '<a href="#/bills">Choose a plan</a>'}</div></div>
     </div>
-    <div class="list" id="d-results" style="margin-top:12px"></div>
-    <div id="d-slots"></div>
-  </section>
-  <section class="card"><h2>My appointments</h2><div id="p-appts" class="scroll"></div></section>
-  <section class="card"><h2>Bills</h2><p class="hint">Sharing a bill creates a short link from the URL shortener.</p><div id="p-bills" class="list"></div></section>
-  <section class="card"><h2>Medical records</h2><div id="p-records" class="list"></div></section>
-  <section class="card"><h2>Prescriptions</h2><div id="p-rx" class="list"></div></section>
-  <section class="card"><h2>Insurance</h2><p class="hint">Plans are collected by the web crawler from the simulated insurer site. Cover applies to bills created after you choose a plan.</p><div id="p-ins"></div></section>`;
+    <div class="grid split">
+      <section class="card"><div class="card-head"><h2>Upcoming appointments</h2><a class="btn secondary small" href="#/doctors">${icon('plus')}Book</a></div>
+        <div class="list">${upcoming.slice(0, 4).map(a => `<div class="item">${dateBox(a.date)}<div class="body"><b>${esc(a.doctorName)}</b>
+          <span class="muted small">${esc(a.specialization)} · ${esc(a.time)}</span></div>${statusChip(a.status)}</div>`).join('') || empty('calendar', 'No upcoming appointments.')}</div></section>
+      <section class="card"><div class="card-head"><h2>Quick actions</h2></div>
+        <div class="stack">
+          <a class="quick" href="#/doctors"><span class="qi">${icon('stethoscope')}</span><span><b>Book an appointment</b><br><span class="muted small">Search by name or specialization</span></span></a>
+          <a class="quick" href="#/bills"><span class="qi">${icon('receipt')}</span><span><b>Pay or share a bill</b><br><span class="muted small">${plural(unpaid.length, 'bill')} waiting</span></span></a>
+          <a class="quick danger" href="#/emergency"><span class="qi">${icon('siren')}</span><span><b>Request an ambulance</b><br><span class="muted small">Nearest free ambulance is sent</span></span></a>
+        </div></section>
+    </div>`;
+};
 
+// ---- find a doctor and book ----
+
+PAGES.doctors = async view => {
   const specs = await api('GET', '/api/doctors/specializations');
-  $('#d-spec').innerHTML = '<option value="">Any</option>' + specs.map(s => `<option>${esc(s)}</option>`).join('');
+  let spec = '';
+  view.innerHTML = `<section class="card">
+      ${comboHtml('doc-q', 'Search by doctor or specialization, for example "card", "rao" or "nuerology"', 'Search doctors')}
+      <div class="combo-meta" id="doc-meta"></div>
+      <div class="pill-row" style="margin-top:12px" role="group" aria-label="Specialization">
+        <button class="pill" data-spec="" aria-pressed="true">All</button>${specs.map(s => `<button class="pill" data-spec="${esc(s)}" aria-pressed="false">${esc(s)}</button>`).join('')}
+      </div></section>
+    <div><div class="row" style="margin-bottom:10px"><h2 id="doc-heading">Top rated doctors</h2></div><div class="doc-grid" id="doc-results"></div></div>`;
+  const input = $('#doc-q');
   const search = attempt(async () => {
-    const q = $('#d-q').value.trim(), spec = $('#d-spec').value;
-    const list = await api('GET', `/api/doctors/search?q=${encodeURIComponent(q)}&specialization=${encodeURIComponent(spec)}&limit=12`);
-    $('#d-results').innerHTML = list.length ? list.map(d => `<div class="item row"><div><strong>${esc(d.name)}</strong> <span class="tag">${esc(d.specialization)}</span><br>
-      <span class="muted">Fee ${money(d.feePaise)} · rating ${d.rating.toFixed(1)}</span></div><button class="btn small" data-doc="${esc(d.id)}">View slots</button></div>`).join('')
-      : '<p class="muted">No doctors match.</p>';
-    document.querySelectorAll('[data-doc]').forEach(b => { b.onclick = attempt(() => openDoctor(b.dataset.doc)); });
+    const q = input.value.trim();
+    $('#doc-heading').textContent = q ? `Results for "${q}"${spec ? ' in ' + spec : ''}` : spec ? spec : 'Top rated doctors';
+    const list = await api('GET', `/api/doctors/search?limit=24&q=${encodeURIComponent(q)}&specialization=${encodeURIComponent(spec)}`);
+    $('#doc-results').innerHTML = list.map(d => `<article class="card doc">
+        <div class="doc-top"><span class="avatar">${esc(initials(d.name))}</span><div style="min-width:0"><b>${esc(d.name)}</b><div class="muted small">${esc(d.specialization)}</div></div></div>
+        <div class="doc-meta"><span>${icon('star')}${d.rating.toFixed(1)}</span><span>${icon('receipt')}${money(d.feePaise)}</span></div>
+        <button class="btn" data-book="${esc(d.id)}">${icon('calendar')}${state.user ? 'Choose a time' : 'See times'}</button></article>`).join('')
+      || `<div class="card" style="grid-column:1/-1">${empty('search', 'No doctors match. Try fewer letters or another specialization.')}</div>`;
+    $$('[data-book]').forEach(b => { b.onclick = () => bookingDialog(b.dataset.book); });
   });
-  $('#d-go').onclick = search;
-  $('#d-spec').onchange = search;
-  $('#d-q').addEventListener('keydown', e => { if (e.key === 'Enter') search(); });
-  attachSuggest($('#d-q'), q => api('GET', '/api/doctors/suggest?q=' + encodeURIComponent(q)),
-    s => `<span>${esc(s.text)}</span><span class="muted">${esc(s.type === 'doctor' ? s.detail : 'specialization · ' + s.detail)}</span>`,
-    s => { $('#d-q').value = s.text; if (s.type === 'doctor') attempt(openDoctor)(s.id); else search(); });
-  search();
-  await Promise.all([loadAppointments(), loadBills(), loadRecords(), loadPrescriptions(), loadInsurance()].map(p => p.catch(e => toast(e.message, true))));
-}
-
-async function openDoctor(id) {
-  state.doctor = await api('GET', '/api/doctors/' + encodeURIComponent(id));
-  state.slot = null;
-  await renderSlots();
-  $('#d-slots').scrollIntoView({behavior: 'smooth', block: 'nearest'});
-}
-
-async function renderSlots() {
-  const d = state.doctor;
-  const slots = await api('GET', `/api/doctors/${encodeURIComponent(d.id)}/slots?date=${state.slotDate}`);
-  $('#d-slots').innerHTML = `<div class="item" style="margin-top:12px">
-    <strong>${esc(d.name)}</strong> · ${esc(d.specialization)} · ${esc(d.qualification)} · ${d.experienceYears} years · room ${esc(d.room)} · fee ${money(d.feePaise)}
-    <div class="row" style="margin-top:6px">
-      <div style="max-width:200px"><label for="s-date">Date</label><input id="s-date" type="date" min="${today()}" value="${state.slotDate}"></div>
-      <div><label for="s-reason">Reason for visit</label><input id="s-reason" maxlength="300" placeholder="optional"></div>
-      <button class="btn" id="s-book" disabled>Book appointment</button>
-    </div>
-    <div class="slots">${slots.length ? slots.map(s => `<button type="button" data-time="${s.time}" ${s.available ? '' : 'disabled'}>${s.time}</button>`).join('') : '<span class="muted">The doctor does not work on this day.</span>'}</div>
-  </div>`;
-  $('#s-date').onchange = attempt(async e => { state.slotDate = e.target.value || today(); state.slot = null; await renderSlots(); });
-  document.querySelectorAll('.slots button').forEach(b => { b.onclick = () => {
-    state.slot = b.dataset.time;
-    document.querySelectorAll('.slots button').forEach(x => x.classList.toggle('sel', x === b));
-    $('#s-book').disabled = false;
+  $$('[data-spec]', view).forEach(p => { p.onclick = () => {
+    spec = p.dataset.spec;
+    $$('[data-spec]', view).forEach(x => x.setAttribute('aria-pressed', String(x === p)));
+    search();
   }; });
-  $('#s-book').onclick = attempt(async () => {
-    try {
-      const a = await api('POST', '/api/appointments', {doctorId: d.id, date: state.slotDate, time: state.slot, reason: $('#s-reason').value});
-      toast(`Booked ${a.date} ${a.time} with ${a.doctorName}. Appointment ${a.id}`);
-    } finally {
-      state.slot = null;
-      await renderSlots();
-      await Promise.all([loadAppointments(), loadBills()]);
-    }
+  suggestBox(input, {
+    fetch: q => api('GET', '/api/doctors/suggest?q=' + encodeURIComponent(q)),
+    meta: '#doc-meta',
+    render: s => s.type === 'doctor'
+      ? `<span class="avatar" style="width:30px;height:30px;font-size:11px">${esc(initials(s.text))}</span><span class="t"><b>${esc(s.text)}</b><br><span class="muted small">${esc(s.detail)}</span></span>`
+      : `<span class="qi" style="width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent)">${icon('stethoscope')}</span><span class="t"><b>${esc(s.text)}</b><br><span class="muted small">Specialization · ${esc(s.detail)}</span></span>`,
+    onPick: s => {
+      if (s.type === 'doctor') { input.value = s.text; bookingDialog(s.id); search(); }
+      else { input.value = ''; const pill = $$('[data-spec]', view).find(p => p.dataset.spec === s.text); if (pill) pill.click(); }
+    },
   });
+  input.addEventListener('keydown', e => { if (e.key === 'Enter' && $('.combo-list', view).hidden) search(); });
+  search();
+};
+
+async function bookingDialog(doctorId) {
+  const d = await attempt(() => api('GET', '/api/doctors/' + encodeURIComponent(doctorId)))();
+  if (!d) return;
+  const days = [];
+  for (let i = 0; days.length < 14; i++) { const day = new Date(); day.setDate(day.getDate() + i); days.push(day); }
+  const works = day => d.workingDays.includes(day.getDay() === 0 ? 7 : day.getDay());
+  let chosenDay = isoDay(days.find(works) || days[0]);
+  let chosenTime = null;
+  const booked = await openModal({title: 'Book an appointment', wide: true,
+    body: `<div class="doc-top" style="margin-bottom:12px"><span class="avatar" style="width:48px;height:48px">${esc(initials(d.name))}</span>
+        <div><b>${esc(d.name)}</b><div class="muted small">${esc(d.specialization)} · ${esc(d.qualification || '')} · ${d.experienceYears} years · room ${esc(d.room)}</div>
+        <div class="small">${money(d.feePaise)} consultation · ${icon('star')} ${d.rating.toFixed(1)}</div></div></div>
+      <label>Day</label><div class="days" role="group" aria-label="Day">${days.map(day => `<button type="button" class="day" data-day="${isoDay(day)}" ${works(day) ? '' : 'disabled'} aria-pressed="false">
+        <small>${day.toLocaleDateString('en-IN', {weekday: 'short'})}</small><b>${day.getDate()}</b><small>${day.toLocaleDateString('en-IN', {month: 'short'})}</small></button>`).join('')}</div>
+      <div id="slot-area"></div>
+      <label for="b-reason">Reason for the visit <span class="muted">(optional)</span></label><input id="b-reason" maxlength="300" placeholder="For example: follow-up, chest pain, routine check">`,
+    actions: `<button class="btn secondary" data-close>Close</button><button class="btn" id="b-go" disabled>${state.user ? 'Book appointment' : 'Sign in to book'}</button>`,
+    onMount: (root, close) => {
+      const loadSlots = attempt(async () => {
+        $$('.day', root).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.day === chosenDay)));
+        chosenTime = null;
+        $('#b-go').disabled = !!state.user;
+        const slots = await api('GET', `/api/doctors/${encodeURIComponent(d.id)}/slots?date=${chosenDay}`);
+        const group = (title, list) => list.length ? `<div class="slot-group"><h3>${title}</h3><div class="slots">${list.map(s =>
+          `<button type="button" class="slot" data-time="${s.time}" aria-pressed="false" ${s.available ? '' : 'disabled aria-label="' + s.time + ', taken"'}>${s.time}</button>`).join('')}</div></div>` : '';
+        const free = slots.filter(s => s.available).length;
+        $('#slot-area', root).innerHTML = slots.length
+          ? `<p class="small muted" style="margin-top:10px">${plural(free, 'free slot')} on ${esc(fmtDay(chosenDay))}</p>`
+            + group('Morning', slots.filter(s => s.time < '12:00')) + group('Afternoon', slots.filter(s => s.time >= '12:00'))
+          : `<p class="muted" style="margin-top:12px">${esc(d.name)} does not work on this day.</p>`;
+        $$('.slot', root).forEach(b => { b.onclick = () => {
+          chosenTime = b.dataset.time;
+          $$('.slot', root).forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+          $('#b-go').disabled = false;
+        }; });
+      });
+      $$('.day', root).forEach(b => { b.onclick = () => { chosenDay = b.dataset.day; loadSlots(); }; });
+      $('#b-go').onclick = attempt(async () => {
+        if (!state.user) { try { sessionStorage.setItem('hms.next', '#/doctors'); } catch { /* ignore */ } close(); go('welcome'); return; }
+        try {
+          const a = await api('POST', '/api/appointments', {doctorId: d.id, date: chosenDay, time: chosenTime, reason: $('#b-reason').value});
+          close(a);
+        } catch (e) {
+          toast(e.message, true);
+          if (e.status === 409) loadSlots();
+        }
+      });
+      loadSlots();
+    }});
+  if (booked) {
+    toast(`Booked: ${fmtDay(booked.date)} at ${booked.time} with ${booked.doctorName}.`);
+    openModal({title: 'Appointment booked', body: `<div class="stack"><p>${statusChip('BOOKED')}</p>
+        <p><b>${esc(booked.doctorName)}</b>, ${esc(fmtDay(booked.date))} at ${esc(booked.time)}</p>
+        <p class="small muted">Appointment <span class="mono">${esc(booked.id)}</span> · bill <span class="mono">${esc(booked.billId)}</span>
+        (both ids from the Snowflake generator)</p></div>`,
+      actions: `<a class="btn secondary" href="#/bills/${esc(booked.billId)}" data-close>See the bill</a><a class="btn" href="#/appointments" data-close>My appointments</a>`});
+  }
 }
 
-async function loadAppointments() {
-  const list = await api('GET', '/api/appointments');
-  $('#p-appts').innerHTML = list.length ? `<table><tr><th>When</th><th>Doctor</th><th>Status</th><th></th></tr>${list.map(a => `<tr>
-    <td>${esc(a.date)} ${esc(a.time)}</td><td>${esc(a.doctorName)}<br><span class="muted">${esc(a.specialization)}</span></td><td>${statusTag(a.status)}</td>
-    <td>${a.status === 'BOOKED' ? `<button class="btn ghost small" data-cancel="${esc(a.id)}">Cancel</button>` : ''}</td></tr>`).join('')}</table>`
-    : '<p class="muted">No appointments yet.</p>';
-  document.querySelectorAll('[data-cancel]').forEach(b => { b.onclick = attempt(async () => {
-    await api('POST', `/api/appointments/${b.dataset.cancel}/cancel`);
-    toast('Appointment cancelled; the slot is free again.');
-    await Promise.all([loadAppointments(), loadBills()]);
-    if (state.doctor) await renderSlots();
-  }); });
-}
+// ---- appointments ----
 
-async function loadBills() {
-  const list = await api('GET', '/api/bills');
-  $('#p-bills').innerHTML = list.length ? list.map(b => `<div class="item ${b.id === state.focusBill ? 'hl' : ''}" id="bill-${esc(b.id)}">
-    <div class="row"><div><strong>${esc(b.category)}</strong> ${statusTag(b.status)}<br><span class="mono">${esc(b.id)}</span></div>
-    <div style="text-align:right"><span class="big">${money(b.payablePaise)}</span><br><span class="muted">of ${money(b.subtotalPaise)}${b.coveragePercent ? ` · insurer pays ${b.coveragePercent}%` : ''}</span></div></div>
-    <div class="muted">${b.items.map(i => esc(i.description) + ' ' + money(i.amountPaise)).join('<br>')}</div>
-    <div class="actions">${b.status === 'UNPAID' ? `<select data-method="${esc(b.id)}" style="width:auto"><option>UPI</option><option>CARD</option><option>CASH</option><option>NETBANKING</option></select>
-      <button class="btn small" data-pay="${esc(b.id)}">Pay</button>` : ''}
-      <button class="btn ghost small" data-share="${esc(b.id)}">Share link</button><span class="mono" data-link="${esc(b.id)}"></span></div></div>`).join('')
-    : '<p class="muted">No bills yet. Booking an appointment creates one.</p>';
-  document.querySelectorAll('[data-pay]').forEach(b => { b.onclick = attempt(async () => {
-    await api('POST', `/api/bills/${b.dataset.pay}/pay`, {method: $(`[data-method="${b.dataset.pay}"]`).value});
-    toast('Payment recorded.');
-    await loadBills();
-  }); });
-  document.querySelectorAll('[data-share]').forEach(b => { b.onclick = attempt(async () => {
-    const link = await api('POST', `/api/bills/${b.dataset.share}/share`);
-    $(`[data-link="${b.dataset.share}"]`).innerHTML = `<a href="${esc(link.shortUrl)}">${esc(link.shortUrl)}</a>`;
-  }); });
-  const focus = state.focusBill && document.getElementById('bill-' + state.focusBill);
-  if (focus) focus.scrollIntoView({behavior: 'smooth', block: 'center'});
-}
-
-async function loadRecords() {
-  const list = await api('GET', `/api/patients/${encodeURIComponent(state.user.id)}/records`);
-  $('#p-records').innerHTML = list.length ? list.map(recordItem).join('') : '<p class="muted">No records yet. A doctor adds them after a visit.</p>';
-}
-const recordItem = r => `<div class="item"><span class="tag">${esc(r.type)}</span> <strong>${esc(r.title)}</strong>
-  <div>${esc(r.details)}</div><div class="muted">${esc(r.authorName)} · ${new Date(r.createdAt).toLocaleString()}</div></div>`;
-
-async function loadPrescriptions() {
-  const list = await api('GET', '/api/prescriptions');
-  $('#p-rx').innerHTML = list.length ? list.map(rxItem).join('') : '<p class="muted">No prescriptions yet.</p>';
-}
-const rxItem = rx => `<div class="item">${statusTag(rx.status)} <span class="mono">${esc(rx.id)}</span>
-  <div>${rx.items.map(i => `${esc(i.name)} × ${i.quantity}${i.dosage ? ' · ' + esc(i.dosage) : ''}`).join('<br>')}</div>
-  <div class="muted">${esc(rx.patientName)} · prescribed by ${esc(rx.doctorName)}${rx.notes ? ' · ' + esc(rx.notes) : ''}</div></div>`;
-
-async function loadInsurance() {
-  const [plans, me] = await Promise.all([api('GET', '/api/insurance/plans'), api('GET', '/api/me')]);
-  const current = me.patient.insurancePlanId || '';
-  if (!plans.length) { $('#p-ins').innerHTML = '<p class="muted">No plans yet: the crawler has not finished. Reload in a few seconds.</p>'; return; }
-  $('#p-ins').innerHTML = `<label for="ins-plan">Plan</label><select id="ins-plan"><option value="">No insurance</option>${plans.map(p =>
-    `<option value="${esc(p.id)}" ${p.id === current ? 'selected' : ''}>${esc(p.provider)} ${esc(p.name)}: consultation ${p.consultation}%, pharmacy ${p.pharmacy}%</option>`).join('')}</select>
-    <div class="actions"><button class="btn" id="ins-save">Save plan</button></div>`;
-  $('#ins-save').onclick = attempt(async () => { await api('PUT', '/api/me/insurance', {planId: $('#ins-plan').value}); toast('Insurance plan saved.'); });
-}
-
-// ---- pharmacy -------------------------------------------------------------------------------
-
-function pharmacyTab() {
-  $('#view').innerHTML = `
-  <section class="card wide">
-    <h2>Medicine search</h2>
-    <p class="hint">Autocomplete over the pharmacy stock plus drugs known only from the crawled reference site. All names and descriptions are synthetic.</p>
-    <label for="m-q">Medicine name</label>
-    <div class="suggest"><input id="m-q" autocomplete="off" placeholder="try  zyv,  bri,  or a typo such as  quorastatn"><ul></ul></div>
-    <div class="latency"></div>
-    <div id="m-detail" style="margin-top:12px"></div>
-  </section>`;
-  attachSuggest($('#m-q'), q => api('GET', '/api/medicines/suggest?q=' + encodeURIComponent(q)),
-    m => `<span>${esc(m.name)} <span class="muted">${esc(m.strength)} ${esc(m.form)}</span></span><span class="tag ${m.stocked ? 'ok' : 'warn'}">${m.stocked ? 'in pharmacy' : 'reference only'}</span>`,
-    attempt(async m => {
-      $('#m-q').value = m.name;
-      const d = await api('GET', '/api/medicines/' + encodeURIComponent(m.id));
-      const med = d.medicine, info = d.info;
-      $('#m-detail').innerHTML = `<div class="item"><strong>${esc(med ? med.name : info.name)}</strong> <span class="tag">${esc(med ? med.category : info.category)}</span>
-        ${med ? `<div class="stats" style="margin:10px 0"><div><small>Price</small>${money(med.pricePaise)}</div><div><small>In stock</small>${med.stock}</div>
-          <div><small>Form</small>${esc(med.form)} ${esc(med.strength)}</div><div><small>Stock ID</small><span class="mono">${esc(med.id)}</span></div></div>`
-          : '<p class="muted">Not stocked by this pharmacy.</p>'}
-        ${info ? `<div><strong>Crawled reference</strong><br>${esc(info.uses)}<br>Possible side effects: ${esc(info.sideEffects)}<br>
-          <span class="muted">Source <span class="mono">${esc(info.sourceUrl)}</span>, crawled ${new Date(info.crawledAt).toLocaleString()}</span></div>`
-          : '<p class="muted">No crawled reference information yet.</p>'}</div>`;
-    }));
-}
-
-// ---- emergency ------------------------------------------------------------------------------
-
-async function emergencyTab() {
-  const zones = await api('GET', '/api/emergency/zones');
-  $('#view').innerHTML = `
-  <section class="card sev">
-    <h2>Request emergency help</h2>
-    <p class="hint">No sign-in needed. Emergency requests have their own rate-limit allowance, so they get through even when a client has used up its normal quota.</p>
-    <form id="e-form">
-      <div class="row"><div><label for="e-name">Caller name</label><input id="e-name" name="callerName" required maxlength="80"></div>
-        <div><label for="e-phone">Phone</label><input id="e-phone" name="phone" required maxlength="20"></div></div>
-      <div class="row"><div><label for="e-zone">Location</label><select id="e-zone" name="zone">${zones.map(z => `<option>${esc(z)}</option>`).join('')}</select></div>
-        <div><label for="e-sev">Severity</label><select id="e-sev" name="severity">
-          <option value="1">1 · Life-threatening</option><option value="2">2 · Serious</option><option value="3" selected>3 · Urgent</option>
-          <option value="4">4 · Moderate</option><option value="5">5 · Minor</option></select></div></div>
-      <label for="e-desc">What happened</label><textarea id="e-desc" name="description" maxlength="500"></textarea>
-      <div class="actions"><button class="btn danger">Request ambulance</button></div>
-    </form>
-  </section>
-  <section class="card"><h2>Request status</h2><div id="e-status"><p class="muted">Submit a request to see dispatch details here.</p></div></section>`;
-  const showStatus = s => {
-    $('#e-status').innerHTML = `<div class="item">${statusTag(s.status)} <span class="mono">${esc(s.id)}</span>
-      <div class="stats" style="margin-top:10px"><div><small>Location</small>${esc(s.zone)}</div><div><small>Severity</small>${s.severity}</div>
-      ${s.status === 'QUEUED' ? `<div><small>Queue position</small><span class="big">${s.queuePosition}</span></div>`
-        : `<div><small>Ambulance</small>${esc(s.ambulanceCallSign || '-')}</div><div><small>ETA</small><span class="big">${s.etaMinutes ?? '-'}</span> min</div>`}</div>
-      <div class="actions"><button class="btn ghost small" id="e-refresh">Refresh</button></div></div>`;
-    $('#e-refresh').onclick = attempt(async () => showStatus(await api('GET', '/api/emergency/' + state.emergencyId)));
+PAGES.appointments = async view => {
+  const appts = await api('GET', '/api/appointments');
+  let tab = 'up';
+  $('#top-actions').innerHTML = `<a class="btn" href="#/doctors">${icon('plus')}Book appointment</a>`;
+  const draw = () => {
+    const list = tab === 'up' ? appts.filter(isUpcoming).sort(byWhen) : appts.filter(a => !isUpcoming(a)).sort(byWhen).reverse();
+    view.innerHTML = `<div class="tabs" role="tablist"><button role="tab" data-t="up" aria-selected="${tab === 'up'}">Upcoming (${appts.filter(isUpcoming).length})</button>
+        <button role="tab" data-t="past" aria-selected="${tab === 'past'}">Past and cancelled</button></div>
+      <section class="card"><div class="list">${list.map(a => `<div class="item">${dateBox(a.date)}
+        <div class="body"><b>${esc(a.doctorName)}</b><span class="muted small">${esc(a.specialization)} · ${esc(fmtDay(a.date))} at ${esc(a.time)}${a.reason ? ' · ' + esc(a.reason) : ''}</span></div>
+        ${statusChip(a.status)}
+        ${a.billId ? `<a class="btn ghost small" href="#/bills/${esc(a.billId)}">Bill</a>` : ''}
+        ${a.status === 'BOOKED' && isUpcoming(a) ? `<button class="btn secondary small" data-cancel="${esc(a.id)}">Cancel</button>` : ''}</div>`).join('')
+        || empty('calendar', tab === 'up' ? 'Nothing booked. Find a doctor to book a time.' : 'No past appointments.')}</div></section>`;
+    $$('[data-t]', view).forEach(t => { t.onclick = () => { tab = t.dataset.t; draw(); }; });
+    $$('[data-cancel]', view).forEach(b => { b.onclick = attempt(async () => {
+      const a = appts.find(x => x.id === b.dataset.cancel);
+      if (!await confirmDialog({title: 'Cancel this appointment?', text: `${a.doctorName}, ${fmtDay(a.date)} at ${a.time}. The slot is released for someone else and the unpaid bill is voided.`, confirm: 'Cancel appointment', danger: true})) return;
+      const updated = await api('POST', `/api/appointments/${a.id}/cancel`);
+      Object.assign(a, updated);
+      toast('Appointment cancelled. The slot is free again.');
+      draw();
+    }); });
   };
+  draw();
+};
+
+// ---- records and prescriptions ----
+
+const recordItem = r => `<div class="item" style="align-items:flex-start"><span class="chip accent">${esc(RECORD_TYPES[r.type] || r.type)}</span>
+  <div class="body"><b>${esc(r.title)}</b>${r.details ? `<div class="small">${esc(r.details)}</div>` : ''}
+  <span class="muted small">${esc(r.authorName)} · ${esc(fmtDateTime(r.createdAt))}</span></div></div>`;
+const rxItem = rx => `<div class="item" style="align-items:flex-start"><div class="body">
+  <div class="row" style="justify-content:space-between"><b>${esc(rx.doctorName)}</b>${statusChip(rx.status)}</div>
+  ${rx.items.map(i => `<div class="small">${icon('pill')} ${esc(i.name)} × ${i.quantity}${i.dosage ? ' · ' + esc(i.dosage) : ''}</div>`).join('')}
+  <span class="muted small">${esc(fmtDateTime(rx.createdAt))}${rx.notes ? ' · ' + esc(rx.notes) : ''} · <span class="mono">${esc(rx.id)}</span></span></div></div>`;
+
+PAGES.health = async view => {
+  const [records, rx] = await Promise.all([api('GET', `/api/patients/${encodeURIComponent(state.user.id)}/records`), api('GET', '/api/prescriptions')]);
+  view.innerHTML = `<div class="grid cols-2">
+    <section class="card"><div class="card-head"><h2>Medical records</h2>${powered('Key-value cache', 'This list is served from the distributed cache and refreshed when a doctor adds a record')}</div>
+      <div class="list">${records.map(recordItem).join('') || empty('file', 'No records yet. Your doctor adds them after a visit.')}</div></section>
+    <section class="card"><div class="card-head"><h2>Prescriptions</h2></div>
+      <div class="list">${rx.map(rxItem).join('') || empty('pill', 'No prescriptions yet.')}</div></section></div>`;
+};
+
+// ---- bills and insurance ----
+
+PAGES.bills = async (view, focusId) => {
+  const [bills, plans, me] = await Promise.all([api('GET', '/api/bills'), api('GET', '/api/insurance/plans'), api('GET', '/api/me')]);
+  const unpaid = bills.filter(b => b.status === 'UNPAID');
+  const current = plans.find(p => p.id === me.patient.insurancePlanId);
+  view.innerHTML = `<div class="grid cols-3">
+      <div class="card stat"><div class="label">${icon('receipt')}Outstanding</div><div class="value">${money(unpaid.reduce((s, b) => s + b.payablePaise, 0))}</div><div class="sub">${plural(unpaid.length, 'bill')} to pay</div></div>
+      <div class="card stat"><div class="label">${icon('check')}Paid</div><div class="value">${money(bills.filter(b => b.status === 'PAID').reduce((s, b) => s + b.payablePaise, 0))}</div><div class="sub">${plural(bills.filter(b => b.status === 'PAID').length, 'bill')}</div></div>
+      <div class="card stat"><div class="label">${icon('shield')}Insurance cover saved you</div><div class="value">${money(bills.filter(b => b.status !== 'CANCELLED').reduce((s, b) => s + b.coveredPaise, 0))}</div><div class="sub">${current ? esc(current.provider + ' ' + current.name) : 'No plan selected'}</div></div>
+    </div>
+    <div class="grid split">
+      <section class="card"><div class="card-head"><h2>Bills</h2>${powered('URL shortener', '"Share" creates a short link with the URL shortener')}</div>
+        <div class="stack">${bills.map(b => `<div class="bill ${b.id === focusId ? 'focus' : ''}" id="bill-${esc(b.id)}">
+          <div class="row"><b style="text-transform:capitalize">${esc(b.category.toLowerCase())}</b>${statusChip(b.status)}<span class="spacer"></span><span class="amount num">${money(b.payablePaise)}</span></div>
+          <div class="muted small">${esc(fmtDateTime(b.createdAt))} · <span class="mono">${esc(b.id)}</span></div>
+          <div class="bill-lines">${b.items.map(i => `<div><span>${esc(i.description)}</span><span class="num">${money(i.amountPaise)}</span></div>`).join('')}
+            ${b.coveragePercent ? `<div><span>Insurer pays ${b.coveragePercent}%</span><span class="num">− ${money(b.coveredPaise)}</span></div>` : ''}</div>
+          ${b.coveragePercent ? `<div class="meter" title="Insurer pays ${b.coveragePercent}%"><i style="width:${b.coveragePercent}%"></i></div>` : ''}
+          <div class="form-actions" style="margin-top:12px">
+            ${b.status === 'UNPAID' ? `<button class="btn small" data-pay="${esc(b.id)}">Pay ${money(b.payablePaise)}</button>` : ''}
+            <button class="btn secondary small" data-share="${esc(b.id)}">${icon('link')}Share link</button></div>
+          <div data-link="${esc(b.id)}"></div></div>`).join('') || empty('receipt', 'No bills yet. Booking an appointment creates one.')}</div></section>
+      <section class="card"><div class="card-head"><h2>Insurance plan</h2>${powered('Web crawler', 'Plans are collected by the web crawler from the insurer website')}
+          <p>Plans are collected from the insurer's website by the crawler. Cover applies to bills created after you choose.</p></div>
+        ${plans.length ? `<label for="ins-plan">Plan</label><select id="ins-plan"><option value="">No insurance</option>${plans.map(p =>
+          `<option value="${esc(p.id)}" ${p.id === me.patient.insurancePlanId ? 'selected' : ''}>${esc(p.provider)} · ${esc(p.name)}</option>`).join('')}</select>
+          <div id="ins-detail"></div><div class="form-actions"><button class="btn" id="ins-save">Save plan</button></div>`
+          : empty('globe', 'No plans yet: the crawler has not finished. Reload in a few seconds.')}</section>
+    </div>`;
+  const showPlan = () => {
+    const p = plans.find(x => x.id === $('#ins-plan').value);
+    $('#ins-detail').innerHTML = p ? `<table style="margin-top:12px"><tr><th>Cover</th><th class="r">Insurer pays</th></tr>
+      ${[['Consultation', p.consultation], ['Pharmacy', p.pharmacy], ['Lab', p.lab], ['Emergency', p.emergency]].map(([k, v]) => `<tr><td>${k}</td><td class="r num">${v}%</td></tr>`).join('')}
+      <tr><td>Annual limit</td><td class="r num">${money(p.annualLimitPaise)}</td></tr></table>` : '';
+  };
+  if (plans.length) {
+    $('#ins-plan').onchange = showPlan;
+    showPlan();
+    $('#ins-save').onclick = attempt(async () => { await api('PUT', '/api/me/insurance', {planId: $('#ins-plan').value}); toast('Insurance plan saved.'); });
+  }
+  $$('[data-pay]', view).forEach(b => { b.onclick = attempt(async () => {
+    const bill = bills.find(x => x.id === b.dataset.pay);
+    const form = await confirmDialog({title: `Pay ${money(bill.payablePaise)}`, text: 'Choose how to pay. Paying twice is not possible: a second request returns the paid bill.', confirm: 'Pay now',
+      extra: `<form><label for="pay-m">Payment method</label><select id="pay-m" name="method"><option value="UPI">UPI</option><option value="CARD">Card</option><option value="NETBANKING">Net banking</option><option value="CASH">Cash at the desk</option></select></form>`});
+    if (!form) return;
+    await api('POST', `/api/bills/${bill.id}/pay`, {method: form.get('method')});
+    toast('Payment recorded.');
+    render();
+  }); });
+  $$('[data-share]', view).forEach(b => { b.onclick = attempt(async () => {
+    const link = await api('POST', `/api/bills/${b.dataset.share}/share`);
+    const box = $(`[data-link="${b.dataset.share}"]`);
+    box.innerHTML = `<div class="linkbox">${icon('link')}<a class="mono" href="${esc(link.shortUrl)}">${esc(link.shortUrl)}</a>
+      <button class="icon-btn" aria-label="Copy link" title="Copy">${icon('copy')}</button></div><p class="hint">Valid for 7 days. Opening it still requires your login.</p>`;
+    $('button', box).onclick = async () => { try { await navigator.clipboard.writeText(link.shortUrl); toast('Link copied.'); } catch { toast('Copy failed: select the link and copy it.', true); } };
+  }); });
+  if (focusId) { const el = document.getElementById('bill-' + focusId); if (el) el.scrollIntoView({behavior: 'smooth', block: 'center'}); }
+};
+
+// ---- medicines ----
+
+PAGES.pharmacy = async view => {
+  view.innerHTML = `<section class="card">${comboHtml('m-q', 'Type a medicine name, for example "zyv", "brix" or the typo "quorastatn"', 'Search medicines')}
+      <div class="combo-meta" id="m-meta"></div></section><div id="m-detail">${'<div class="card">' + empty('pill', 'Search for a medicine to see stock, price and reference information.') + '</div>'}</div>`;
+  suggestBox($('#m-q'), {
+    fetch: q => api('GET', '/api/medicines/suggest?q=' + encodeURIComponent(q)),
+    meta: '#m-meta',
+    render: m => `${icon('pill')}<span class="t"><b>${esc(m.name)}</b> <span class="muted small">${esc(m.strength)} ${esc(m.form)}</span></span>
+      <span class="chip ${m.stocked ? 'good' : ''}">${m.stocked ? 'In pharmacy' : 'Reference only'}</span>`,
+    onPick: attempt(async m => {
+      $('#m-q').value = m.name;
+      const {medicine: med, info} = await api('GET', '/api/medicines/' + encodeURIComponent(m.id));
+      $('#m-detail').innerHTML = `<div class="grid split"><section class="card">
+          <div class="card-head"><h2>${esc(med ? med.name : info.name)}</h2><span class="chip accent">${esc(med ? med.category : info.category)}</span></div>
+          ${med ? `<div class="grid cols-3"><div><div class="muted small">Price</div><div class="amount">${money(med.pricePaise)}</div></div>
+            <div><div class="muted small">In stock</div><div class="amount">${med.stock}</div></div>
+            <div><div class="muted small">Form</div><div class="amount" style="font-size:17px">${esc(med.strength)} ${esc(med.form)}</div></div></div>
+            <p class="hint">Stock id <span class="mono">${esc(med.id)}</span></p>` : `<p class="muted">Not stocked by this pharmacy. Known from the reference site only.</p>`}
+        </section><section class="card"><div class="card-head"><h2>Reference information</h2>${powered('Web crawler', 'Collected by the crawler from the drug reference website')}</div>
+          ${info ? `<p>${esc(info.uses)}</p><p style="margin-top:8px"><b>Possible side effects:</b> ${esc(info.sideEffects)}</p>
+            <p class="hint">Source <span class="mono">${esc(info.sourceUrl)}</span> · collected ${esc(fmtDateTime(info.crawledAt))}</p>` : '<p class="muted">No reference information collected yet.</p>'}
+        </section></div>`;
+    }),
+  });
+};
+
+// ---- emergency (no account needed) ----
+
+PAGES.emergency = async view => {
+  const zones = await api('GET', '/api/emergency/zones');
+  let current = null;
+  try { current = sessionStorage.getItem('hms.emergency'); } catch { /* ignore */ }
+  view.innerHTML = `<div class="grid split">
+    <section class="card hero-emergency"><form id="e-form">
+      <div class="card-head"><h2>Tell us what is happening</h2>${powered('Rate limiter: own allowance', 'Emergency requests have a separate rate-limit bucket that other traffic cannot use up')}</div>
+      <fieldset style="border:0;padding:0;margin:0"><legend style="font-size:13px;font-weight:500;color:var(--text-2);margin-bottom:6px">How serious is it?</legend>
+        <div class="sev-group">${[1, 2, 3, 4, 5].map(n => `<label><input type="radio" name="severity" value="${n}" ${n === 3 ? 'checked' : ''}>
+          <span class="sev-opt"><i style="background:var(--sev-${n})"></i><b>${n}</b>${SEVERITY[n]}</span></label>`).join('')}</div></fieldset>
+      <div class="field-row">
+        <div><label for="e-name">Your name</label><input id="e-name" name="callerName" required maxlength="80" autocomplete="name"></div>
+        <div><label for="e-phone">Phone</label><input id="e-phone" name="phone" required maxlength="20" autocomplete="tel"></div>
+      </div>
+      <label for="e-zone">Where are you?</label><select id="e-zone" name="zone">${zones.map(z => `<option>${esc(z)}</option>`).join('')}</select>
+      <label for="e-desc">What happened? <span class="muted">(optional)</span></label><textarea id="e-desc" name="description" maxlength="500"></textarea>
+      <div class="form-actions"><button class="btn danger block" style="padding:12px">${icon('siren')}Request ambulance</button></div>
+    </form></section>
+    <section class="card" id="e-status"></section></div>`;
+  const showIdle = () => { $('#e-status').innerHTML = `<div class="card-head"><h2>What happens next</h2></div><div class="stack small">
+      <div class="row">${icon('ambulance')}<span>The nearest free ambulance is assigned at once.</span></div>
+      <div class="row">${icon('clock')}<span>If all are busy you join a queue: the most serious requests are served first.</span></div>
+      <div class="row">${icon('shield')}<span>Your name and phone are only shown to hospital staff.</span></div></div>`; };
+  const showStatus = s => {
+    $('#e-status').innerHTML = `<div class="card-head"><h2>Request status</h2>${statusChip(s.status)}</div>
+      ${s.status === 'DISPATCHED' ? `<div class="muted small">Estimated arrival</div><div class="eta">${s.etaMinutes} <span style="font-size:18px">min</span></div>
+        <p style="margin-top:8px"><b>${esc(s.ambulanceCallSign)}</b> is on the way to ${esc(s.zone)}.</p>`
+      : s.status === 'QUEUED' ? `<div class="muted small">Position in queue</div><div class="eta">${s.queuePosition}</div><p style="margin-top:8px">All ambulances are busy. You will be assigned the next free one; more serious requests go first.</p>`
+      : `<p>This request has been resolved.</p>`}
+      <div class="row" style="margin-top:14px">${sevChip(s.severity)}<span class="mono">${esc(s.id)}</span><span class="spacer"></span>
+      <button class="btn secondary small" id="e-refresh">${icon('refresh')}Refresh</button></div>`;
+    $('#e-refresh').onclick = refresh;
+  };
+  const refresh = attempt(async () => { if (current) showStatus(await api('GET', '/api/emergency/' + current)); });
   $('#e-form').onsubmit = attempt(async e => {
     e.preventDefault();
-    const body = formData(e.target);
+    const body = Object.fromEntries(new FormData(e.target));
     body.severity = +body.severity;
     const s = await api('POST', '/api/emergency', body);
-    state.emergencyId = s.id;
+    current = s.id;
+    try { sessionStorage.setItem('hms.emergency', s.id); } catch { /* ignore */ }
     showStatus(s);
     toast(s.status === 'DISPATCHED' ? `${s.ambulanceCallSign} dispatched, about ${s.etaMinutes} minutes away.` : 'All ambulances are busy: you are in the priority queue.');
   });
-  if (state.emergencyId) attempt(async () => showStatus(await api('GET', '/api/emergency/' + state.emergencyId)))();
+  if (current) { await refresh(); } else showIdle();
+  every(() => { if (current) refresh(); }, 10000);
+};
+
+// ---- doctor: schedule and patients ----
+
+function dayPills(selected, count = 14) {
+  const days = [];
+  for (let i = -1; days.length < count; i++) { const d = new Date(); d.setDate(d.getDate() + i); days.push(d); }
+  return `<div class="days" role="group" aria-label="Day">${days.map(d => `<button class="day" data-day="${isoDay(d)}" aria-pressed="${isoDay(d) === selected}">
+    <small>${isoDay(d) === today() ? 'Today' : d.toLocaleDateString('en-IN', {weekday: 'short'})}</small><b>${d.getDate()}</b><small>${d.toLocaleDateString('en-IN', {month: 'short'})}</small></button>`).join('')}</div>`;
 }
 
-// ---- staff desk -----------------------------------------------------------------------------
-
-async function staffTab() {
-  const view = $('#view');
-  if (!state.user) { view.innerHTML = authCards(false); wireAuth(); return; }
-  if (!isStaff()) { view.innerHTML = '<section class="card wide"><h2>Staff desk</h2><p class="hint">This area is for hospital staff. Sign out and use a staff demo account to see it.</p></section>'; return; }
-  const role = state.user.role;
-  const doctor = role === 'DOCTOR', pharmacy = role === 'PHARMACIST' || role === 'ADMIN', triage = role === 'DOCTOR' || role === 'ADMIN';
-  view.innerHTML = `
-  ${doctor ? `<section class="card wide"><h2>My schedule</h2>
-    <p class="hint">Patients who booked with you. Sign in as the demo patient and book ${esc(state.user.name)} to see an entry here.</p>
-    <div class="row"><div style="max-width:200px"><label for="st-date">Date</label><input id="st-date" type="date" value="${today()}"></div></div>
-    <div id="st-schedule" class="scroll" style="margin-top:10px"></div></section>
-  <section class="card"><h2>Add medical record</h2>
-    <form id="st-record"><label for="rec-pid">Patient ID</label><input id="rec-pid" name="patientId" required class="mono">
-      <div class="row"><div><label for="rec-type">Type</label><select id="rec-type" name="type"><option>DIAGNOSIS</option><option>LAB_RESULT</option><option>VITALS</option><option>NOTE</option></select></div>
-      <div><label for="rec-title">Title</label><input id="rec-title" name="title" required maxlength="120"></div></div>
-      <label for="rec-details">Details</label><textarea id="rec-details" name="details" maxlength="4000"></textarea>
-      <div class="actions"><button class="btn">Save record</button><button class="btn ghost" type="button" id="rec-view">View patient's records</button></div></form>
-    <div id="st-records" class="list" style="margin-top:10px"></div></section>
-  <section class="card"><h2>Write prescription</h2>
-    <form id="st-rx"><label for="rx-pid">Patient ID</label><input id="rx-pid" name="patientId" required class="mono">
-      <label for="rx-med">Add medicine</label><div class="suggest"><input id="rx-med" autocomplete="off" placeholder="type a medicine name"><ul></ul></div><div class="latency"></div>
-      <div id="rx-items" class="list"></div>
-      <label for="rx-notes">Notes</label><input id="rx-notes" name="notes" maxlength="1000">
-      <div class="actions"><button class="btn">Issue prescription</button></div></form></section>` : ''}
-  ${pharmacy ? `<section class="card wide"><h2>Pharmacy counter</h2><p class="hint">Dispensing takes the items out of stock and raises the pharmacy bill, as one all-or-nothing step.</p>
-    <div id="st-pending" class="list"></div></section>` : ''}
-  ${triage ? `<section class="card wide"><h2>Emergency board</h2><p class="hint">Open requests, most severe first. Resolving one frees its ambulance for the next in the queue.</p>
-    <div id="st-emerg" class="scroll"></div></section>` : ''}`;
-
-  if (doctor) {
-    const loadSchedule = attempt(async () => {
-      const list = await api('GET', '/api/doctor/appointments?date=' + $('#st-date').value);
-      $('#st-schedule').innerHTML = list.length ? `<table><tr><th>Time</th><th>Patient</th><th>Reason</th><th></th></tr>${list.map(a => `<tr><td>${esc(a.time)}</td>
-        <td>${esc(a.patientName)}<br><span class="mono">${esc(a.patientId)}</span></td><td>${esc(a.reason || '')}</td>
-        <td><button class="btn ghost small" data-use="${esc(a.patientId)}">Use this patient</button></td></tr>`).join('')}</table>` : '<p class="muted">No bookings on this day.</p>';
-      document.querySelectorAll('[data-use]').forEach(b => { b.onclick = () => { $('#rec-pid').value = b.dataset.use; $('#rx-pid').value = b.dataset.use; toast('Patient ID filled in below.'); }; });
-    });
-    $('#st-date').onchange = loadSchedule;
-    loadSchedule();
-    const viewRecords = attempt(async () => {
-      const list = await api('GET', `/api/patients/${encodeURIComponent($('#rec-pid').value.trim())}/records`);
-      $('#st-records').innerHTML = list.length ? list.map(recordItem).join('') : '<p class="muted">This patient has no records.</p>';
-    });
-    $('#rec-view').onclick = viewRecords;
-    $('#st-record').onsubmit = attempt(async e => {
-      e.preventDefault();
-      const body = formData(e.target);
-      await api('POST', `/api/patients/${encodeURIComponent(body.patientId.trim())}/records`, {type: body.type, title: body.title, details: body.details});
-      toast('Record saved.');
-      $('#rec-title').value = ''; $('#rec-details').value = '';
-      viewRecords();
-    });
-    state.rxItems = [];
-    const drawItems = () => {
-      $('#rx-items').innerHTML = state.rxItems.map((it, i) => `<div class="item row"><div><strong>${esc(it.name)}</strong></div>
-        <div style="max-width:90px"><label>Qty</label><input type="number" min="1" max="1000" value="${it.quantity}" data-qty="${i}"></div>
-        <div><label>Dosage</label><input value="${esc(it.dosage)}" data-dose="${i}" placeholder="1 tablet twice a day"></div>
-        <button class="btn ghost small" type="button" data-del="${i}">Remove</button></div>`).join('');
-      document.querySelectorAll('[data-qty]').forEach(el => { el.oninput = () => { state.rxItems[+el.dataset.qty].quantity = +el.value; }; });
-      document.querySelectorAll('[data-dose]').forEach(el => { el.oninput = () => { state.rxItems[+el.dataset.dose].dosage = el.value; }; });
-      document.querySelectorAll('[data-del]').forEach(el => { el.onclick = () => { state.rxItems.splice(+el.dataset.del, 1); drawItems(); }; });
-    };
-    attachSuggest($('#rx-med'), q => api('GET', '/api/medicines/suggest?q=' + encodeURIComponent(q)),
-      m => `<span>${esc(m.name)} <span class="muted">${esc(m.strength)}</span></span><span class="tag ${m.stocked ? 'ok' : 'warn'}">${m.stocked ? 'in pharmacy' : 'not stocked'}</span>`,
-      m => {
-        $('#rx-med').value = '';
-        if (!m.stocked) { toast('That drug is not stocked by the pharmacy.', true); return; }
-        state.rxItems.push({medicineId: m.id, name: m.name + ' ' + m.strength, quantity: 10, dosage: ''});
-        drawItems();
-      });
-    $('#st-rx').onsubmit = attempt(async e => {
-      e.preventDefault();
-      if (!state.rxItems.length) throw new Error('Add at least one medicine.');
-      const rx = await api('POST', '/api/prescriptions', {patientId: $('#rx-pid').value.trim(), notes: $('#rx-notes').value,
-        items: state.rxItems.map(({medicineId, quantity, dosage}) => ({medicineId, quantity, dosage}))});
-      toast('Prescription ' + rx.id + ' issued.');
-      state.rxItems = []; drawItems();
-    });
-  }
-  if (pharmacy) {
-    const loadPending = attempt(async () => {
-      const list = await api('GET', '/api/prescriptions/pending');
-      $('#st-pending').innerHTML = list.length ? list.map(rx => `<div class="item">${rxItem(rx)}<div class="actions"><button class="btn small" data-disp="${esc(rx.id)}">Dispense</button></div></div>`).join('')
-        : '<p class="muted">Nothing waiting. A doctor has to issue a prescription first.</p>';
-      document.querySelectorAll('[data-disp]').forEach(b => { b.onclick = attempt(async () => {
-        const r = await api('POST', `/api/prescriptions/${b.dataset.disp}/dispense`);
-        toast(`Dispensed. Bill ${r.bill.id} raised for ${money(r.bill.payablePaise)}.`);
-        loadPending();
-      }); });
-    });
-    loadPending();
-  }
-  if (triage) {
-    const loadBoard = attempt(async () => {
-      const list = await api('GET', '/api/emergency');
-      $('#st-emerg').innerHTML = list.length ? `<table><tr><th>Sev</th><th>Status</th><th>Location</th><th>Caller</th><th>Ambulance</th><th></th></tr>${list.map(r => `<tr>
-        <td><strong>${r.severity}</strong></td><td>${statusTag(r.status)}</td><td>${esc(r.zone)}</td><td>${esc(r.callerName)}<br><span class="muted">${esc(r.phone)} · ${esc(r.description || '')}</span></td>
-        <td>${esc(r.ambulanceCallSign || 'waiting')}${r.etaMinutes ? ` · ${r.etaMinutes} min` : ''}</td>
-        <td><button class="btn ghost small" data-res="${esc(r.id)}">Resolve</button></td></tr>`).join('')}</table>` : '<p class="muted">No open emergencies.</p>';
-      document.querySelectorAll('[data-res]').forEach(b => { b.onclick = attempt(async () => { await api('POST', `/api/emergency/${b.dataset.res}/resolve`); toast('Resolved.'); loadBoard(); }); });
-    });
-    loadBoard();
-  }
-}
-
-// ---- system ---------------------------------------------------------------------------------
-
-async function systemTab() {
-  const view = $('#view');
-  if (!state.user) { view.innerHTML = authCards(false); wireAuth(); return; }
-  if (state.user.role !== 'ADMIN') { view.innerHTML = '<section class="card wide"><h2>System</h2><p class="hint">Sign in with the Admin demo account to see the cluster, metrics and crawler.</p></section>'; return; }
-  view.innerHTML = `
-  <section class="card wide"><h2>Key-value cache cluster</h2>
-    <p class="hint">Each node is a separate TCP server. The consistent-hash ring decides which node holds each key. Kill a node to simulate a server failure: its keys fall to the next node on the ring and the application keeps working from MongoDB.</p>
-    <div id="sys-cluster" class="scroll"></div>
-    <div class="actions"><button class="btn" id="sys-add">Add a node</button></div></section>
-  <section class="card"><h2>Switches</h2><p class="hint">Turn components off to compare behaviour with and without them.</p><div id="sys-config"></div></section>
-  <section class="card"><h2>Rate limiter test</h2><p class="hint">Sends 30 login attempts with a wrong password as fast as possible. The AUTH class allows a burst of 10, then 1 per second.</p>
-    <div class="actions"><button class="btn" id="sys-flood">Send 30 rapid logins</button></div><div id="sys-flood-out" style="margin-top:10px"></div></section>
-  <section class="card wide"><h2>Requests and rate limiting</h2><div id="sys-requests" class="scroll"></div></section>
-  <section class="card"><h2>Cache, IDs and data</h2><div id="sys-misc"></div></section>
-  <section class="card"><h2>Web crawler</h2><p class="hint">Crawls the two simulated external sites for drug reference pages and insurance plans.</p>
-    <div id="sys-crawl"></div><div class="actions"><button class="btn" id="sys-crawl-go">Run crawl now</button></div></section>`;
-
-  const refresh = attempt(async () => {
-    const [cluster, metrics, crawl] = await Promise.all([api('GET', '/api/admin/cluster'), api('GET', '/api/admin/metrics'), api('GET', '/api/admin/crawl')]);
-    if (state.tab !== 'system') return;
-    $('#sys-cluster').innerHTML = `<table><tr><th>Node</th><th>Port</th><th>Status</th><th>Keys</th><th>Hits / misses</th><th>Requests routed</th><th>Share of ring</th><th></th></tr>
-      ${cluster.nodes.map(n => `<tr><td><strong>${esc(n.id)}</strong></td><td>${n.port}</td><td>${n.up ? '<span class="tag ok">UP</span>' : '<span class="tag bad">DOWN</span>'}</td>
-      <td>${n.keys ?? '-'}</td><td>${n.keys === undefined ? '-' : n.hits + ' / ' + n.misses}</td><td>${n.requests}</td>
-      <td><div class="bar" title="${pct(n.ringShare)}"><i style="width:${Math.min(100, n.ringShare * 100 * cluster.nodes.length / 2)}%"></i></div>${pct(n.ringShare)}</td>
-      <td>${n.up ? `<button class="btn danger small" data-kill="${esc(n.id)}">Kill</button>` : `<button class="btn small" data-restart="${esc(n.id)}">Restart</button>`}</td></tr>`).join('')}</table>
-      <p class="muted">${cluster.replicas} replicas per key · ${cluster.virtualNodes} virtual nodes per server · ${cluster.failovers} failovers so far</p>`;
-    document.querySelectorAll('[data-kill]').forEach(b => { b.onclick = attempt(async () => { await api('POST', `/api/admin/cluster/nodes/${b.dataset.kill}/kill`); toast('Node killed.'); refresh(); }); });
-    document.querySelectorAll('[data-restart]').forEach(b => { b.onclick = attempt(async () => { await api('POST', `/api/admin/cluster/nodes/${b.dataset.restart}/restart`); toast('Node restarted; it rejoins the ring within a second.'); refresh(); }); });
-
-    $('#sys-config').innerHTML = `<div class="row"><div>Cache ${metrics.cache.enabled ? '<span class="tag ok">ON</span>' : '<span class="tag bad">OFF</span>'}</div>
-      <button class="btn ghost small" id="cfg-cache">${metrics.cache.enabled ? 'Turn off' : 'Turn on'}</button></div>
-      <div class="row" style="margin-top:8px"><div>Rate limiter ${metrics.rateLimiterEnabled ? '<span class="tag ok">ON</span>' : '<span class="tag bad">OFF</span>'}</div>
-      <button class="btn ghost small" id="cfg-rate">${metrics.rateLimiterEnabled ? 'Turn off' : 'Turn on'}</button></div>`;
-    $('#cfg-cache').onclick = attempt(async () => { await api('POST', '/api/admin/config', {cacheEnabled: !metrics.cache.enabled}); refresh(); });
-    $('#cfg-rate').onclick = attempt(async () => { await api('POST', '/api/admin/config', {rateLimitEnabled: !metrics.rateLimiterEnabled}); refresh(); });
-
-    $('#sys-requests').innerHTML = `<table><tr><th>Class</th><th>Limit per client</th><th>Requests</th><th>Rejected (429)</th><th>Rejection rate</th><th>Avg service time</th><th>Clients tracked</th></tr>
-      ${Object.entries(metrics.requests).map(([name, r]) => `<tr><td><strong>${name}</strong></td><td>${r.ratePerSecond}/s, burst ${r.burst}</td><td>${r.requests}</td>
-      <td>${r.rejected}</td><td>${pct(r.rejectionRate)}</td><td>${r.avgServiceMs.toFixed(2)} ms</td><td>${r.trackedClients}</td></tr>`).join('')}</table>`;
-    const res = metrics.resources;
-    $('#sys-misc').innerHTML = `<div class="stats">
-      <div><small>Cache hit ratio</small><span class="big">${pct(metrics.cache.hitRatio)}</span></div>
-      <div><small>Cache hits / misses</small>${metrics.cache.hits} / ${metrics.cache.misses}</div>
-      <div><small>IDs generated (worker ${metrics.idGenerator.workerId})</small>${metrics.idGenerator.generated}</div>
-      <div><small>Short links / collisions</small>${metrics.shortLinks.created} / ${metrics.shortLinks.collisions}</div>
-      <div><small>Patients</small>${metrics.data.patients}</div><div><small>Appointments</small>${metrics.data.appointments}</div>
-      <div><small>Records</small>${metrics.data.records}</div><div><small>Bills</small>${metrics.data.bills}</div>
-      <div><small>JVM heap</small>${res.heapUsedMb.toFixed(0)} MB</div><div><small>Process CPU</small>${pct(Math.max(0, res.processCpuLoad))}</div>
-      <div><small>Threads</small>${res.threads}</div></div>`;
-    const last = crawl.lastRun || {};
-    $('#sys-crawl').innerHTML = crawl.running ? '<span class="tag warn">RUNNING</span>' : (last.pagesFetched === undefined
-      ? `<p class="muted">${last.error ? 'Last crawl failed: ' + esc(last.error) : 'Not run yet in this session.'}</p>`
-      : `<div class="stats"><div><small>Pages fetched</small><span class="big">${last.pagesFetched}</span></div><div><small>Throughput</small>${last.pagesPerSecond.toFixed(0)} pages/s</div>
-        <div><small>Drugs / plans stored</small>${last.drugPagesStored} / ${last.insurancePlansStored}</div><div><small>Duplicate URLs skipped</small>${last.duplicateUrlsSkipped}</div>
-        <div><small>Duplicate content skipped</small>${last.duplicateContentSkipped}</div><div><small>Blocked by robots.txt</small>${last.blockedByRobots}</div>
-        <div><small>Retries / failed</small>${last.retries} / ${last.failed}</div><div><small>Workers</small>${last.workers}</div></div>`);
-    $('#sys-crawl-go').disabled = crawl.running;
+PAGES.schedule = async view => {
+  let day = today();
+  const draw = attempt(async () => {
+    const list = await api('GET', '/api/doctor/appointments?date=' + day);
+    view.innerHTML = `<section class="card">${dayPills(day)}</section>
+      <section class="card"><div class="card-head"><h2>${esc(fmtDay(day))}</h2><span class="chip accent">${plural(list.length, 'patient')}</span></div>
+      <div class="list">${list.map(a => `<div class="item"><div class="datebox" style="width:64px"><b style="font-size:16px">${esc(a.time)}</b></div>
+        <div class="body"><b>${esc(a.patientName)}</b><span class="muted small">${esc(a.reason || 'No reason given')} · <span class="mono">${esc(a.patientId)}</span></span></div>
+        <a class="btn small" href="#/patients/${esc(a.patientId)}">${icon('file')}Open record</a></div>`).join('')
+        || empty('calendar', 'No bookings on this day. Patients who book you appear here.')}</div></section>`;
+    $$('.day', view).forEach(b => { b.onclick = () => { day = b.dataset.day; draw(); }; });
   });
-  $('#sys-add').onclick = attempt(async () => { await api('POST', '/api/admin/cluster/nodes'); toast('Node added to the ring.'); refresh(); });
-  $('#sys-crawl-go').onclick = attempt(async () => { await api('POST', '/api/admin/crawl', {workers: 8, perHostDelayMs: 0}); toast('Crawl started.'); refresh(); });
-  $('#sys-flood').onclick = attempt(async () => {
-    const results = await Promise.all(Array.from({length: 30}, () =>
-      fetch('/api/auth/login', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({email: 'nobody@hms.test', password: 'wrong-password'})}).then(r => r.status)));
-    const count = code => results.filter(s => s === code).length;
-    $('#sys-flood-out').innerHTML = `<div class="stats"><div><small>Reached the login check (401)</small><span class="big">${count(401)}</span></div>
-      <div><small>Rejected by rate limiter (429)</small><span class="big">${count(429)}</span></div></div>`;
+  await draw();
+};
+
+PAGES.patients = async (view, patientId) => {
+  view.innerHTML = `<section class="card"><form id="lookup" class="row">
+      <label for="pl" class="sr-only">Patient email or ID</label>
+      <div class="searchbar" style="flex:1">${icon('search')}<input id="pl" placeholder="Patient email or patient ID (PAT…)" value="${esc(patientId || '')}"></div>
+      <button class="btn">Open patient</button></form></section><div id="patient-area"></div>`;
+  $('#lookup').onsubmit = attempt(async e => {
+    e.preventDefault();
+    const q = $('#pl').value.trim();
+    if (!q) return;
+    const id = q.includes('@') ? (await api('GET', '/api/patients/lookup?email=' + encodeURIComponent(q))).id : q;
+    go('patients', id);
+  });
+  if (!patientId) { $('#patient-area').innerHTML = `<div class="card">${empty('users', 'Open a patient from your schedule, or look one up by email or ID.')}</div>`; return; }
+  const [p, records] = await Promise.all([api('GET', '/api/patients/' + encodeURIComponent(patientId)), api('GET', `/api/patients/${encodeURIComponent(patientId)}/records`)]);
+  const age = p.dateOfBirth ? Math.floor((Date.now() - parseDay(p.dateOfBirth)) / 3.15576e10) : null;
+  let items = [];
+  $('#patient-area').innerHTML = `<div class="grid split">
+    <div class="stack" style="gap:18px">
+      <section class="card"><div class="doc-top"><span class="avatar" style="width:48px;height:48px">${esc(initials(p.name))}</span>
+        <div><h2>${esc(p.name)}</h2><div class="muted small">${[age != null ? age + ' years' : null, p.gender, p.bloodGroup && 'Blood ' + p.bloodGroup, p.phone].filter(Boolean).map(esc).join(' · ')}</div>
+        <div class="mono">${esc(p.id)}</div></div></div></section>
+      <section class="card"><div class="card-head"><h2>History</h2><span class="chip">${plural(records.length, 'record')}</span></div>
+        <div class="list" id="rec-list">${records.map(recordItem).join('') || empty('file', 'No records yet.')}</div></section>
+    </div>
+    <div class="stack" style="gap:18px">
+      <section class="card"><div class="card-head"><h2>Add a record</h2></div><form id="rec-form">
+        <div class="field-row"><div><label for="rec-type">Type</label><select id="rec-type" name="type">${Object.entries(RECORD_TYPES).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select></div>
+          <div><label for="rec-title">Title</label><input id="rec-title" name="title" required maxlength="120"></div></div>
+        <label for="rec-details">Details</label><textarea id="rec-details" name="details" maxlength="4000"></textarea>
+        <div class="form-actions"><button class="btn">${icon('plus')}Save record</button></div></form></section>
+      <section class="card"><div class="card-head"><h2>Write a prescription</h2></div>
+        ${comboHtml('rx-med', 'Add a medicine by name', 'Add a medicine')}<div class="combo-meta" id="rx-meta"></div>
+        <div id="rx-items"></div>
+        <label for="rx-notes">Notes for the patient</label><input id="rx-notes" maxlength="1000" placeholder="For example: after food">
+        <div class="form-actions"><button class="btn" id="rx-go" disabled>${icon('pill')}Issue prescription</button></div></section>
+    </div></div>`;
+  $('#rec-form').onsubmit = attempt(async e => {
+    e.preventDefault();
+    await api('POST', `/api/patients/${encodeURIComponent(p.id)}/records`, Object.fromEntries(new FormData(e.target)));
+    toast('Record saved.');
+    go('patients', p.id);
+  });
+  const drawItems = () => {
+    $('#rx-items').innerHTML = items.length ? `<table style="margin-top:8px"><tr><th>Medicine</th><th style="width:90px">Qty</th><th>Dosage</th><th></th></tr>${items.map((it, i) => `<tr>
+      <td>${esc(it.name)}</td><td><input type="number" min="1" max="1000" value="${it.quantity}" data-q="${i}" aria-label="Quantity"></td>
+      <td><input value="${esc(it.dosage)}" data-d="${i}" placeholder="1 tablet twice a day" aria-label="Dosage"></td>
+      <td><button class="icon-btn" data-del="${i}" aria-label="Remove">${icon('x')}</button></td></tr>`).join('')}</table>` : '<p class="hint">No medicines added yet.</p>';
+    $$('[data-q]').forEach(el => { el.oninput = () => { items[+el.dataset.q].quantity = +el.value; }; });
+    $$('[data-d]').forEach(el => { el.oninput = () => { items[+el.dataset.d].dosage = el.value; }; });
+    $$('[data-del]').forEach(el => { el.onclick = () => { items.splice(+el.dataset.del, 1); drawItems(); }; });
+    $('#rx-go').disabled = items.length === 0;
+  };
+  drawItems();
+  suggestBox($('#rx-med'), {
+    fetch: q => api('GET', '/api/medicines/suggest?q=' + encodeURIComponent(q)),
+    meta: '#rx-meta',
+    render: m => `${icon('pill')}<span class="t"><b>${esc(m.name)}</b> <span class="muted small">${esc(m.strength)} ${esc(m.form)}</span></span><span class="chip ${m.stocked ? 'good' : ''}">${m.stocked ? 'In pharmacy' : 'Not stocked'}</span>`,
+    onPick: m => {
+      $('#rx-med').value = '';
+      if (!m.stocked) { toast('That medicine is not stocked by the pharmacy.', true); return; }
+      items.push({medicineId: m.id, name: `${m.name} ${m.strength}`, quantity: 10, dosage: ''});
+      drawItems();
+    },
+  });
+  $('#rx-go').onclick = attempt(async () => {
+    const rx = await api('POST', '/api/prescriptions', {patientId: p.id, notes: $('#rx-notes').value,
+      items: items.map(({medicineId, quantity, dosage}) => ({medicineId, quantity, dosage}))});
+    toast(`Prescription ${rx.id} issued. It is now waiting at the pharmacy.`);
+    items = [];
+    $('#rx-notes').value = '';
+    drawItems();
+  });
+};
+
+// ---- pharmacy counter ----
+
+PAGES.dispense = async view => {
+  const list = await api('GET', '/api/prescriptions/pending');
+  view.innerHTML = `<section class="card"><div class="card-head"><h2>Waiting</h2><span class="chip warn">${list.length}</span>
+      <p>Dispensing takes every item out of stock and raises the pharmacy bill as one all-or-nothing step.</p></div>
+    <div class="list">${list.map(rx => `<div class="item" style="align-items:flex-start"><div class="body">
+      <b>${esc(rx.patientName)}</b><span class="muted small">Prescribed by ${esc(rx.doctorName)} · ${esc(fmtDateTime(rx.createdAt))}</span>
+      ${rx.items.map(i => `<div class="small">${icon('pill')} ${esc(i.name)} × ${i.quantity}${i.dosage ? ' · ' + esc(i.dosage) : ''}</div>`).join('')}</div>
+      <button class="btn small" data-disp="${esc(rx.id)}">${icon('check')}Dispense</button></div>`).join('')
+      || empty('pill', 'Nothing waiting. Prescriptions appear here when a doctor issues them.')}</div></section>`;
+  $$('[data-disp]', view).forEach(b => { b.onclick = attempt(async () => {
+    b.disabled = true;
+    try {
+      const r = await api('POST', `/api/prescriptions/${b.dataset.disp}/dispense`);
+      toast(`Dispensed. Bill ${r.bill.id} raised for ${money(r.bill.payablePaise)}.`);
+    } finally { render(); }
+  }); });
+  every(attempt(async () => { const fresh = await api('GET', '/api/prescriptions/pending'); if (fresh.length !== list.length) render(); }), 8000);
+};
+
+// ---- emergency board ----
+
+PAGES.emergencies = async view => {
+  const draw = async () => {
+    const [open, ambulances] = await Promise.all([api('GET', '/api/emergency'), api('GET', '/api/emergency/ambulances')]);
+    const free = ambulances.filter(a => a.status === 'FREE').length;
+    view.innerHTML = `<div class="grid cols-4">
+        <div class="card stat"><div class="label">${icon('siren')}Open requests</div><div class="value">${open.length}</div></div>
+        <div class="card stat"><div class="label">${icon('clock')}Waiting for an ambulance</div><div class="value">${open.filter(r => r.status === 'QUEUED').length}</div></div>
+        <div class="card stat"><div class="label">${icon('ambulance')}Ambulances free</div><div class="value">${free} <span class="muted" style="font-size:16px">of ${ambulances.length}</span></div></div>
+        <div class="card stat"><div class="label">${icon('alert')}Critical</div><div class="value">${open.filter(r => r.severity === 1).length}</div></div></div>
+      <section class="card"><div class="card-head"><h2>Open requests</h2><span class="muted small">Refreshes every 5 seconds</span></div>
+        <div class="table-wrap"><table><thead><tr><th>Severity</th><th>Status</th><th>Location</th><th>Caller</th><th>Ambulance</th><th>Raised</th><th></th></tr></thead><tbody>
+        ${open.map(r => `<tr><td>${sevChip(r.severity)}</td><td>${statusChip(r.status)}</td><td>${esc(r.zone)}</td>
+          <td><b>${esc(r.callerName)}</b><div class="muted small">${esc(r.phone)}${r.description ? ' · ' + esc(r.description) : ''}</div></td>
+          <td>${r.ambulanceCallSign ? `${esc(r.ambulanceCallSign)}<div class="muted small">ETA ${r.etaMinutes} min</div>` : '<span class="muted">waiting</span>'}</td>
+          <td class="small">${esc(fmtDateTime(r.createdAt))}</td>
+          <td class="r"><button class="btn secondary small" data-res="${esc(r.id)}">Resolve</button></td></tr>`).join('')}</tbody></table></div>
+        ${open.length ? '' : empty('check', 'No open emergencies.')}</section>
+      <section class="card"><div class="card-head"><h2>Ambulances</h2></div><div class="doc-grid" style="grid-template-columns:repeat(auto-fill,minmax(180px,1fr))">
+        ${ambulances.map(a => `<div class="row" style="border:1px solid var(--line);border-radius:10px;padding:10px">${icon('ambulance')}<div class="body" style="flex:1"><b>${esc(a.callSign)}</b><div class="muted small">${esc(a.zone)}</div></div>${statusChip(a.status)}</div>`).join('')}
+      </div></section>`;
+    $$('[data-res]', view).forEach(b => { b.onclick = attempt(async () => {
+      const r = open.find(x => x.id === b.dataset.res);
+      if (!await confirmDialog({title: 'Resolve this request?', text: `${SEVERITY[r.severity]} request from ${r.callerName} in ${r.zone}. Its ambulance becomes free and goes to the next request in the queue.`, confirm: 'Resolve'})) return;
+      await api('POST', `/api/emergency/${r.id}/resolve`);
+      toast('Resolved. The ambulance is free for the next request.');
+      draw();
+    }); });
+  };
+  await draw();
+  every(attempt(draw), 5000);
+};
+
+// ---- administrator: add doctor ----
+
+PAGES.staff = async view => {
+  const specs = await api('GET', '/api/doctors/specializations');
+  view.innerHTML = `<div class="grid split"><section class="card"><div class="card-head"><h2>New doctor</h2></div><form id="doc-form">
+      <div class="field-row"><div><label for="d-name">Name</label><input id="d-name" name="name" required maxlength="80" placeholder="Asha Rao"></div>
+        <div><label for="d-spec">Specialization</label><select id="d-spec" name="specialization">${specs.map(s => `<option>${esc(s)}</option>`).join('')}</select></div></div>
+      <div class="field-row"><div><label for="d-qual">Qualification</label><input id="d-qual" name="qualification" maxlength="60" value="MBBS, MD"></div>
+        <div><label for="d-exp">Years of experience</label><input id="d-exp" name="experienceYears" type="number" min="0" max="60" value="5" required></div></div>
+      <div class="field-row"><div><label for="d-fee">Consultation fee (₹)</label><input id="d-fee" name="fee" type="number" min="0" step="50" value="600" required></div>
+        <div><label for="d-rating">Rating</label><input id="d-rating" name="rating" type="number" min="0" max="5" step="0.1" value="4.5" required></div></div>
+      <div class="field-row"><div><label for="d-email">Login email</label><input id="d-email" name="email" type="email" required></div>
+        <div><label for="d-pass">Initial password</label><input id="d-pass" name="password" type="password" minlength="8" required autocomplete="new-password"></div></div>
+      <div class="form-actions"><button class="btn">${icon('userplus')}Add doctor</button></div></form></section>
+    <section class="card" id="doc-added"><div class="card-head"><h2>What happens</h2></div><div class="stack small">
+      <div class="row">${icon('hash')}<span>A doctor id is issued by the Snowflake ID generator.</span></div>
+      <div class="row">${icon('zap')}<span>The doctor is added to the autocomplete index at once, so patients can find them immediately.</span></div>
+      <div class="row">${icon('calendar')}<span>Working days start as Monday to Friday, 09:00 to 17:00, in 30-minute slots.</span></div></div></section></div>`;
+  $('#doc-form').onsubmit = attempt(async e => {
+    e.preventDefault();
+    const f = Object.fromEntries(new FormData(e.target));
+    const d = await api('POST', '/api/admin/doctors', {name: f.name, specialization: f.specialization, qualification: f.qualification,
+      experienceYears: +f.experienceYears, feePaise: Math.round(+f.fee * 100), rating: +f.rating, email: f.email, password: f.password});
+    toast(`${d.name} added.`);
+    e.target.reset();
+    $('#doc-added').innerHTML = `<div class="card-head"><h2>Added</h2>${chip('good', 'check', 'Searchable now')}</div>
+      <div class="doc-top"><span class="avatar">${esc(initials(d.name))}</span><div><b>${esc(d.name)}</b><div class="muted small">${esc(d.specialization)}</div><div class="mono">${esc(d.id)}</div></div></div>
+      <div class="form-actions"><a class="btn secondary" href="#/doctors">${icon('search')}Find them in search</a></div>`;
+  });
+};
+
+// ---- administrator: system dashboard ----
+
+const COMPONENTS = [
+  ['Rate limiter', 'gauge', 'Token bucket per client and request class'],
+  ['Unique ID generator', 'hash', 'Snowflake ids for every record'],
+  ['Autocomplete', 'zap', 'Trie index for doctor and medicine search'],
+  ['URL shortener', 'link', 'Short links for sharing bills'],
+  ['Web crawler', 'globe', 'Drug information and insurance plans'],
+  ['Consistent hashing', 'activity', 'Picks the cache server for each key'],
+  ['Key-value store', 'database', 'Distributed cache in front of MongoDB'],
+];
+const nodeColor = id => `var(--series-${((parseInt(String(id).replace(/\D/g, ''), 10) || 1) - 1) % 6 + 1})`;
+
+PAGES.system = async view => {
+  view.innerHTML = `<div class="grid cols-4" id="comp-tiles"></div>
+    <section class="card"><div class="card-head"><h2>Key-value cache cluster</h2>
+        <button class="btn secondary small" id="add-node">${icon('plus')}Add a server</button>
+        <p>Each server is a separate TCP server. The consistent-hash ring decides which server holds each key. Stop one to simulate a failure: its keys fall to the next server and the application keeps working from MongoDB.</p></div>
+      <div class="donut-wrap"><div id="ring"></div><div class="table-wrap" id="nodes"></div></div></section>
+    <div class="grid cols-2">
+      <section class="card"><div class="card-head"><h2>Requests per second</h2><span class="muted small">last 2 minutes · updates every 2 s</span></div><div id="ch-rps"></div></section>
+      <section class="card"><div class="card-head"><h2>Cache hit ratio</h2><span class="muted small">share of cache lookups answered from the cache</span></div><div id="ch-hit"></div></section>
+    </div>
+    <details class="tableview"><summary>Table view of the two charts</summary><div class="card" style="margin-top:8px"><div class="table-wrap" id="ch-table"></div></div></details>
+    <div class="grid split">
+      <section class="card"><div class="card-head"><h2>Requests and rate limiting</h2>${powered('Rate limiter')}</div><div class="table-wrap" id="classes"></div></section>
+      <div class="stack" style="gap:18px">
+        <section class="card"><div class="card-head"><h2>Switches</h2><p>Turn a component off to compare the system with and without it.</p></div><div id="switches"></div></section>
+        <section class="card"><div class="card-head"><h2>Rate limiter test</h2><p>Sends 30 wrong-password logins at once. Logins allow a burst of 10, then 1 per second.</p></div>
+          <button class="btn secondary" id="flood">${icon('gauge')}Send 30 rapid logins</button><div id="flood-out" style="margin-top:12px"></div></section>
+      </div></div>
+    <div class="grid split">
+      <section class="card"><div class="card-head"><h2>Web crawler</h2>${powered('Web crawler')}<button class="btn secondary small" id="crawl-go">${icon('refresh')}Run crawl now</button>
+        <p>Crawls the two simulated external sites for drug reference pages and insurance plans.</p></div><div id="crawl"></div></section>
+      <section class="card"><div class="card-head"><h2>Data and resources</h2></div><div id="resources"></div></section></div>`;
+
+  const series = [];
+  let prev = null;
+  let lastRing = '';
+  const rpsChart = lineChart($('#ch-rps'), {name: 'Requests per second', color: 'var(--chart-line)', format: (v, axis) => axis ? compact(v) : v.toFixed(1) + ' req/s'});
+  const hitChart = lineChart($('#ch-hit'), {name: 'Cache hit ratio', color: 'var(--chart-line)', yMax: 1, format: v => Math.round(v * 100) + '%'});
+
+  const refresh = async () => {
+    const [cluster, m, crawl] = await Promise.all([api('GET', '/api/admin/cluster'), api('GET', '/api/admin/metrics'), api('GET', '/api/admin/crawl')]);
+    if (parseRoute().page !== 'system') return;
+    const now = Date.now();
+    const totalReq = Object.values(m.requests).reduce((s, r) => s + r.requests, 0);
+    const totalRej = Object.values(m.requests).reduce((s, r) => s + r.rejected, 0);
+    if (prev) {
+      const dt = (now - prev.t) / 1000;
+      const lookups = (m.cache.hits - prev.hits) + (m.cache.misses - prev.misses);
+      series.push({t: now, rps: Math.max(0, (totalReq - prev.req) / dt), hit: lookups > 0 ? (m.cache.hits - prev.hits) / lookups : null});
+      while (series.length && now - series[0].t > 120000) series.shift();
+    }
+    prev = {t: now, req: totalReq, hits: m.cache.hits, misses: m.cache.misses};
+    rpsChart.update(series.map(p => ({t: p.t, v: p.rps})));
+    hitChart.update(series.map(p => ({t: p.t, v: p.hit})));
+    $('#ch-table').innerHTML = `<table><tr><th>Seconds ago</th><th class="r">Requests per second</th><th class="r">Cache hit ratio</th></tr>${series.slice(-15).reverse().map(p =>
+      `<tr><td>${Math.round((now - p.t) / 1000)}</td><td class="r num">${p.rps.toFixed(1)}</td><td class="r num">${p.hit == null ? '—' : pct(p.hit, 0)}</td></tr>`).join('')}</table>`;
+
+    const up = cluster.nodes.filter(n => n.up);
+    const last = crawl.lastRun || {};
+    const tiles = [
+      [`${compact(totalRej)}`, `rejected of ${compact(totalReq)} requests`],
+      [`${compact(m.idGenerator.generated)}`, `ids issued by worker ${m.idGenerator.workerId}`],
+      [`${compact(m.autocomplete.doctorEntries + m.autocomplete.medicineEntries)}`, `${m.autocomplete.doctorEntries} doctor and ${m.autocomplete.medicineEntries} medicine entries`],
+      [`${compact(m.shortLinks.created)}`, `links created, ${m.shortLinks.collisions} collisions`],
+      [last.pagesFetched != null ? compact(last.pagesFetched) : '—', last.pagesFetched != null ? `pages, ${last.insurancePlansStored} plans, ${Math.round(last.pagesPerSecond)} pages/s` : crawl.running ? 'crawling now…' : 'not run in this session'],
+      [`${up.length} / ${cluster.nodes.length}`, `servers on the ring, ${cluster.virtualNodes} points each`],
+      [pct(m.cache.hitRatio, 0), `hit ratio, ${cluster.replicas} copies of each key`],
+    ];
+    $('#comp-tiles').innerHTML = COMPONENTS.map(([name, ic, what], i) => `<div class="card comp"><div class="comp-head"><span class="qi">${icon(ic)}</span>${esc(name)}</div>
+      <div class="k num">${esc(tiles[i][0])}</div><div class="muted small">${esc(tiles[i][1])}</div><div class="hint" style="margin-top:0">${esc(what)}</div></div>`).join('')
+      + `<div class="card comp"><div class="comp-head"><span class="qi">${icon('database')}</span>MongoDB</div><div class="k num">${compact(m.data.patients)}</div>
+        <div class="muted small">patients, ${compact(m.data.appointments)} appointments</div><div class="hint" style="margin-top:0">System of record</div></div>`;
+
+    const ringKey = JSON.stringify(up.map(n => [n.id, n.ringShare, n.keys]));
+    if (ringKey !== lastRing) { lastRing = ringKey; donut($('#ring'), up.map(n => ({label: n.id, value: n.ringShare, color: nodeColor(n.id), detail: `${n.keys ?? 0} keys`})),
+      [String(up.length), up.length === 1 ? 'server up' : 'servers up']); }
+    $('#nodes').innerHTML = `<table><thead><tr><th>Server</th><th>Status</th><th class="r">Share of ring</th><th class="r">Keys</th><th class="r">Hits / misses</th><th class="r">Requests</th><th></th></tr></thead><tbody>
+      ${cluster.nodes.map(n => `<tr><td><span class="keydot" style="background:${n.up ? nodeColor(n.id) : 'var(--line-strong)'}"></span><b>${esc(n.id)}</b> <span class="muted small">:${n.port}</span></td>
+        <td>${n.up ? `<span class="chip good">${icon('check')}Up</span>` : `<span class="chip bad">${icon('x')}Down</span>`}</td>
+        <td class="r num">${n.up ? pct(n.ringShare) : '—'}</td><td class="r num">${n.keys ?? '—'}</td><td class="r num">${n.keys === undefined ? '—' : n.hits + ' / ' + n.misses}</td>
+        <td class="r num">${compact(n.requests)}</td>
+        <td class="r">${n.up ? `<button class="btn danger small" data-kill="${esc(n.id)}">Stop</button>` : `<button class="btn small" data-restart="${esc(n.id)}">Restart</button>`}</td></tr>`).join('')}</tbody></table>
+      <p class="hint">${plural(cluster.failovers, 'failover')} so far. A restarted server comes back empty and refills as data is read.</p>`;
+    $$('[data-kill]', view).forEach(b => { b.onclick = attempt(async () => {
+      if (!await confirmDialog({title: `Stop cache server ${b.dataset.kill}?`, text: 'This simulates a crash. Everything it held in memory is lost. Requests keep working: its keys fall to the next server on the ring and are reloaded from MongoDB.', confirm: 'Stop server', danger: true})) return;
+      await api('POST', `/api/admin/cluster/nodes/${b.dataset.kill}/kill`);
+      toast(`Server ${b.dataset.kill} stopped. Watch the hit ratio dip and recover.`);
+      refresh();
+    }); });
+    $$('[data-restart]', view).forEach(b => { b.onclick = attempt(async () => {
+      await api('POST', `/api/admin/cluster/nodes/${b.dataset.restart}/restart`);
+      toast(`Server ${b.dataset.restart} restarted. It rejoins the ring within a second.`);
+      setTimeout(refresh, 1200);
+    }); });
+
+    $('#classes').innerHTML = `<table><thead><tr><th>Class</th><th>Limit per client</th><th class="r">Requests</th><th class="r">Rejected</th><th class="r">Avg time</th><th class="r">Clients</th></tr></thead><tbody>
+      ${Object.entries(m.requests).map(([k, r]) => `<tr><td><b>${esc(k)}</b></td><td class="small">${r.ratePerSecond}/s, burst ${r.burst}</td><td class="r num">${compact(r.requests)}</td>
+        <td class="r num">${compact(r.rejected)}${r.rejected ? ` <span class="muted small">(${pct(r.rejectionRate)})</span>` : ''}</td><td class="r num">${r.avgServiceMs.toFixed(2)} ms</td><td class="r num">${r.trackedClients}</td></tr>`).join('')}</tbody></table>`;
+    $('#switches').innerHTML = [['cacheEnabled', 'Key-value cache', m.cache.enabled, 'Off: every read goes to MongoDB.'],
+      ['rateLimitEnabled', 'Rate limiter', m.rateLimiterEnabled, 'Off: no request is ever refused.']].map(([key, name, on, note]) => `<div class="switch">
+        <div><b>${name}</b><div class="hint" style="margin-top:0">${note}</div></div>
+        <button class="toggle" role="switch" aria-checked="${on}" aria-label="${name}" data-switch="${key}"></button></div>`).join('');
+    $$('[data-switch]', view).forEach(t => { t.onclick = attempt(async () => {
+      await api('POST', '/api/admin/config', {[t.dataset.switch]: t.getAttribute('aria-checked') !== 'true'});
+      refresh();
+    }); });
+    $('#crawl').innerHTML = crawl.running ? `<p>${chip('warn', 'clock', 'Crawling…')}</p>` : last.pagesFetched == null
+      ? `<p class="muted">${last.error ? 'Last crawl failed: ' + esc(last.error) : 'Not run since the application started (data from an earlier run is kept).'}</p>`
+      : `<div class="grid cols-3">${[['Pages fetched', last.pagesFetched], ['Pages per second', Math.round(last.pagesPerSecond)], ['Drugs / plans stored', `${last.drugPagesStored} / ${last.insurancePlansStored}`],
+          ['Duplicate URLs skipped', last.duplicateUrlsSkipped], ['Duplicate pages skipped', last.duplicateContentSkipped], ['Blocked by robots.txt', last.blockedByRobots]]
+          .map(([k, v]) => `<div><div class="muted small">${k}</div><div class="amount num" style="font-size:19px">${esc(v)}</div></div>`).join('')}</div>`;
+    $('#crawl-go').disabled = crawl.running;
+    const res = m.resources;
+    $('#resources').innerHTML = `<div class="grid cols-2">${[['Patients', compact(m.data.patients)], ['Doctors', compact(m.data.doctors)], ['Appointments', compact(m.data.appointments)],
+        ['Medical records', compact(m.data.records)], ['Bills', compact(m.data.bills)], ['Application heap', res.heapUsedMb.toFixed(0) + ' MB'],
+        ['Application CPU', pct(Math.max(0, res.processCpuLoad))], ['Threads', res.threads]]
+      .map(([k, v]) => `<div><div class="muted small">${k}</div><div class="amount num" style="font-size:19px">${esc(v)}</div></div>`).join('')}</div>`;
+  };
+
+  $('#add-node').onclick = attempt(async () => { await api('POST', '/api/admin/cluster/nodes'); toast('Server added to the ring. About a quarter of the keys now belong to it.'); refresh(); });
+  $('#crawl-go').onclick = attempt(async () => { await api('POST', '/api/admin/crawl', {workers: 8, perHostDelayMs: 0}); toast('Crawl started.'); refresh(); });
+  $('#flood').onclick = attempt(async () => {
+    const codes = await Promise.all(Array.from({length: 30}, () => fetch('/api/auth/login', {method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({email: 'nobody@hms.test', password: 'wrong-password'})}).then(r => r.status)));
+    const count = c => codes.filter(s => s === c).length;
+    $('#flood-out').innerHTML = `<div class="grid cols-2"><div><div class="muted small">Reached the password check (401)</div><div class="amount num">${count(401)}</div></div>
+      <div><div class="muted small">Refused by the rate limiter (429)</div><div class="amount num">${count(429)}</div></div></div>`;
     refresh();
   });
-  refresh();
-  state.timer = setInterval(refresh, 3000);
-}
+  await refresh();
+  every(attempt(refresh), 2000);
+};
 
-// ---- navigation -----------------------------------------------------------------------------
-
-const TABS = {patient: patientTab, pharmacy: pharmacyTab, emergency: emergencyTab, staff: staffTab, system: systemTab};
-
-async function show(tab) {
-  clearInterval(state.timer);
-  state.tab = TABS[tab] ? tab : 'patient';
-  renderHeader();
-  try { await TABS[state.tab](); } catch (e) { toast(e.message, true); }
-}
-
-document.querySelectorAll('#tabs button').forEach(b => { b.onclick = () => show(b.dataset.tab); });
+// ===== start ====================================================================================
 
 (async () => {
-  // A short link such as /s/Ab3xK9Qz redirects to /#/bills/<id>: open the patient portal on that bill.
-  const match = location.hash.match(/^#\/bills\/([A-Za-z0-9]+)$/);
-  if (match) state.focusBill = match[1];
-  await loadUser();
-  show(state.user && isStaff() ? 'staff' : 'patient');
+  try { const t = localStorage.getItem('hms.theme'); if (t) document.documentElement.dataset.theme = t; } catch { /* ignore */ }
+  $('#menu-btn').innerHTML = icon('menu');
+  $('#menu-btn').onclick = () => $('#app').classList.toggle('nav-open');
+  $('#scrim').onclick = () => $('#app').classList.remove('nav-open');
+  if (state.token) {
+    try { state.user = (await api('GET', '/api/me')).user; } catch { setSession(null); }
+  }
+  window.addEventListener('hashchange', render);
+  render();
 })();
 </script>
 </body>

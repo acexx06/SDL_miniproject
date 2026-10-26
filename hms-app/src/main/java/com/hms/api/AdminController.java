@@ -9,6 +9,7 @@ import com.hms.service.CrawlService;
 import com.hms.service.DoctorService;
 import com.hms.service.IdService;
 import com.hms.service.KvNodeManager;
+import com.hms.service.PharmacyService;
 import com.hms.service.ShortLinkService;
 import com.hms.sim.SyntheticData;
 import com.hms.web.ApiException;
@@ -67,11 +68,12 @@ public class AdminController {
     private final IdService ids;
     private final ShortLinkService shortLinks;
     private final DoctorService doctors;
+    private final PharmacyService pharmacy;
     private final AuthService auth;
 
     public AdminController(KvNodeManager nodes, CacheService cache, RateLimitFilter rateLimit, CrawlService crawl,
                            AdminService admin, IdService ids, ShortLinkService shortLinks, DoctorService doctors,
-                           AuthService auth) {
+                           PharmacyService pharmacy, AuthService auth) {
         this.nodes = nodes;
         this.cache = cache;
         this.rateLimit = rateLimit;
@@ -80,6 +82,7 @@ public class AdminController {
         this.ids = ids;
         this.shortLinks = shortLinks;
         this.doctors = doctors;
+        this.pharmacy = pharmacy;
         this.auth = auth;
     }
 
@@ -118,6 +121,7 @@ public class AdminController {
         result.put("cache", cache.metrics());
         result.put("idGenerator", Map.of("workerId", ids.workerId(), "generated", ids.generatedCount()));
         result.put("shortLinks", shortLinks.metrics());
+        result.put("autocomplete", Map.of("doctorEntries", doctors.indexedCount(), "medicineEntries", pharmacy.indexedCount()));
         result.put("data", admin.collectionSizes());
         result.put("resources", admin.resources());
         return result;
